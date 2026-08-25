@@ -1,5 +1,8 @@
 // DOM 렌더링 — 게임 로직을 읽기만 하고, 입력을 game 메서드 호출로 전달한다.
-import { STAGE_TARGETS, TURNS_PER_STAGE, SKILLS_BY_ID, condAllows, condLabel } from './config.js';
+import {
+  STAGE_TARGETS, TURNS_PER_STAGE, SKILLS, SKILLS_BY_ID, SKILL_DETAILS,
+  condAllows, condLabel,
+} from './config.js';
 
 export class Renderer {
   constructor(game, root) {
@@ -22,10 +25,6 @@ export class Renderer {
             <button id="btn-end" class="btn btn-blue">턴 종료</button>
           </div>
         </main>
-        <div id="log-panel" class="card">
-          <div class="log-title">로그</div>
-          <div id="log-body"></div>
-        </div>
       </div>
       <div id="maintain-screen" class="screen">
         <div id="maintain-left">
@@ -34,6 +33,7 @@ export class Renderer {
           <div id="net-area" class="card"></div>
         </div>
         <div id="maintain-right">
+          <button class="btn btn-blue btn-codex">📖 스킬 도감</button>
           <div id="inventory" class="card"></div>
           <button id="btn-next" class="btn btn-red big">다음 스테이지 ▶</button>
         </div>
@@ -45,6 +45,20 @@ export class Renderer {
           <button id="btn-restart" class="btn btn-red big">처음부터</button>
         </div>
       </div>
+      <div id="log-panel" class="card">
+        <div class="log-title">로그</div>
+        <div id="log-body"></div>
+      </div>
+      <div id="codex-overlay">
+        <div id="codex-card" class="card">
+          <div id="codex-head">
+            <span class="panel-title">스킬 도감 — 전체 ${SKILLS.length}종</span>
+            <button id="btn-codex-close" class="btn btn-red">닫기 ✕</button>
+          </div>
+          <div id="codex-body">${this._codexHTML()}</div>
+        </div>
+      </div>
+      <div id="tooltip"></div>
     `;
     this.root.querySelector('#btn-roll').addEventListener('click', () => this.game.reroll());
     this.root.querySelector('#btn-end').addEventListener('click', () => this.game.endTurn());
@@ -54,6 +68,55 @@ export class Renderer {
       const el = e.target.closest('[data-die]');
       if (el) this.game.toggleLock(Number(el.dataset.die));
     });
+
+    // 도감 열기/닫기 (열기 버튼은 재렌더 영역 안에 있으므로 위임)
+    const overlay = this.root.querySelector('#codex-overlay');
+    this.root.addEventListener('click', (e) => {
+      if (e.target.closest('.btn-codex')) overlay.classList.add('open');
+    });
+    this.root.querySelector('#btn-codex-close').addEventListener('click', () => overlay.classList.remove('open'));
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('open'); });
+
+    // 스킬 툴팁: data-tipskill="스킬id" 요소 위에 마우스를 올리면 상세 설명 표시
+    const tip = this.root.querySelector('#tooltip');
+    this.root.addEventListener('mouseover', (e) => {
+      const el = e.target.closest('[data-tipskill]');
+      if (!el) return;
+      const s = SKILLS_BY_ID[el.dataset.tipskill];
+      if (!s) return;
+      tip.innerHTML = `<b>${s.name}</b> <span class="cond">[${condLabel(s.cond)}]</span><div>${SKILL_DETAILS[s.id]}</div>`;
+      tip.classList.add('show');
+      const r = el.getBoundingClientRect();
+      const tw = tip.offsetWidth, th = tip.offsetHeight;
+      let x = r.left + r.width / 2 - tw / 2;
+      x = Math.max(8, Math.min(x, window.innerWidth - tw - 8));
+      let y = r.top - th - 10;
+      if (y < 8) y = r.bottom + 10;
+      tip.style.left = `${x}px`;
+      tip.style.top = `${y}px`;
+    });
+    this.root.addEventListener('mouseout', (e) => {
+      if (e.target.closest('[data-tipskill]')) tip.classList.remove('show');
+    });
+  }
+
+  _codexHTML() {
+    const row = (s) => `
+      <div class="codex-row">
+        <div class="codex-line">
+          <b>${s.name}</b>
+          <span class="cond">[${condLabel(s.cond)}]</span>
+          <span class="codex-effect">${s.desc}</span>
+        </div>
+        <div class="codex-detail">${SKILL_DETAILS[s.id]}</div>
+      </div>`;
+    const single = SKILLS.filter(s => !s.effect.type.startsWith('total'));
+    const total = SKILLS.filter(s => s.effect.type.startsWith('total'));
+    return `
+      <div class="codex-section">개별 스킬 — 그 면이 나온 주사위의 점수를 바꾼다 (${single.length}종)</div>
+      ${single.map(row).join('')}
+      <div class="codex-section">총점 스킬 — 개별 계산이 끝난 턴 합계에 적용된다. 주사위 번호순으로 차례로 발동하며 곱은 중첩된다 (${total.length}종)</div>
+      ${total.map(row).join('')}`;
   }
 
   render() {
@@ -62,9 +125,23 @@ export class Renderer {
     show('#stage-screen', g.phase === 'stage');
     show('#maintain-screen', g.phase === 'maintain');
     show('#end-screen', g.phase === 'gameover' || g.phase === 'victory');
-    if (g.phase === 'stage') this._renderStage();
-    if (g.phase === 'maintain') this._renderMaintain();
-    if (g.phase === 'gameover' || g.phase === 'victory') this._renderEnd();
+    // 로그 패널은 스테이지/정비 화면이 공유한다 — 현재 화면의 슬롯으로 옮겨 붙인다
+    const logPanel = this.root.querySelector('#log-panel');
+    if (g.phase === 'stage') {
+      const host = this.root.querySelector('#stage-screen');
+      if (logPanel.parentElement !== host) host.appendChild(logPanel);
+      logPanel.style.display = '';
+      this._renderStage();
+    } else if (g.phase === 'maintain') {
+      const host = this.root.querySelector('#maintain-left');
+      if (logPanel.parentElement !== host) host.appendChild(logPanel);
+      logPanel.style.display = '';
+      this._renderMaintain();
+    } else {
+      logPanel.style.display = 'none';
+      this._renderEnd();
+    }
+    if (g.phase === 'stage' || g.phase === 'maintain') this._renderLog();
   }
 
   _renderStage() {
@@ -75,13 +152,14 @@ export class Renderer {
       <div class="side-item"><span>현재 점수</span><b class="score">${g.score}</b></div>
       <div class="side-item"><span>남은 턴</span><b>${g.turnsLeft} / ${TURNS_PER_STAGE}</b></div>
       <div class="side-item"><span>굴림 기회</span><b>${g.rollsLeft}</b></div>
-      <div class="side-hint">주사위를 클릭해 잠금/해제</div>
+      <div class="side-hint">주사위 클릭: 잠금/해제<br>스킬 배지에 마우스: 상세 설명</div>
+      <button class="btn btn-blue btn-codex">📖 스킬 도감</button>
     `;
     const row = this.root.querySelector('#dice-row');
     row.innerHTML = g.dice.map((d, i) => {
       const skill = g.faceSkill(d);
       return `
-        <div class="die ${d.locked ? 'locked' : ''}" data-die="${i}">
+        <div class="die ${d.locked ? 'locked' : ''}" data-die="${i}" ${skill ? `data-tipskill="${skill.id}"` : ''}>
           <div class="die-no">주사위 ${i + 1}</div>
           <div class="die-face">${g.faceValue(d)}</div>
           <div class="die-skill">${skill ? skill.name : '&nbsp;'}</div>
@@ -89,7 +167,6 @@ export class Renderer {
         </div>`;
     }).join('');
     this.root.querySelector('#btn-roll').disabled = g.rollsLeft <= 0;
-    this._renderLog();
   }
 
   _renderLog() {
@@ -132,6 +209,7 @@ export class Renderer {
         const s = skillId ? SKILLS_BY_ID[skillId] : null;
         return `
           <button class="net-face ${g.selectedFace === f ? 'selected' : ''}" data-face="${f}"
+                  ${s ? `data-tipskill="${s.id}"` : ''}
                   style="grid-row:${r + 1};grid-column:${c + 1}">
             <div class="die-face">${die.faces[f]}</div>
             <div class="die-skill">${s ? s.name : '&nbsp;'}</div>
@@ -165,14 +243,18 @@ export class Renderer {
           const s = SKILLS_BY_ID[id];
           const ok = faceSelected && condAllows(s.cond, faceValue);
           return `
-            <button class="inv-skill" data-inv="${k}" ${ok ? '' : 'disabled'}>
+            <button class="inv-skill ${ok ? '' : 'disabled'}" data-inv="${k}" data-tipskill="${s.id}">
               <b>${s.name}</b> <span class="cond">[${condLabel(s.cond)}]</span>
               <div class="desc">${s.desc}</div>
             </button>`;
         }).join('')}
       </div>`;
+    // disabled 속성은 마우스 이벤트(툴팁)를 막으므로 클래스로 비활성 처리
     inv.querySelectorAll('[data-inv]').forEach(b =>
-      b.addEventListener('click', () => g.equipSkill(Number(b.dataset.inv), g.selectedDie, g.selectedFace)));
+      b.addEventListener('click', () => {
+        if (b.classList.contains('disabled')) return;
+        g.equipSkill(Number(b.dataset.inv), g.selectedDie, g.selectedFace);
+      }));
   }
 
   _renderEnd() {

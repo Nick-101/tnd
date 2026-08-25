@@ -4,7 +4,7 @@ import {
   Game, mulberry32, applyEffect, applyTotalEffect,
 } from '../js/game.js';
 import {
-  SKILLS, SKILLS_BY_ID, STAGE_TARGETS, TURNS_PER_STAGE, ROLLS_PER_TURN,
+  SKILLS, SKILLS_BY_ID, SKILL_DETAILS, STAGE_TARGETS, TURNS_PER_STAGE, ROLLS_PER_TURN,
   FACE_COUNT, condAllows,
 } from '../js/config.js';
 import { playBot } from './bot.mjs';
@@ -110,6 +110,8 @@ console.log('시나리오 1 — 턴/굴림/잠금/점수/클리어/보상/정비
   assert(STAGE_TARGETS.length === 8, '스테이지는 총 8개');
   assert(STAGE_TARGETS.every((t, i) => i === 0 || t > STAGE_TARGETS[i - 1]), '목표 점수는 스테이지마다 증가');
   assert(SKILLS.length >= 30, `스킬 풀 30개 이상 (현재 ${SKILLS.length}개)`);
+  assert(SKILLS.every(sk => typeof SKILL_DETAILS[sk.id] === 'string' && SKILL_DETAILS[sk.id].length >= 20),
+    '모든 스킬에 도감용 상세 설명이 있다');
 }
 
 // ---------------------------------------------------------------

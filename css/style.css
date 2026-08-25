@@ -97,12 +97,13 @@ body {
 }
 #actions { display: flex; gap: 16px; }
 
-#log-panel {
+#log-panel { display: flex; flex-direction: column; }
+#stage-screen #log-panel {
   grid-column: 3; grid-row: 2;
   align-self: end;
   width: 100%; height: 320px;
-  display: flex; flex-direction: column;
 }
+#maintain-left #log-panel { height: 240px; }
 .log-title { font-size: 15px; color: #888; margin-bottom: 6px; }
 #log-body { flex: 1; overflow-y: auto; font-size: 13px; font-weight: 400; line-height: 1.55; }
 .log-line { padding: 1px 0; }
@@ -161,7 +162,7 @@ body {
   background: #fff; border: 3px solid #e0dbd0; border-radius: 10px;
   padding: 8px 10px; cursor: pointer; font-size: 14px;
 }
-.inv-skill:disabled { opacity: 0.45; cursor: default; }
+.inv-skill.disabled { opacity: 0.45; cursor: default; }
 .inv-skill .cond { color: var(--blue); font-size: 12px; }
 .inv-skill .desc { font-weight: 400; font-size: 12px; color: #666; }
 #btn-next { align-self: stretch; }
@@ -171,3 +172,56 @@ body {
 .end-card { text-align: center; padding: 40px 60px; }
 #end-title { font-size: 48px; color: var(--red); margin-bottom: 10px; }
 #end-desc { font-size: 18px; font-weight: 400; color: #666; margin-bottom: 24px; }
+
+/* ---------- 스킬 툴팁 ---------- */
+#tooltip {
+  position: fixed;
+  z-index: 60;
+  display: none;
+  max-width: 280px;
+  background: #fffdf6;
+  border: 3px solid var(--gold);
+  border-radius: 10px;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.35);
+  padding: 10px 12px;
+  font-size: 13px;
+  pointer-events: none;
+}
+#tooltip.show { display: block; }
+#tooltip b { color: var(--red); font-size: 14px; }
+#tooltip .cond { color: var(--blue); font-size: 12px; margin-left: 4px; }
+#tooltip div { font-weight: 400; color: #555; margin-top: 4px; line-height: 1.5; }
+
+/* ---------- 스킬 도감 ---------- */
+.btn-codex { font-size: 14px; padding: 8px 14px; margin-top: 12px; width: 100%; }
+#maintain-right .btn-codex { margin-top: 0; }
+#codex-overlay {
+  position: fixed; inset: 0;
+  z-index: 50;
+  display: none;
+  align-items: center; justify-content: center;
+  background: rgba(10, 30, 18, 0.65);
+}
+#codex-overlay.open { display: flex; }
+#codex-card {
+  width: min(760px, 92vw);
+  max-height: 84vh;
+  display: flex; flex-direction: column;
+}
+#codex-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+#codex-head .btn { font-size: 14px; padding: 8px 16px; }
+#codex-body { overflow-y: auto; padding-right: 6px; }
+.codex-section {
+  font-size: 13px; color: #fff;
+  background: var(--blue);
+  border-radius: 8px;
+  padding: 6px 12px;
+  margin: 12px 0 8px;
+}
+.codex-row { border-bottom: 2px dashed #e2ddd2; padding: 8px 4px; }
+.codex-row:last-child { border-bottom: none; }
+.codex-line { display: flex; align-items: baseline; gap: 8px; font-size: 15px; }
+.codex-line b { color: var(--red); }
+.codex-line .cond { color: var(--blue); font-size: 12px; }
+.codex-effect { color: #333; font-size: 13px; font-weight: 700; margin-left: auto; text-align: right; }
+.codex-detail { font-weight: 400; font-size: 13px; color: #666; line-height: 1.55; margin-top: 3px; }
