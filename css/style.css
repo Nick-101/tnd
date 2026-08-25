@@ -108,11 +108,14 @@ body {
 #log-body { flex: 1; overflow-y: auto; font-size: 13px; font-weight: 400; line-height: 1.55; }
 .log-line { padding: 1px 0; }
 .log-stage { color: var(--red); font-weight: 700; }
-.log-turn { color: var(--blue); font-weight: 700; }
-.log-skill { color: #8a5ac2; }
+.log-turn { color: #555; font-weight: 700; }
+.log-add { color: var(--blue); }
+.log-mul { color: var(--red); font-weight: 700; }
+.log-gold { color: #b8860b; font-weight: 700; }
+.log-score { color: #2b2b2b; font-weight: 700; }
 .log-reward { color: #b8860b; font-weight: 700; }
 .log-warn { color: #c0392b; }
-.log-roll, .log-info { color: #555; }
+.log-roll, .log-info, .log-calc, .log-lock { color: #555; }
 
 /* ---------- 정비 화면 ---------- */
 #maintain-screen {
@@ -225,3 +228,89 @@ body {
 .codex-line .cond { color: var(--blue); font-size: 12px; }
 .codex-effect { color: #333; font-size: 13px; font-weight: 700; margin-left: auto; text-align: right; }
 .codex-detail { font-weight: 400; font-size: 13px; color: #666; line-height: 1.55; margin-top: 3px; }
+
+/* ---------- v2: 진행률 바 / 예상 점수 / 순번 ---------- */
+.progress {
+  position: relative; height: 20px; margin: 8px 0;
+  background: #e5dfd2; border-radius: 10px; overflow: hidden;
+}
+.progress-fill { height: 100%; background: var(--gold); }
+.progress-text {
+  position: absolute; inset: 0; text-align: center;
+  font-size: 12px; line-height: 20px; color: #5c4300;
+}
+#preview-panel { font-size: 18px; padding: 12px 32px; color: #666; }
+#preview-panel b { font-size: 34px; color: var(--blue); margin-left: 10px; }
+.die-order {
+  position: absolute; top: -12px; left: -8px;
+  background: var(--ink); color: #fff; font-size: 15px;
+  width: 26px; height: 26px; line-height: 26px; border-radius: 50%;
+  box-shadow: 0 2px 0 rgba(0,0,0,0.3);
+}
+
+/* 계층/등급 칩, 연산 색 (덧셈=청 / 곱셈=적) */
+.chip { font-size: 11px; padding: 1px 6px; border-radius: 6px; color: #fff; margin-right: 2px; }
+.chip-active { background: var(--red); }
+.chip-opposite { background: #8a5ac2; }
+.chip-side { background: #2e9db0; }
+.chip-latent { background: #3f9a52; }
+.chip-common { background: #9a938a; }
+.chip-advanced { background: var(--blue); }
+.chip-rare { background: var(--gold); color: #5c4300; }
+.lay-active { color: var(--red); }
+.lay-opposite { color: #8a5ac2; }
+.lay-side { color: #2e9db0; }
+.lay-latent { color: #3f9a52; }
+.op-add { color: var(--blue); }
+.op-mul { color: var(--red); }
+
+/* ---------- 드래프트 화면 ---------- */
+#draft-screen {
+  display: flex; flex-direction: column; gap: 18px;
+  align-items: center; justify-content: center; padding: 24px;
+}
+#draft-card { width: min(880px, 94vw); text-align: center; }
+#draft-cards { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin: 18px 0; }
+.draft-card {
+  font: inherit; width: 150px; text-align: center; cursor: pointer;
+  background: #fff; border: 4px solid #e0dbd0; border-radius: 14px;
+  padding: 12px 8px; box-shadow: 0 4px 0 rgba(0,0,0,0.25);
+}
+.draft-card.grade-advanced { border-color: #bcd4ea; }
+.draft-card.grade-rare { border-color: #f0d089; }
+.draft-card.picked { border-color: var(--red); background: #fff2f0; }
+.draft-name { font-size: 18px; margin-bottom: 6px; }
+.draft-effect { font-size: 15px; margin: 8px 0 4px; font-weight: 700; }
+.draft-rate { font-size: 11px; color: #999; font-weight: 400; }
+#draft-screen #log-panel { width: min(880px, 94vw); height: 200px; }
+
+/* ---------- 정비: 순서 변경 / 뱃지 / 전개도 슬롯 ---------- */
+.die-card-wrap { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.order-ctl { display: flex; align-items: center; gap: 8px; }
+.order-ctl .die-order { position: static; }
+.order-btn {
+  font: inherit; font-size: 14px; cursor: pointer;
+  background: var(--blue); color: #fff; border: none; border-radius: 6px;
+  padding: 3px 9px; box-shadow: 0 2px 0 var(--blue-dark);
+}
+.order-btn:disabled { opacity: 0.35; cursor: default; }
+.die.mini { width: 170px; }
+.die-badge { font-size: 11px; color: #666; font-weight: 700; }
+.net-slot { font-size: 10px; color: #999; }
+.net-face { position: relative; }
+.net-face .die-skill { font-size: 9px; }
+.net-face.opp-mark { border-style: dashed; border-color: var(--gold); }
+.opp-label {
+  position: absolute; top: -10px; right: -6px;
+  background: var(--gold); color: #5c4300; font-size: 10px;
+  padding: 1px 6px; border-radius: 6px;
+}
+.panel-sub { font-size: 12px; color: #999; font-weight: 400; margin-left: 8px; }
+
+/* 주사위 6면 구성 툴팁 테이블 */
+#tooltip { max-width: 340px; }
+.dietip { border-collapse: collapse; margin-top: 6px; width: 100%; font-weight: 400; }
+.dietip th, .dietip td { border-bottom: 1px dashed #ddd; padding: 2px 6px; font-size: 12px; text-align: left; }
+.dietip th { color: #999; font-size: 11px; }
+.tiprow-active { background: #fff2d9; font-weight: 700; }
+.tiprow-opposite { background: #f3ecfa; }
