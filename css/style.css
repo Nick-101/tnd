@@ -314,3 +314,111 @@ body {
 .dietip th { color: #999; font-size: 11px; }
 .tiprow-active { background: #fff2d9; font-weight: 700; }
 .tiprow-opposite { background: #f3ecfa; }
+
+/* ======================= TnD 결합 데모 ======================= */
+/* 타이틀 */
+#title-screen { display: flex; align-items: center; justify-content: center; }
+.title-card { text-align: center; padding: 48px 64px; }
+.title-logo { font-size: 72px; color: var(--red); letter-spacing: 4px; line-height: 1; }
+.title-sub { font-size: 16px; color: #666; font-weight: 400; margin: 10px 0 28px; }
+.title-buttons { display: flex; flex-direction: column; gap: 14px; }
+.title-hint { margin-top: 20px; font-size: 12px; color: #999; font-weight: 400; }
+
+/* 정비 */
+#prep-screen { display: grid; grid-template-columns: 1fr 400px; gap: 18px; padding: 18px; min-height: 100vh; align-items: start; }
+#prep-left, #prep-right { display: flex; flex-direction: column; gap: 14px; }
+#layer-filter { display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 0; }
+.chip-btn { font: inherit; font-size: 12px; padding: 4px 10px; border-radius: 8px; border: 2px solid #ddd; background: #fff; cursor: pointer; }
+.chip-btn.on { background: var(--blue); color: #fff; border-color: var(--blue); }
+#skill-items { display: flex; flex-direction: column; gap: 6px; max-height: 46vh; overflow-y: auto; }
+.inv-skill.equipped { opacity: 0.45; cursor: default; }
+.inv-skill.picked { border-color: var(--red); background: #fff2f0; }
+.eq-mark { font-size: 11px; color: #999; margin-left: 4px; }
+.net-face.equippable { border-color: var(--blue); background: #eef5fc; }
+.net-face.dim { opacity: 0.4; }
+.panel-title.small { font-size: 15px; margin-top: 10px; }
+#deck-slots { display: flex; gap: 6px; margin: 8px 0; }
+.deck-slot { flex: 1; height: 54px; border: 3px dashed #d8d2c4; border-radius: 10px; font: inherit; font-size: 14px; background: transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.deck-slot.filled { border-style: solid; border-color: #2e9db0; background: #e9f6f8; color: #1d6b78; cursor: pointer; }
+.deck-slot small { font-size: 11px; color: #777; font-weight: 400; }
+#piece-items { display: flex; flex-wrap: wrap; gap: 6px; }
+.piece-item { font: inherit; font-size: 13px; background: #fff; border: 2px solid #e0dbd0; border-radius: 8px; padding: 6px 8px; cursor: pointer; }
+.piece-item.disabled { opacity: 0.45; cursor: default; }
+.piece-item .role { font-size: 10px; color: #999; font-weight: 400; }
+.op-move { color: #b8860b; }
+.chip-move { background: #b8860b; }
+.lay-move { color: #b8860b; }
+
+/* 고행 */
+#trial-screen { display: flex; flex-direction: column; gap: 12px; padding: 12px 18px; min-height: 100vh; }
+#topbar { display: flex; gap: 24px; align-items: center; font-size: 16px; padding: 10px 18px; }
+#topbar b { font-size: 20px; }
+#topbar .gauge { margin-left: auto; display: flex; align-items: center; gap: 3px; }
+.gcell { width: 16px; height: 18px; border-radius: 3px; background: #e5dfd2; display: inline-block; }
+.gcell.on { background: var(--gold); }
+#topbar .gauge small { margin-left: 6px; color: #888; }
+#trial-main { display: grid; grid-template-columns: 700px 1fr; gap: 18px; }
+#board-wrap { position: relative; width: 700px; height: 700px; }
+#board { position: absolute; inset: 0; }
+/* 보드: 채도 낮춘 모노폴리 톤 */
+.cell {
+  position: absolute; width: 56px; height: 46px; margin-left: -28px; margin-top: -23px;
+  background: #ece7dc; border: 2px solid #c9c1b0; border-radius: 6px;
+  font-size: 10px; color: #6b6558; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  box-sizing: border-box; line-height: 1.15; cursor: default;
+}
+.cell .cid { position: absolute; top: 1px; left: 3px; font-size: 9px; color: #a09a8c; font-weight: 400; }
+.cell .clabel { font-size: 10px; text-align: center; }
+.cell .clabel b { display: block; font-size: 11px; }
+.cell.start { background: #dcd4c0; border-color: #a89f88; }
+.cell.owner-P { background: #cfeef2; border-color: #2e9db0; color: #14606c; }
+.cell.owner-E { background: #e6d6ee; border-color: #8a4fb0; color: #4f2670; }
+.cell.corrupt { box-shadow: inset 0 0 0 40px rgba(120, 60, 170, 0.35); border-color: #7a3aa8; }
+.cell .ccount { position: absolute; bottom: -9px; background: #7a3aa8; color: #fff; font-size: 9px; padding: 0 5px; border-radius: 6px; }
+.cell.reach { border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold); background: #fff3cc; color: #5c4300; }
+.cell .reach-mark { position: absolute; top: -12px; right: -6px; background: var(--ink); color: #fff; font-size: 11px; padding: 0 4px; border-radius: 8px; }
+.pawn { position: absolute; font-size: 14px; line-height: 1; }
+.pawn.p { color: #d99a10; left: 2px; bottom: 1px; text-shadow: 0 0 2px #fff; }
+.pawn.e { color: #7a2f9e; right: 2px; bottom: 1px; }
+#dice-panel { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 430px; text-align: center; padding: 14px; }
+#trial-dice { display: flex; gap: 10px; justify-content: center; margin-bottom: 8px; }
+.die.small { width: 72px; padding: 8px 4px 8px; }
+.die.small .die-face { font-size: 34px; }
+.die.small .die-skill { font-size: 10px; }
+.die.small .die-order { width: 20px; height: 20px; line-height: 20px; font-size: 12px; top: -9px; left: -6px; }
+.die.moveable { border-color: var(--gold); cursor: pointer; }
+.die.used { opacity: 0.5; }
+.preview { font-size: 14px; color: #666; margin: 6px 0 10px; }
+.preview b { font-size: 22px; }
+#dice-panel #actions { justify-content: center; }
+#dice-panel .btn { font-size: 15px; padding: 9px 20px; }
+#trial-right { display: flex; flex-direction: column; gap: 12px; }
+#trial-right #log-panel { height: 640px; }
+#log-panel.dark { background: #16321f; color: #e8e2d4; }
+#log-panel.dark .log-title { color: #9fb8a6; }
+.dark .log-action { color: #f2ede2; }
+.dark .log-calc { color: #a3ad9d; }
+.dark .log-add { color: #7fb8f0; }
+.dark .log-mul { color: #ff8c7a; font-weight: 700; }
+.dark .log-event { color: #f2a44b; font-weight: 700; }
+.dark .log-decision { color: var(--gold); font-weight: 900; font-size: 14px; }
+/* 대화창 / 종료 / 덱 정보 */
+#dialog-overlay, #end-overlay, #deckinfo-overlay { position: fixed; inset: 0; z-index: 50; display: none; align-items: center; justify-content: center; background: rgba(10, 30, 18, 0.55); }
+#dialog-overlay.open, #end-overlay.open, #deckinfo-overlay.open { display: flex; }
+#dialog-card { width: min(520px, 92vw); }
+#deckinfo-card { width: min(900px, 94vw); max-height: 84vh; overflow-y: auto; }
+.dlg-line { margin: 10px 0; font-size: 15px; }
+.dlg-sub { font-size: 12px; color: #888; margin-top: 12px; }
+.dlg-actions { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+.dlg-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.dlg-item { font: inherit; font-size: 13px; background: #fff; border: 2px solid #e0dbd0; border-radius: 8px; padding: 6px 10px; cursor: pointer; }
+.dlg-item.disabled { opacity: 0.45; cursor: default; }
+.dlg-item.static { cursor: default; }
+.dlg-grades { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+.grade-btn { font: inherit; font-size: 13px; padding: 6px 12px; border-radius: 8px; border: 2px solid #ddd; background: #fff; cursor: pointer; }
+.grade-btn.on { background: var(--red); border-color: var(--red); color: #fff; }
+.deckinfo-dice { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.mini-net { padding: 8px; font-size: 11px; font-weight: 400; }
+.mini-net b { display: block; margin-bottom: 4px; font-weight: 700; }
+.mini-face { padding: 1px 0; border-bottom: 1px dashed #e5dfd2; }
+.mini-face.act { background: #fff2d9; font-weight: 700; }
