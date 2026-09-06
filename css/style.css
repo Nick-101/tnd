@@ -422,3 +422,48 @@ body {
 .mini-net b { display: block; margin-bottom: 4px; font-weight: 700; }
 .mini-face { padding: 1px 0; border-bottom: 1px dashed #e5dfd2; }
 .mini-face.act { background: #fff2d9; font-weight: 700; }
+
+/* ======================= TnD v2.1: 각인 · 의도 · 구간 이동 ======================= */
+.engr-slot { font: inherit; font-size: 13px; width: 170px; padding: 6px 8px; border-radius: 10px; border: 3px dashed #cdbd8a; background: #fbf6e6; color: #8a6d1d; cursor: pointer; }
+.engr-slot.filled { border-style: solid; border-color: var(--gold); background: #fff3cc; color: #5c4300; box-shadow: 0 3px 0 rgba(0,0,0,0.2); }
+.engr-slot.droppable { border-color: var(--blue); background: #eef5fc; color: #22619c; }
+.engr-slot small { display: block; font-size: 10px; font-weight: 400; color: #9a8a5a; }
+.chip-k-move { background: #b8860b; } .chip-k-roll { background: #2e9db0; } .chip-k-settle { background: var(--red); } .chip-k-board { background: #3f9a52; }
+.filter-row { display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 0; }
+.list-items { display: flex; flex-direction: column; gap: 6px; max-height: 34vh; overflow-y: auto; }
+.list-items.short { max-height: 22vh; }
+.net-title { font-size: 13px; color: #666; font-weight: 400; padding: 4px 10px 0; }
+.net-title b { color: #8a6d1d; }
+.tier { font-size: 10px; padding: 0 5px; border-radius: 4px; color: #fff; background: #9a938a; font-style: normal; }
+.tier.t2 { background: #2e9db0; } .tier.t3 { background: var(--blue); } .tier.t4 { background: #8a5ac2; } .tier.t5 { background: var(--gold); color: #5c4300; }
+/* 고행 상단 · 의도 */
+#topbar .hp { display: flex; align-items: center; gap: 6px; }
+.hpbar { display: inline-block; width: 120px; height: 12px; background: #e5dfd2; border-radius: 6px; overflow: hidden; }
+.hpbar span { display: block; height: 100%; background: var(--red); }
+#intent-panel { font-size: 14px; }
+.intent-main { font-size: 18px; margin: 6px 0; cursor: help; }
+.intent-sub { font-size: 12px; color: #666; font-weight: 400; margin-top: 2px; }
+#trial-right #log-panel { height: 480px; }
+#trial-btns { display: flex; gap: 8px; }
+#trial-btns .btn { flex: 1; font-size: 15px; padding: 10px 12px; }
+#btn-plan.on { background: var(--gold); color: #5c4300; box-shadow: 0 4px 0 #b8860b; }
+/* 보드: 안전지대 · 의도 · 프리뷰 · 계획 */
+.cell.safe { background: #e3e9dc; border-color: #b9c4ad; }
+.cell.safe.owner-P { background: #cfeef2; }
+.cell.intent-path { box-shadow: 0 0 0 3px #d98c8c; }
+.cell.intent-stop { border-color: var(--red); }
+.cell .star { position: absolute; top: -12px; left: -6px; color: var(--red); font-size: 16px; text-shadow: 0 0 2px #fff; }
+.cell.prev-pass { box-shadow: 0 0 0 3px #f5d58a; background: #fff7df; }
+.cell.prev-stop { box-shadow: 0 0 0 4px var(--gold); background: #ffe9a8; color: #5c4300; }
+.cell.prev-through { box-shadow: 0 0 0 2px #cfd8cc; }
+.cell.plan .plan-dot { position: absolute; bottom: -8px; right: 2px; color: var(--gold); font-size: 18px; line-height: 1; text-shadow: 0 0 2px #333; }
+.cell.upgradable { cursor: pointer; box-shadow: 0 0 0 2px #2e9db0; }
+.cell.big { width: 66px; height: 54px; margin-left: -33px; margin-top: -27px; font-size: 11px; }
+.cell .clabel i { font-size: 9px; color: #888; font-style: normal; }
+.cell.owner-P.t4 { border-width: 3px; border-color: #8a5ac2; } .cell.owner-P.t5 { border-width: 3px; border-color: var(--gold); }
+/* 주사위 판 */
+.die.small { width: 96px; }
+.die-engr { font-size: 11px; color: #8a6d1d; min-height: 14px; }
+.die-engr small { font-weight: 400; color: #999; }
+.die.small .die-face small { font-size: 12px; color: #2e9db0; }
+.half-badge { font-size: 11px; background: var(--gold); color: #5c4300; padding: 1px 6px; border-radius: 6px; margin-left: 6px; }
