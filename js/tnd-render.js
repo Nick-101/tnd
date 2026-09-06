@@ -2,7 +2,7 @@
 import { OPPOSITE, GRADE_LABEL, condLabel } from './config.js';
 import { faceState } from './game.js';
 import {
-  TND, actionLabel, ENGRAVINGS, ENGRAVINGS_BY_ID, ENGRAVING_KIND_LABEL, ENGRAVING_DETAILS, MOVE_MODE_LABEL,
+  TND, CORRUPT_TYPES, ENGRAVINGS, ENGRAVINGS_BY_ID, ENGRAVING_KIND_LABEL, ENGRAVING_DETAILS, MOVE_MODE_LABEL,
   TND_SKILLS, TND_SKILLS_BY_ID, TND_SKILL_DETAILS, TND_LAYER_LABEL, PIECES, PIECES_BY_ID, TIER_LABEL, sellPrice,
 } from './tnd-config.js';
 
@@ -18,6 +18,8 @@ const chips = s => `<span class="chip chip-${s.layer}">${TND_LAYER_LABEL[s.layer
 const echip = e => `<span class="chip chip-k-${e.kind}">${ENGRAVING_KIND_LABEL[e.kind]}</span>${e.moveMode ? `<span class="cond">${MOVE_MODE_LABEL[e.moveMode]}</span>` : ''}`;
 const opClass = s => s.op === 'mul' ? 'op-mul' : 'op-add';
 const pieceLabel = p => `<span class="tier t${p.tier}">${TIER_LABEL[p.tier]}</span> ${p.name}`;
+const STATE_LABEL = { active: '활성', opposite: '맞은편', side: '측면' };
+const fmtEff = (op, n) => `${op === 'add' ? '+' : '×'}${Number.isInteger(n) ? n : Math.round(n * 1000) / 1000}`;
 
 export class TndRenderer {
   constructor(game, root) {
@@ -80,7 +82,7 @@ export class TndRenderer {
       const el = e.target.closest('[data-tipskill],[data-tipengr],[data-tippiece],[data-tipcell],[data-die],[data-intent]');
       if (!el) return;
       if (el.dataset.die !== undefined && this.game.sub === 'act') this._hoverPreview(Number(el.dataset.die));
-      if (el.dataset.intent !== undefined) this._highlightIntent(true);
+      if (el.dataset.intent !== undefined) this._highlightIntent(true, Number(el.dataset.intent));
       let html = null;
       if (el.dataset.tipskill) { const s = TND_SKILLS_BY_ID[el.dataset.tipskill]; html = `<b>${s.name}</b> ${chips(s)}<div>${TND_SKILL_DETAILS[s.id]}</div>`; }
       else if (el.dataset.tipengr) { const en = ENGRAVINGS_BY_ID[el.dataset.tipengr]; html = `<b>${en.name}</b> ${echip(en)}<div>${ENGRAVING_DETAILS[en.id]}</div>`; }
@@ -97,16 +99,17 @@ export class TndRenderer {
       if (!el) return;
       tip.classList.remove('show');
       if (el.dataset.die !== undefined) this._clearPreview();
-      if (el.dataset.intent !== undefined) this._highlightIntent(false);
+      if (el.dataset.intent !== undefined) this._highlightIntent(false, Number(el.dataset.intent));
     });
   }
   _cellTip(id) {
     const g = this.game; const c = g.board[id];
-    let s = `<b>칸 ${id}${id === 0 ? ' (시작칸)' : c.safe ? ' (안전지대)' : ' (방어선)'}</b><div>`;
+    let s = `<b>칸 ${id}${id === 0 ? ' (시작칸)' : ''}</b><div>`;
     if (c.piece) s += c.piece.owner === 'P' ? `내 기물 ${PIECES_BY_ID[c.piece.defId].name} G${c.piece.grade}${g.effGrade(c) !== c.piece.grade ? ` (유효 G${g.effGrade(c)})` : ''} — ${PIECES_BY_ID[c.piece.defId].desc}<br>` : `사악한 기물 G${c.piece.grade} · 강제지불 ${g.finalEnemyCost(c)}<br>`;
-    if (c.corrupt) s += `타락 · 카운터 ${c.corrupt.counter}<br>`;
+    if (c.corrupt) { const T = CORRUPT_TYPES[c.corrupt.type] || CORRUPT_TYPES.erode; s += `타락 · ${T.name} · 카운터 ${c.corrupt.counter} — ${T.desc}<br>`; }
     if (!c.piece && !c.corrupt) s += '빈 칸<br>';
-    if (g.player.pos === id) s += '● 내 말 · '; if (g.monster.pos === id) s += `■ ${g.monsterDef.name}`;
+    if (g.player.pos === id) s += '● 내 말 · ';
+    for (const m of g.monsters) if (m.pos === id) s += `${m.def.icon} ${m.def.name} ${m.faith}/${m.def.faith} · `;
     return s + '</div>';
   }
   _hoverPreview(i) {
@@ -114,9 +117,10 @@ export class TndRenderer {
     for (const p of pv.path) { const el = this.root.querySelector(`[data-tipcell="${p.cell}"]`); if (!el) continue; if (p.stop) el.classList.add('prev-stop'); else if (p.pass) el.classList.add('prev-pass'); else el.classList.add('prev-through'); }
   }
   _clearPreview() { this.root.querySelectorAll('.prev-stop,.prev-pass,.prev-through').forEach(el => el.classList.remove('prev-stop', 'prev-pass', 'prev-through')); }
-  _highlightIntent(on) {
-    const it = this.game.intent(); if (!it) return;
+  _highlightIntent(on, uid) { // 의도 행 호버: 그 몬스터의 경로만 보드에 표시
+    const it = this.game.intentOf(uid); if (!it) return;
     for (const p of it.path) { const el = this.root.querySelector(`[data-tipcell="${p.cell}"]`); if (el) el.classList.toggle('intent-path', on); }
+    const pawn = this.root.querySelector(`[data-tipcell="${it.to}"]`); if (pawn) pawn.classList.toggle('intent-focus', on);
   }
 
   render() {
@@ -212,66 +216,80 @@ export class TndRenderer {
 
   // ───────── 고행 ─────────
   _renderTrial() {
-    const g = this.game; const m = g.monster;
+    const g = this.game;
     const gauge = Array.from({ length: TND.GAUGE }, (_, i) => `<span class="gcell ${i < g.player.gauge ? 'on' : ''}"></span>`).join('');
-    const hp = Math.max(0, Math.round(m.faith / g.monsterDef.faith * 100));
+    const nw = g.nextWave(); const canEarly = g.canEarlyCall();
     this.root.querySelector('#topbar').innerHTML = `
       <span>턴 <b>${g.turn}</b></span><span>신앙 <b class="op-add">${g.player.faith}</b></span>
-      <span class="hp">적 ${g.monsterDef.name} <b class="op-mul">${Math.max(0, m.faith)}</b>/${g.monsterDef.faith}<span class="hpbar"><span style="width:${hp}%"></span></span></span>
-      <span>바퀴 ${m.laps} · 다음 강습 <b class="op-mul">${g.nextAssaultCost()}</b></span>
+      <span>웨이브 <b>${g.waveIndex}</b>/${g.waveCount()} · 몬스터 <b class="op-mul">${g.monsters.length}</b>마리</span>
+      <span class="wave-next">${nw ? `다음 웨이브 <b>${nw.turn}</b>턴 (${nw.monsters.map(id => g.monsterDefs[id].name).join('+')})` : '마지막 웨이브'}
+        ${nw ? `<button id="btn-early" class="btn btn-red small ${canEarly ? '' : 'disabled'}" ${canEarly ? '' : 'disabled'} title="보드에 몬스터가 없을 때만">조기 소환</button>` : ''}</span>
       <span>기물 ${g.myPieceCount()} · 적 기물 ${g.enemyPieceCount()} · 타락 ${g.corruptCount()}</span>
       <span class="gauge">${gauge} <small>${g.player.gauge}/${TND.GAUGE}</small></span>`;
+    this.root.querySelector('#btn-early')?.addEventListener('click', () => g.earlyCall());
     this._renderIntent(); this._renderBoard(); this._renderDicePanel(); this._renderDialog();
     this.root.querySelector('#btn-plan').classList.toggle('on', this.planOn);
     const end = this.root.querySelector('#end-overlay'); end.classList.toggle('open', g.phase === 'end');
-    if (g.phase === 'end') { this.root.querySelector('#end-title').textContent = g.result === 'victory' ? '승리!' : '패배'; this.root.querySelector('#end-desc').textContent = g.result === 'victory' ? `턴 ${g.turn} · ${g.monsterDef.name}의 신앙이 바닥났습니다.` : `턴 ${g.turn} · 지불 불가.`; }
+    if (g.phase === 'end') { this.root.querySelector('#end-title').textContent = g.result === 'victory' ? '승리!' : '패배'; this.root.querySelector('#end-desc').textContent = g.result === 'victory' ? `턴 ${g.turn} · 마지막 웨이브까지 ${g.kills}마리 처치.` : `턴 ${g.turn} · 강제지불 불가. (처치 ${g.kills}마리)`; }
   }
   _renderIntent() {
-    const g = this.game; const it = g.intent(); const P = g.monsterDef.pattern;
+    const g = this.game; const it = g.intent();
     const panel = this.root.querySelector('#intent-panel');
     if (!it) { panel.innerHTML = ''; return; }
-    const pathCells = it.path.filter(p => !p.assault).map(p => p.cell);
-    const range = pathCells.length > 1 ? `${pathCells[0]}~${pathCells[pathCells.length - 1]}` : pathCells.join('');
-    panel.innerHTML = `<div class="panel-title">적 의도 <span class="panel-sub">호버: 경로 표시</span></div>
-      <div class="intent-main" data-intent="1">▶ ${actionLabel(it.action)}${it.skipping ? ' <small class="op-mul">(성문으로 건너뜀 후)</small>' : ''}
-        ${it.action.t === 'move' ? `<div class="intent-sub">경유 ${range}${it.path.some(p => p.assault) ? ' · <span class="op-mul">시작칸 통과 → 강습 ' + g.nextAssaultCost() + ' · 도약</span>' : ''}</div><div class="intent-sub">도착 <b class="op-mul">${it.to} ★</b></div>` : ''}
-      </div>
-      <div class="intent-sub">다음: ${actionLabel(it.after)}</div>
-      <div class="intent-sub">패턴 ${'①②③④⑤⑥'[it.step] || it.step + 1}/${P.length} · ${P.map(a => actionLabel(a)).join(' → ')}</div>`;
+    const rows = it.map(m => {
+      const cells = m.path.filter(p => p.pass || p.stop).map(p => p.cell);
+      const range = cells.length > 1 ? `${cells[0]}~${cells[cells.length - 1]}` : cells.join('');
+      const hp = Math.max(0, Math.round(m.faith / m.maxFaith * 100));
+      return `<div class="intent-row" data-intent="${m.uid}">
+        <div class="intent-main"><span class="mon-icon">${m.icon}</span>${m.name} <b class="op-mul">${Math.max(0, m.faith)}</b><small>/${m.maxFaith}</small><span class="hpbar"><span style="width:${hp}%"></span></span>
+          <span class="intent-move">${m.skipping ? '<span class="op-mul">이동 취소 (성문)</span>' : `▶${m.n}<small>${MOVE_MODE_LABEL[m.moveMode]}</small> → <b class="op-mul">★${m.to}</b>`}</span></div>
+        <div class="intent-sub">완주까지 <b>${m.cellsToLap}</b>칸 · ${m.leakText}${m.laps > 0 ? ' · <span class="op-mul">이번 이동에 완주</span>' : ''}${cells.length ? ` · 경유 ${range}` : ''} · 패턴 ${m.pattern.map((n, k) => k === m.step ? `<b>${n}</b>` : n).join('·')}</div></div>`;
+    }).join('');
+    panel.innerHTML = `<div class="panel-title">의도 (${it.length}마리) <span class="panel-sub">행 호버: 그 몬스터의 경로 표시</span></div>${rows || '<div class="intent-sub">보드에 몬스터가 없습니다. 조기 소환으로 다음 웨이브를 부를 수 있습니다.</div>'}`;
   }
   _renderBoard() {
-    const g = this.game; const it = g.intent();
+    const g = this.game; const it = g.intent() || [];
     const plan = new Set(this.planOn && g.sub === 'act' ? g.routePlan() : []);
+    const stars = new Map(); for (const m of it) stars.set(m.to, (stars.get(m.to) || 0) + 1);
     this.root.querySelector('#board').innerHTML = g.board.map(c => {
       const [x, y] = cellXY(c.id);
       const def = c.piece?.owner === 'P' ? PIECES_BY_ID[c.piece.defId] : null;
-      const cls = ['cell', c.safe ? 'safe' : '', c.piece ? `owner-${c.piece.owner}` : '', c.corrupt ? 'corrupt' : '', c.id === 0 ? 'start' : '',
-        it?.to === c.id ? 'intent-stop' : '', plan.has(c.id) ? 'plan' : '', def && def.tier >= 4 ? `big t${def.tier}` : '',
+      const here = g.monsters.filter(m => m.pos === c.id);
+      const cls = ['cell', c.piece ? `owner-${c.piece.owner}` : '', c.corrupt ? 'corrupt' : '', c.id === 0 ? 'start' : '',
+        stars.has(c.id) ? 'intent-stop' : '', plan.has(c.id) ? 'plan' : '', plan.has(c.id) && stars.has(c.id) ? 'plan-hit' : '', def && def.tier >= 4 ? `big t${def.tier}` : '',
         g.sub === 'build' && def ? 'upgradable' : ''].join(' ');
       const label = def ? `<i>${TIER_LABEL[def.tier]}</i> ${def.name}<b>G${c.piece.grade}</b>` : c.piece ? `사악<b>G${c.piece.grade}</b>` : (c.id === 0 ? '시작' : '');
+      const T = c.corrupt ? (CORRUPT_TYPES[c.corrupt.type] || CORRUPT_TYPES.erode) : null;
       return `<div class="${cls}" style="left:${x}px;top:${y}px" data-tipcell="${c.id}">
         <span class="cid">${c.id}</span><span class="clabel">${label}</span>
-        ${c.corrupt ? `<span class="ccount">타락 ${c.corrupt.counter}</span>` : ''}${it?.to === c.id ? '<span class="star">★</span>' : ''}${plan.has(c.id) ? '<span class="plan-dot">•</span>' : ''}
-        ${g.player.pos === c.id ? '<span class="pawn p">●</span>' : ''}${g.monster.pos === c.id ? '<span class="pawn e">■</span>' : ''}</div>`;
+        ${T ? `<span class="ccount">${T.name} ${c.corrupt.counter}</span>` : ''}${stars.has(c.id) ? `<span class="star">★${stars.get(c.id) > 1 ? `<i>×${stars.get(c.id)}</i>` : ''}</span>` : ''}${plan.has(c.id) ? '<span class="plan-dot">•</span>' : ''}
+        ${g.player.pos === c.id ? '<span class="pawn p">●</span>' : ''}${here.length ? `<span class="pawn e">${here.map(m => `<span class="mon"><small>${Math.max(0, m.faith)}</small>${m.def.icon}</span>`).join('')}</span>` : ''}</div>`;
     }).join('');
   }
   _renderDicePanel() {
     const g = this.game; const panel = this.root.querySelector('#dice-panel');
     const rolling = g.sub === 'roll', acting = g.sub === 'act', building = g.sub === 'build';
+    const fs = g.faceStatus();
     const dice = g.dice.map((d, i) => {
-      const inst = d.faces[d.upIndex].skill; const s = inst ? TND_SKILLS_BY_ID[inst.id] : null; const en = d.engraving ? ENGRAVINGS_BY_ID[d.engraving] : null;
-      const used = g.usedDice.includes(i); const { mode } = g.moveModeOf(d);
+      const en = d.engraving ? ENGRAVINGS_BY_ID[d.engraving] : null;
+      const used = g.usedDice.includes(i); const { mode } = g.moveModeOf(d); const st = fs[i];
+      // 면 상태: 활성 → 맞은편 → 측면 순서로, 발동하는 면은 ✓+효과, 아니면 흐리게 (요구 계층 표시)
+      const rows = st.faces.map(f => `<div class="fs ${f.fired ? 'on' : 'off'}" data-tipskill="${f.skill.id}">
+          <span class="fs-state st-${f.state}">${STATE_LABEL[f.state]}</span><span class="fs-name lay-${f.skill.layer}">${f.skill.name}</span>
+          <span class="fs-eff ${f.fired ? (f.op === 'mul' ? 'op-mul' : 'op-add') : ''}">${f.fired ? `✓ ${fmtEff(f.op, f.n)}${f.note ? '<i>공허</i>' : ''}` : f.layerOk ? '조건 ✕' : `${TND_LAYER_LABEL[f.skill.layer]}면만`}</span></div>`)
+        .concat(st.engr.map(x => `<div class="fs on engr"><span class="fs-state st-engr">각인</span><span class="fs-name">${x.name}</span><span class="fs-eff ${x.op === 'mul' ? 'op-mul' : 'op-add'}">✓ ${fmtEff(x.op, x.n)}</span></div>`)).join('');
       return `<div class="die small ${d.locked ? 'locked' : ''} ${acting && !used ? 'moveable' : ''} ${used ? 'used' : ''}" data-die="${i}">
         <div class="die-order">${MARK[i]}</div>
-        <div class="die-engr ${en ? `k-${en.kind}` : ''}">${en ? en.name : '—'} <small>${MOVE_MODE_LABEL[mode]}</small></div>
+        <div class="die-engr ${en ? `k-${en.kind}` : ''}" ${en ? `data-tipengr="${en.id}"` : ''}>${en ? en.name : '—'} <small>${MOVE_MODE_LABEL[mode]}</small></div>
         <div class="die-face">${g.activePip(d)}${d.pipBonus ? `<small>+${d.pipBonus}</small>` : ''}</div>
-        <div class="die-skill">${s ? `<span class="lay-${s.layer}">${s.name}</span>` : '&nbsp;'}</div>${d.locked ? '<div class="lock-badge">잠금</div>' : ''}</div>`;
+        ${d.locked ? '<div class="lock-badge">잠금</div>' : ''}
+        <div class="die-faces"><div class="fs-head">발동 ${st.firedCount}/${st.faces.length + st.engr.length}</div>${rows || '<div class="fs none">면 스킬 없음</div>'}</div></div>`;
     }).join('');
     let status = '';
     if (rolling) { const p = g.preview(); status = `<div class="preview">신앙치 <b>${p.points}</b> → 신앙 <b class="op-add">+${p.faith}</b> <small>(잔량 ${p.gauge})</small></div>`; }
     else if (acting) status = `<div class="preview">구간 ${g.usedDice.length + 1}/3 · 주사위를 클릭해 이동 (호버: 경유·도착 프리뷰)</div>`;
     else if (building) status = '<div class="preview">건설 단계 — 보드의 내 기물을 클릭해 업그레이드 (멈춘 칸 반값)</div>';
-    else if (g.sub === 'enemy') status = `<div class="preview">${g.monsterDef.name} 행동 중</div>`;
+    else if (g.sub === 'enemy') status = '<div class="preview">몬스터 행동 중</div>';
     else status = '<div class="preview">상호작용 창에 응답하세요</div>';
     panel.innerHTML = `<div id="trial-dice">${dice}</div>${status}
       <div id="actions"><button id="btn-roll" class="btn btn-red" ${!rolling || g.rollsLeft <= 0 ? 'disabled' : ''}>굴림 ${rolling ? g.rollsLeft : ''}</button>
@@ -288,9 +306,9 @@ export class TndRenderer {
     if (!up) this.upgradeFor = null;
     ov.classList.toggle('open', (!!p || !!up) && g.phase === 'trial');
     let html = '';
-    if (p && (p.type === 'pay' || p.type === 'assault')) {
+    if (p?.type === 'pay') {
       const mine = g.myPieces();
-      html = `<div class="panel-title">${p.type === 'assault' ? `강습! — 바퀴 ${g.monster.laps}` : `강제지불 — 사악한 기물 G${g.board[p.pos].piece.grade}`}</div>
+      html = `<div class="panel-title">강제지불 — 사악한 기물 G${g.board[p.pos].piece.grade}</div>
         <div class="dlg-line">비용 <b class="op-mul">${p.cost}</b> · 보유 신앙 <b>${g.player.faith}</b></div>
         <div class="dlg-actions"><button id="dlg-pay" class="btn btn-red" ${g.canPay() ? '' : 'disabled'}>지불</button>${g.mustGiveUp() ? '<button id="dlg-giveup" class="btn btn-blue">게임 포기</button>' : ''}</div>
         ${mine.length ? `<div class="dlg-sub">기물 판매 (판매가 = 비용×G÷2)</div><div class="dlg-list">${mine.map(c => `<button class="dlg-item" data-sell="${c.id}">칸 ${c.id} ${PIECES_BY_ID[c.piece.defId].name} G${c.piece.grade} → +${sellPrice(PIECES_BY_ID[c.piece.defId], c.piece.grade)}</button>`).join('')}</div>` : ''}`;
@@ -301,7 +319,7 @@ export class TndRenderer {
       html = `<div class="panel-title">파괴 — 사악한 기물 G${p.grade} (칸 ${p.pos})</div><div class="dlg-line">파괴 비용 <b class="op-mul">${p.cost}</b> (최종 비용 ×1.5) · 보유 <b>${g.player.faith}</b> · 파괴 후 건설 가능</div>
         <div class="dlg-actions"><button id="dlg-destroy" class="btn btn-red" ${g.player.faith >= p.cost ? '' : 'disabled'}>파괴</button><button id="dlg-skip" class="btn btn-blue">건너뛰기</button></div>`;
     } else if (p?.type === 'build') {
-      html = `<div class="panel-title">건설 — 칸 ${p.pos}${p.discount ? ' <span class="op-add">(개척 −30%)</span>' : ''}</div><div class="dlg-line">보유 신앙 <b>${g.player.faith}</b>${g.board[p.pos].safe ? ' · 안전지대 (적이 밟지 않음)' : ''}</div>
+      html = `<div class="panel-title">건설 — 칸 ${p.pos}${p.discount ? ' <span class="op-add">(개척 −30%)</span>' : ''}</div><div class="dlg-line">보유 신앙 <b>${g.player.faith}</b></div>
         <div class="dlg-list">${g.deck.map(id => `<button class="dlg-item ${g.player.faith < g.buildCost(id) ? 'disabled' : ''}" data-build="${id}" data-tippiece="${id}">${pieceLabel(PIECES_BY_ID[id])} · ${g.buildCost(id)}</button>`).join('')}</div>
         <div class="dlg-actions"><button id="dlg-skip" class="btn btn-blue">건너뛰기</button></div>`;
     } else if (up) {

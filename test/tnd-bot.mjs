@@ -1,6 +1,6 @@
-// TnD 결합 데모 검수용 봇 (v2.1) — 기획안 §18 플레이어 AI 재현:
-// 그리디 재굴림, 의도 도착 칸 우선 이동, 원격 업그레이드(도착 칸 > 경로 > 나머지, 예비금 = 다음 강습의 절반),
-// 건설은 방어선(9~31)에만. 각인은 모델링하지 않는다.
+// TnD 결합 데모 검수용 봇 (v2.1 개정) — 기획안 §18 플레이어 AI 재현:
+// 그리디 재굴림, 모든 몬스터의 다음 도착 칸 우선 이동, 원격 업그레이드(도착 칸 > 경로 > 나머지, 예비금 6),
+// 건설은 대성당 > 첨탑 > 성소 > 제단 > 말뚝 중 살 수 있는 것, 보드가 비면 조기 소환. 각인은 모델링하지 않는다.
 import { TndGame, mulberry32, makeInst } from '../js/tnd-game.js';
 import { TND_SKILLS_BY_ID, PIECES_BY_ID, TND } from '../js/tnd-config.js';
 import { OPPOSITE, FACE_COUNT } from '../js/config.js';
@@ -30,17 +30,19 @@ function faceValue(die, f) {
   if (opp) { const os = TND_SKILLS_BY_ID[opp.id]; if (os.layer === 'opposite') v += os.op === 'mul' ? 14 : (os.v ?? 8); }
   return v;
 }
-const inDefense = id => id >= 9 && id <= 31;
-const BUILD_PRIORITY = ['spire', 'sanctum', 'altar', 'taxman', 'grave', 'stake', 'hall', 'reliquary', 'well', 'purifier', 'beacon', 'signpost', 'road', 'bell', 'gate', 'court', 'cathedral', 'constellation', 'temple', 'grail'];
+const RESERVE = 6;
+const BUILD_PRIORITY = ['cathedral', 'spire', 'sanctum', 'altar', 'stake', 'taxman', 'grave', 'hall', 'reliquary', 'well', 'purifier', 'beacon', 'signpost', 'road', 'bell', 'gate', 'court', 'constellation', 'temple', 'grail'];
+const targetsOf = g => { const it = g.intent() || []; return { stops: new Set(it.map(i => i.to)), paths: new Set(it.flatMap(i => i.path.map(p => p.cell))) }; };
 
-function stopScore(g, cell, intentTo) {
+function stopScore(g, cell, targets) {
   let v = 0;
   if (cell.piece?.owner === 'E') v = -50 - g.finalEnemyCost(cell);
   else if (cell.piece?.owner === 'P') v = cell.corrupt ? 5 : 25 + cell.piece.grade;
   else if (cell.corrupt) v = g.player.faith >= g.player.purifyCost ? 10 : -5;
   else if (cell.id === TND.START_CELL) v = 4;
-  else v = inDefense(cell.id) ? 20 : 8;
-  if (cell.id === intentTo && cell.piece?.owner !== 'E') v += 15; // 의도 도착 칸 우선
+  else v = 20;
+  if (targets.stops.has(cell.id) && cell.piece?.owner !== 'E') v += 15; // 몬스터 도착 칸 우선
+  else if (targets.paths.has(cell.id) && cell.piece?.owner !== 'E') v += 5;
   return v;
 }
 
@@ -49,6 +51,7 @@ export function playTrial(g, { maxTurns = 60 } = {}) {
   let guard = 0;
   while (g.phase === 'trial' && g.turn <= maxTurns && guard++ < 200000) {
     if (g.sub === 'roll') {
+      if (g.canEarlyCall()) g.earlyCall();
       while (g.rollsLeft > 0) {
         g.dice.forEach((d, i) => { let mean = 0; for (let f = 0; f < FACE_COUNT; f++) mean += faceValue(d, f); const keep = faceValue(d, d.upIndex) >= mean / FACE_COUNT; if (d.locked !== keep) g.toggleLock(i); });
         if (g.dice.every(d => d.locked)) break;
@@ -56,30 +59,29 @@ export function playTrial(g, { maxTurns = 60 } = {}) {
       }
       g.confirm();
     } else if (g.sub === 'act') {
-      const intentTo = g.intent()?.to;
+      const targets = targetsOf(g);
       let best = null;
       for (let i = 0; i < g.dice.length; i++) {
         const pv = g.previewSegment(i); if (!pv) continue;
         let v = 0;
-        for (const p of pv.path) { const c = g.board[p.cell]; if (p.stop) v += stopScore(g, c, intentTo); else if (p.pass && c.piece?.owner === 'P' && !c.corrupt) v += 2; }
+        for (const p of pv.path) { const c = g.board[p.cell]; if (p.stop) v += stopScore(g, c, targets); else if (p.pass && c.piece?.owner === 'P' && !c.corrupt) v += 2; }
         if (!best || v > best.v) best = { i, v };
       }
       g.chooseMoveDie(best.i);
     } else if (g.sub === 'dialog') {
-      const p = g.pending; const reserve = Math.ceil(g.nextAssaultCost() / 2);
-      if (p.type === 'pay' || p.type === 'assault') {
+      const p = g.pending; const reserve = RESERVE;
+      if (p.type === 'pay') {
         if (g.canPay()) g.payConfirm(); else if (g.mustGiveUp()) g.giveUp();
         else { const mine = g.myPieces().sort((a, b) => a.piece.grade - b.piece.grade); g.sellPiece(mine[0].id); }
       } else if (p.type === 'purify') { if (g.player.faith >= p.cost) g.purify(); else g.skipPurify(); }
       else if (p.type === 'destroy') g.skipDestroy();
       else if (p.type === 'build') {
-        const choice = inDefense(p.pos) ? BUILD_PRIORITY.find(id => g.deck.includes(id) && g.buildCost(id) <= g.player.faith - reserve) : null;
+        const choice = BUILD_PRIORITY.find(id => g.deck.includes(id) && g.buildCost(id) <= g.player.faith - reserve);
         if (choice) g.build(choice); else g.skipBuild();
       } else break;
     } else if (g.sub === 'build') {
-      const it = g.intent(); const reserve = Math.ceil(g.nextAssaultCost() / 2);
-      const pathSet = new Set(it?.path.map(p => p.cell) || []);
-      const prio = c => (c.id === it?.to ? 0 : pathSet.has(c.id) ? 1 : 2);
+      const targets = targetsOf(g); const reserve = RESERVE;
+      const prio = c => (targets.stops.has(c.id) ? 0 : targets.paths.has(c.id) ? 1 : 2);
       const mine = g.myPieces().filter(c => !c.corrupt && c.piece.grade < TND.MAX_GRADE).sort((a, b) => prio(a) - prio(b) || b.piece.grade - a.piece.grade);
       for (const c of mine) {
         const info = g.upgradeInfo(c.id); const budget = g.player.faith - reserve;
@@ -92,13 +94,14 @@ export function playTrial(g, { maxTurns = 60 } = {}) {
   return g.phase === 'end' ? g.result : 'timeout';
 }
 
-export function runBuild(buildName, seeds, engravings = []) {
-  const out = { win: 0, defeat: 0, timeout: 0, winTurns: [], loseTurns: [] };
+export function runBuild(buildName, seeds, engravings = [], gameOpts = {}) {
+  const out = { win: 0, defeat: 0, timeout: 0, winTurns: [], loseTurns: [], kills: [] };
   for (const seed of seeds) {
-    const g = new TndGame({ rng: mulberry32(seed) });
+    const g = new TndGame({ rng: mulberry32(seed), ...gameOpts });
     applyBuild(g, BUILDS[buildName], engravings);
     const r = playTrial(g);
     out[r === 'victory' ? 'win' : r === 'defeat' ? 'defeat' : 'timeout'] += 1;
+    out.kills.push(g.kills);
     if (r === 'victory') out.winTurns.push(g.turn); else out.loseTurns.push(g.turn);
   }
   return out;

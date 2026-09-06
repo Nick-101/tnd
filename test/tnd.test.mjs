@@ -1,6 +1,6 @@
 // TnD 결합 데모 headless 검수 (v2.1) — node test/tnd.test.mjs
-import { TndGame, mulberry32, makeInst, calcFaithPoints, calcOrder, convert, resolveMove, resolveEnemyMove, evalEffectTnd } from '../js/tnd-game.js';
-import { TND, MONSTERS, TND_SKILLS, TND_SKILLS_BY_ID, TND_SKILL_DETAILS, ENGRAVINGS, ENGRAVING_DETAILS, PIECES, PIECES_BY_ID, ceil } from '../js/tnd-config.js';
+import { TndGame, mulberry32, makeInst, calcFaithPoints, calcOrder, convert, resolveMove, evalEffectTnd } from '../js/tnd-game.js';
+import { TND, MONSTERS, WAVES, CORRUPT_TYPES, TND_SKILLS, TND_SKILLS_BY_ID, TND_SKILL_DETAILS, ENGRAVINGS, ENGRAVING_DETAILS, PIECES, PIECES_BY_ID, ceil } from '../js/tnd-config.js';
 import { runBuild, applyBuild, BUILDS, playTrial } from './tnd-bot.mjs';
 
 let pass = 0, fail = 0; const failures = [];
@@ -9,7 +9,7 @@ const bare = (seed = 1, opts = {}) => { const g = new TndGame({ rng: mulberry32(
 const place = (g, d, f, id) => { g.dice[d].faces[f].skill = makeInst(id); return g.dice[d].faces[f].skill; };
 const seq = (...vals) => { let i = 0; return () => vals[Math.min(i++, vals.length - 1)]; }; // 정해진 난수열
 // 대화창 전부 건너뛰기 / 지불
-function settleDialogs(g) { let k = 0; while (g.sub === 'dialog' && k++ < 30) { const t = g.pending.type; if (t === 'pay' || t === 'assault') g.canPay() ? g.payConfirm() : g.mustGiveUp() ? g.giveUp() : g.sellPiece(g.myPieces()[0].id); else if (t === 'purify') g.skipPurify(); else if (t === 'destroy') g.skipDestroy(); else if (t === 'build') g.skipBuild(); } }
+function settleDialogs(g) { let k = 0; while (g.sub === 'dialog' && k++ < 30) { const t = g.pending.type; if (t === 'pay') g.canPay() ? g.payConfirm() : g.mustGiveUp() ? g.giveUp() : g.sellPiece(g.myPieces()[0].id); else if (t === 'purify') g.skipPurify(); else if (t === 'destroy') g.skipDestroy(); else if (t === 'build') g.skipBuild(); } }
 
 console.log('시나리오 1 — 정비: 각인 · 면 스킬 · 눈 · 순서 · 덱');
 {
@@ -31,7 +31,7 @@ console.log('시나리오 1 — 정비: 각인 · 면 스킬 · 눈 · 순서 ·
   assert(g.changePip(2, 0, -1) === false && g.changePip(2, 5, 1) === true, '눈 1~6 범위');
   const first = g.dice[0]; assert(g.moveDie(0, 1) && g.dice[1] === first, '계산 순서 변경');
   assert(g.deckRemove(4) && !g.canStart() && g.deckAdd('spire') && g.canStart(), '덱 제거/추가, 5장이어야 시작');
-  assert(g.startTrial() && g.phase === 'trial' && g.sub === 'roll' && g.monster.faith === 250, '고행 시작: 순례자 신앙 250');
+  assert(g.startTrial() && g.phase === 'trial' && g.sub === 'roll' && g.monsters.length === 1 && g.monsters[0].faith === 120, '고행 시작: 웨이브 1 순례자(신앙 120) 출현');
   assert(g.moveDie(0, 1) === false && g.engrave('jaedo', 0) === false, '고행 중 순서·각인 변경 불가');
 }
 
@@ -90,7 +90,7 @@ console.log('시나리오 2 — 굴림형 · 정산형 각인, 변환');
   }
   assert(checks >= 30 && ok === checks, `프리뷰 = 정산 결과 (${ok}/${checks})`);
   const ctx = { S: 10, activePips: [1, 2, 3], upPip: 1, pip: 1, orderIndex: 0, orderCount: 3, lockedCount: 0, rerollsLeft: 0, pieces: 2, corrupts: 1, enemyPieces: 2, playerPos: 5, inst: { growth: 0, count: 0 } };
-  assert(evalEffectTnd(TND_SKILLS_BY_ID['gwihyang'], ctx).n === 12 && evalEffectTnd(TND_SKILLS_BY_ID['gwihyang'], { ...ctx, playerPos: 9 }) === null, '귀향: 안전지대(1~8)에서만');
+  assert(evalEffectTnd(TND_SKILLS_BY_ID['gwihyang'], ctx).n === 12 && evalEffectTnd(TND_SKILLS_BY_ID['gwihyang'], { ...ctx, playerPos: 9 }) === null && evalEffectTnd(TND_SKILLS_BY_ID['gwihyang'], { ...ctx, playerPos: 25 }).n === 12, '귀향: 시작칸에서 8칸 이내(5, 25)만, 9는 아님');
   assert(evalEffectTnd(TND_SKILLS_BY_ID['yeonswae'], ctx).n === 18 && evalEffectTnd(TND_SKILLS_BY_ID['sangae'], ctx).n === 1.8, '연쇄·산개: 활성 눈 3개 기준');
 }
 
@@ -160,30 +160,37 @@ console.log('시나리오 3 — 이동: 방식 · 구간 · 밟음/멈춤 · 경
 console.log('시나리오 4 — 기물 훅 · 오라 · 원격 업그레이드 · 신앙 지불');
 {
   const pip1 = () => 0;
-  const foe = (setup, n = 1, faith = 250) => { const g = bare(1); g.rng = pip1; g.startTrial(); setup(g); g.monster.pos = 0; g.monster.faith = faith; g.enemyQueue = resolveEnemyMove(g.monster.pos, n, g.monsterDef).path.map(step => ({ step })); g.sub = 'enemy'; g.pending = null; g._enemyContinue(); return g; };
-  // 순례자는 0 다음 걸음에 9로 도약 → 0에서 이동 1 = 칸 9 도착
-  let g = foe(x => { x.board[9].piece = { owner: 'P', defId: 'altar', grade: 2 }; }, 1);
-  assert(g.monster.faith === 250 - 2 - 6, '제단 G2: 적밟 −G(2) + 적멈 −3G(6) = −8');
-  g = foe(x => { x.board[9].piece = { owner: 'P', defId: 'spire', grade: 3 }; }, 2);
-  assert(g.monster.faith === 250 - 9, '첨탑 G3 경유: 적밟 −G² = −9 (멈춤 아님)');
-  g = foe(x => { x.board[10].piece = { owner: 'P', defId: 'spire', grade: 2 }; }, 2);
-  assert(g.monster.faith === 250 - 4 - 12, '첨탑 G2 멈춤: −G² −3G² = −16');
-  g = foe(x => { x.board[9].piece = { owner: 'P', defId: 'grave', grade: 1 }; x.board[9].corrupt = { counter: 3 }; x.board[10].piece = { owner: 'P', defId: 'altar', grade: 1 }; x.board[10].corrupt = { counter: 3 }; }, 2);
-  assert(g.monster.faith === 250 - 1 && g.board[10].corrupt.counter === 2, '타락 칸: 묘지만 발동(−1), 제단 무효, 멈춘 타락 카운터 −1');
-  g = foe(x => { x.board[9].piece = { owner: 'P', defId: 'taxman', grade: 2 }; x.board[20].piece = { owner: 'P', defId: 'stake', grade: 1 }; x.board[21].piece = { owner: 'P', defId: 'stake', grade: 1 }; }, 1);
-  assert(g.monster.faith === 250 - 2 * 3, '세리 G2, N=3 → −(G×N) = −6');
-  g = foe(x => { x.board[11].piece = { owner: 'P', defId: 'bell', grade: 1 }; }, 3);
-  assert(g.monster.pos === 9 && g.log.some(l => l.text.includes('후퇴')), '종탑 G1 멈춤: 적 2칸 후퇴 (11 → 9)');
-  g = foe(x => { x.board[9].piece = { owner: 'P', defId: 'gate', grade: 1 }; }, 1);
-  assert(g.monster.skipNext === true && g.intent().skipping, '성문 멈춤: 적의 다음 패턴 행동 건너뜀 (의도에 표시)');
-  g = foe(x => { x.board[9].piece = { owner: 'P', defId: 'court', grade: 2 }; }, 1, 200);
-  assert(g.monster.faith === 200 - 20, '심판소 G2 멈춤: 현재 신앙의 10% (200 → 180)');
-  g = foe(x => { x.board[9].piece = { owner: 'P', defId: 'stake', grade: 1 }; x.board[11].piece = { owner: 'P', defId: 'cathedral', grade: 1 }; }, 1);
-  assert(g.monster.faith === 250 - 2, '대성당 오라: 좌우 2칸 말뚝 효과 ×2 (−1 → −2)');
-  g = foe(x => { x.board[9].piece = { owner: 'P', defId: 'altar', grade: 1 }; x.board[10].piece = { owner: 'P', defId: 'altar', grade: 1 }; x.board[25].piece = { owner: 'P', defId: 'constellation', grade: 1 }; }, 2);
-  assert(g.monster.faith === 250 - (1 + 3) - (1 + 3), '성좌 오라: 경유 칸(9)도 멈춤 판정 → 제단 두 곳 모두 −G−3G');
-  g = foe(x => { x.board[9].piece = { owner: 'P', defId: 'stake', grade: 1 }; x.board[20].piece = { owner: 'P', defId: 'temple', grade: 1 }; }, 1);
-  assert(g.monster.faith === 250 - 3, '신전 오라: 말뚝 G1을 G3로 취급 (−3)');
+  // 시험용 몬스터 1마리(신앙 faith, 이동 n, 방식 mode)를 시작칸에서 출발시켜 적 턴 1회 실행. 반환 g (g.m = 그 몬스터, 죽으면 신앙 ≤ 0)
+  const foeGame = (n, faith, mode = 'basic', extraWaves = []) => bare(1, { monsters: { t: { id: 't', name: '시험', icon: '△', faith, moveMode: mode, pattern: [n], leak: { count: 1, type: 'erode', placement: 'emptyRandom' } }, ...MONSTERS }, waves: [{ turn: 1, monsters: ['t'] }, ...extraWaves] });
+  const foe = (setup, n = 1, faith = 250, mode = 'basic') => { const g = foeGame(n, faith, mode, [{ turn: 99, monsters: ['pilgrim'] }]); g.rng = pip1; g.startTrial(); setup(g); g.m = g.monsters[0]; g.sub = 'build'; g._enemyTurn(); return g; };
+  let g = foe(x => { x.board[1].piece = { owner: 'P', defId: 'altar', grade: 2 }; }, 1);
+  assert(g.m.faith === 250 - 2 - 6, '제단 G2: 적밟 −G(2) + 적멈 −3G(6) = −8');
+  g = foe(x => { x.board[1].piece = { owner: 'P', defId: 'spire', grade: 3 }; }, 2);
+  assert(g.m.faith === 250 - 9, '첨탑 G3 경유: 적밟 −G² = −9 (멈춤 아님)');
+  g = foe(x => { x.board[2].piece = { owner: 'P', defId: 'spire', grade: 2 }; }, 2);
+  assert(g.m.faith === 250 - 4 - 12, '첨탑 G2 멈춤: −G² −3G² = −16');
+  g = foe(x => { x.board[1].piece = { owner: 'P', defId: 'grave', grade: 1 }; x.board[1].corrupt = { counter: 3, type: 'erode' }; x.board[2].piece = { owner: 'P', defId: 'altar', grade: 1 }; x.board[2].corrupt = { counter: 3, type: 'erode' }; }, 2);
+  assert(g.m.faith === 250 - 1 && g.board[2].corrupt.counter === 2, '타락 칸: 묘지만 발동(−1), 제단 무효, 멈춘 타락 카운터 −1');
+  g = foe(x => { x.board[1].piece = { owner: 'P', defId: 'taxman', grade: 2 }; x.board[20].piece = { owner: 'P', defId: 'stake', grade: 1 }; x.board[21].piece = { owner: 'P', defId: 'stake', grade: 1 }; }, 1);
+  assert(g.m.faith === 250 - 2 * 3, '세리 G2, N=3 → −(G×N) = −6');
+  g = foe(x => { x.board[3].piece = { owner: 'P', defId: 'bell', grade: 1 }; }, 3);
+  assert(g.m.pos === 1 && g.log.some(l => l.text.includes('후퇴')), '종탑 G1 멈춤: 그 몬스터 2칸 후퇴 (3 → 1)');
+  g = foe(x => { x.board[1].piece = { owner: 'P', defId: 'gate', grade: 1 }; }, 1);
+  assert(g.m.skipNext === true && g.intent()[0].skipping && g.intent()[0].n === 0, '성문 멈춤: 그 몬스터의 다음 이동 취소 (의도에 이동 0)');
+  g.sub = 'build'; g._enemyTurn(); assert(g.m.pos === 1 && !g.m.skipNext && g.log.some(l => l.text.includes('성문 효과로 취소')), '다음 적 턴: 이동 취소되어 제자리, 취소는 1회');
+  g = foe(x => { x.board[1].piece = { owner: 'P', defId: 'court', grade: 2 }; }, 1, 200);
+  assert(g.m.faith === 200 - 20, '심판소 G2 멈춤: 그 몬스터 현재 신앙의 10% (200 → 180)');
+  g = foe(x => { x.board[1].piece = { owner: 'P', defId: 'stake', grade: 1 }; x.board[3].piece = { owner: 'P', defId: 'cathedral', grade: 1 }; }, 1);
+  assert(g.m.faith === 250 - 2, '대성당 오라: 좌우 2칸 말뚝 효과 ×2 (−1 → −2)');
+  g = foe(x => { x.board[1].piece = { owner: 'P', defId: 'altar', grade: 1 }; x.board[2].piece = { owner: 'P', defId: 'altar', grade: 1 }; x.board[25].piece = { owner: 'P', defId: 'constellation', grade: 1 }; }, 2);
+  assert(g.m.faith === 250 - (1 + 3) - (1 + 3), '성좌 오라: 경유 칸(1)도 멈춤 판정 → 제단 두 곳 모두 −G−3G');
+  g = foe(x => { x.board[1].piece = { owner: 'P', defId: 'stake', grade: 1 }; x.board[20].piece = { owner: 'P', defId: 'temple', grade: 1 }; }, 1);
+  assert(g.m.faith === 250 - 3, '신전 오라: 말뚝 G1을 G3로 취급 (−3)');
+  // [기준] 점프(2) 몬스터는 짝수 번째 칸만, 서행 몬스터는 경유 칸 전부 멈춤
+  g = foe(x => { x.board[1].piece = { owner: 'P', defId: 'stake', grade: 1 }; x.board[2].piece = { owner: 'P', defId: 'stake', grade: 1 }; x.board[3].piece = { owner: 'P', defId: 'stake', grade: 1 }; x.board[4].piece = { owner: 'P', defId: 'stake', grade: 1 }; }, 4, 250, 'jump');
+  assert(g.m.faith === 250 - 2 && g.m.pos === 4, '점프(2) 몬스터: 칸 2·4만 밟음 (−2), 홀수 칸 말뚝 무력');
+  g = foe(x => { for (const c of [1, 2, 3]) x.board[c].piece = { owner: 'P', defId: 'altar', grade: 1 }; }, 3, 250, 'slow');
+  assert(g.m.faith === 250 - 3 * (1 + 3), '서행 몬스터: 경유 칸 3곳 모두 밟음+멈춤 (제단 −G−3G ×3 = −12)');
   const t = bare(2); t.startTrial(); t.board[20].piece = { owner: 'P', defId: 'temple', grade: 2 }; t._forceUp([0, 0, 0]); t.confirm();
   for (let i = 0; i < 3; i++) { t.chooseMoveDie(i); settleDialogs(t); } const fb = t.player.faith; t.endTurn(); settleDialogs(t);
   assert(t.player.faith >= fb + 20, '신전 G2: 턴 시작 시 신앙 +10G');
@@ -226,41 +233,90 @@ console.log('시나리오 4 — 기물 훅 · 오라 · 원격 업그레이드 �
   assert(gu.backToPrep() && gu.phase === 'prep' && gu.deck.length === 5, '정비 복귀, 구성 유지');
 }
 
-console.log('시나리오 5 — 몬스터: 패턴 · 의도 · 도약 · 강습 · 타락/소환 · 승리');
+console.log('시나리오 5 — 몬스터: 웨이브 · 이동 패턴 · 완주/타락 · 조기 소환 · 승리/패배 · 데이터 교체');
 {
-  const g = bare(1); g.rng = () => 0.5; g.startTrial(); g.player.faith = 100;
-  const P = MONSTERS.pilgrim.pattern;
-  // 시작칸 0에서 첫 걸음은 비행 구간(1~8)을 건너 9로: 이동 6 → 9,10,11,12,13,14
-  assert(g.intent().action === P[0] && g.intent().to === 14 && !g.intent().path.some(p => p.cell >= 1 && p.cell <= 8), '의도: ① 이동 6 → 1~8 없이 도착 14');
-  const finishTurn = (x, resolveAfter = true) => { x._forceUp([0, 0, 0]); x.confirm(); for (let i = 0; i < 3; i++) { x.chooseMoveDie(i); settleDialogs(x); } if (x.sub === 'build') x.endTurn(); if (resolveAfter) settleDialogs(x); };
-  finishTurn(g); assert(g.monster.pos === 14 && g.monster.step === 1, '적 턴: 의도대로 이동 6 → 칸 14, 패턴 ②로');
-  finishTurn(g); assert(g.monster.pos === 19, '② 이동 5 → 칸 19');
-  finishTurn(g); assert(g.corruptCount() === 1 && g.board.filter(c => c.corrupt).every(c => c.id >= 9), '③ 타락 1 → 방어선(9~31)에 생성');
-  finishTurn(g); assert(g.monster.pos === 26, '④ 이동 7 → 칸 26');
-  finishTurn(g); assert(g.monster.pos === 9 && g.monster.laps === 1 && g.player.faith < 100, '⑤ 이동 6 → 시작칸 통과(강습 5 지불) → 도약 → 칸 9');
-  // ③의 타락은 턴 6 종료 시 만료되어 이미 사악한 기물이 하나 생겼다 → 소환으로 하나 더
-  finishTurn(g); assert(g.enemyPieceCount() === 2 && g.board.filter(c => c.piece?.owner === 'E').every(c => c.id >= 9) && g.log.some(l => l.text.includes('소환 1 →')), '⑥ 소환 1 → 방어선에 사악한 기물 G1 (타락 만료분 포함 2개)');
-  assert(g.monster.step === 0 && g.intent().action === P[0], '패턴 순환: ⑥ 다음은 ①');
-  // 도약 + 강습: 칸 30에서 이동 6 → 31, (0→9 도약), 10, 11, 12, 13
-  const a = bare(2); a.rng = () => 0.5; a.startTrial(); a.monster.pos = 30; a.player.faith = 3;
-  assert(a.intent().to === 13 && !a.intent().path.some(p => p.cell >= 1 && p.cell <= 8) && a.intent().path.some(p => p.assault), '의도 경로: 30 → 도약 → 13, 1~8 미포함, 강습 표시');
-  finishTurn(a, false);
-  assert(a.pending?.type === 'assault' && a.pending.cost === 5 && a.monster.laps === 1, '시작칸 통과 → 바퀴 1 강습 5 청구 (적 턴 일시 정지)');
-  assert(a.mustGiveUp() && a.giveUp() && a.result === 'defeat', '강습 지불 불가 → 게임 포기 → 패배');
-  const a2 = bare(2); a2.rng = () => 0.5; a2.startTrial(); a2.monster.pos = 30; a2.player.faith = 8;
-  finishTurn(a2, false); assert(a2.pending?.type === 'assault' && a2.payConfirm() && a2.player.faith === 3 && a2.monster.pos === 13 && a2.turn === 2, '강습 5 지불 후 적 이동 재개 → 칸 13, 플레이어 턴 2');
-  assert(a2.nextAssaultCost() === 10, '다음 강습 10 (바퀴마다 2배)');
-  // 승리: 적 신앙 0 이하
-  const v = bare(3); v.rng = () => 0.5; v.startTrial(); v.monster.faith = 5; v.board[14].piece = { owner: 'P', defId: 'sanctum', grade: 1 };
-  finishTurn(v); assert(v.phase === 'end' && v.result === 'victory' && v.log.some(l => l.type === 'decision'), '성소 멈춤 −6·−2 → 적 신앙 0 이하 → 즉시 승리');
-  // [기준] 몬스터 정의 교체 (데이터)
-  const custom = { id: 'test', name: '시험관', faith: 30, moveMode: 'basic', pattern: [{ t: 'heal', n: 7 }, { t: 'empower' }, { t: 'move', n: 3 }, { t: 'wait' }], gimmicks: [], assault: [1] };
-  const cm = bare(4, { monster: custom }); cm.rng = () => 0.5; cm.startTrial(); cm.player.faith = 50; cm.board[15].piece = { owner: 'E', grade: 1 };
-  assert(cm.monster.faith === 30 && cm.intent().action.t === 'heal', '커스텀 몬스터: 신앙 30, 첫 의도 회복');
-  finishTurn(cm); assert(cm.monster.faith === 37, '회복 +7');
-  finishTurn(cm); assert(cm.board[15].piece.grade === 2, '강화: 사악한 기물 등급 +1');
-  finishTurn(cm); assert(cm.monster.pos === 3, '기믹 없는 이동 3 → 칸 3 (도약 없음)');
-  finishTurn(cm); assert(cm.monster.pos === 3 && cm.turn === 5, '대기: 위치 유지');
+  const finishTurn = (x) => { x._forceUp([0, 0, 0]); x.confirm(); for (let i = 0; i < 3; i++) { x.chooseMoveDie(i); settleDialogs(x); } if (x.sub === 'build') x.endTurn(); settleDialogs(x); };
+  // [기준] 웨이브 소환 · 의도 패널 행 · 이동만 하는 패턴 순환
+  const g = bare(1); g.rng = () => 0.5; g.startTrial(); g.player.faith = 1000;
+  assert(WAVES.length === 3 && WAVES.map(w => w.turn).join(',') === '1,7,14' && WAVES.flatMap(w => w.monsters).length === 5, '데모 웨이브: 3웨이브 5마리 (턴 1·7·14)');
+  assert(g.monsters.length === 1 && g.monsters[0].def.id === 'pilgrim' && g.waveIndex === 1 && g.log.some(l => l.text === '웨이브 1 · 순례자 출현'), '턴 1: 웨이브 1 순례자 출현 (로그)');
+  let it = g.intent();
+  assert(it.length === 1 && it[0].n === 5 && it[0].to === 5 && it[0].path.length === 5 && it[0].cellsToLap === 32 && it[0].leakText === '타락 3 · 잠식 · 빈 칸 무작위', `의도 행: 이동 5 → 도착 5, 완주까지 32칸, 완주 결과 요약 (${it[0].leakText})`);
+  assert(!g.canEarlyCall() && g.earlyCall() === false, '몬스터가 있으면 조기 소환 불가');
+  const P = MONSTERS.pilgrim.pattern; const seen = [];
+  for (let k = 0; k < 6; k++) { const pos = g.intent()[0].to; finishTurn(g); seen.push(g.monsters[0].pos === pos); }
+  assert(seen.every(Boolean) && g.monsters[0].pos === (5 + 4 + 6 + 5 + 5 + 4) && g.monsters[0].step === 6 % P.length, '6턴 연속 의도 = 실제 이동, 패턴 5·4·6·5 순환 (칸 29, 이동 외 행동 없음)');
+  assert(g.turn === 7 && g.monsters.length === 3 && g.monsters.filter(m => m.def.id === 'raider').length === 2 && g.log.some(l => l.text === '웨이브 2 · 약탈자 ×2 출현'), '턴 7: 웨이브 2 약탈자 ×2 누적 출현');
+  it = g.intent(); assert(it.length === 3 && it[0].cellsToLap === 3 && it[1].cellsToLap === 32 && it[1].leakText === '타락 2 · 부식 · 기물 있는 칸 우선', '의도 3행: 순례자 완주까지 3칸, 약탈자 32칸·부식 2');
+  // [기준] 완주 → 완주 결과대로 타락 (순례자: 잠식 3 · 빈 칸 무작위)
+  g.board[12].piece = { owner: 'P', defId: 'altar', grade: 1 };
+  finishTurn(g);
+  const cor = g.board.filter(c => c.corrupt);
+  assert(g.monsters[0].pos === 3 && g.monsters[0].laps === 1 && cor.length === 3 && cor.every(c => c.corrupt.type === 'erode' && c.corrupt.counter === 3 && !c.piece && c.id !== 0) && g.log.some(l => /^순례자 완주 · 잠식 3 → 칸/.test(l.text)), `순례자 완주(29→3): 잠식 3이 빈 칸에 생성 (카운터 3), 로그 (${cor.map(c => c.id)})`);
+  // 부식: 기물 있는 칸 우선
+  const rd = g.monsters[1]; rd.pos = 30; rd.step = 0; g.monsters.splice(2, 1); // 약탈자 하나만 30에 두고 이동 7 → 완주
+  g.board[20].piece = { owner: 'P', defId: 'sanctum', grade: 2 };
+  finishTurn(g);
+  const cr = g.board.filter(c => c.corrupt?.type === 'corrode');
+  assert(cr.length === 2 && cr.map(c => c.id).sort((a, b) => a - b).join(',') === '12,20' && g.log.some(l => l.text.startsWith('약탈자 완주 · 부식 2 → 칸')), `약탈자 완주: 부식 2가 기물 칸(12, 20)에 우선 배치 (${cr.map(c => c.id)})`);
+
+  // [기준] 잠식·부식·둥지 만료 처리
+  const ex = bare(2); ex.startTrial();
+  const cell = (id, piece, corrupt) => { ex.board[id].piece = piece; ex.board[id].corrupt = corrupt; ex._expireCorrupt(ex.board[id]); return ex.board[id]; };
+  let c = cell(10, { owner: 'P', defId: 'altar', grade: 2 }, { counter: 0, type: 'erode' });
+  assert(c.piece?.owner === 'E' && c.piece.grade === 1 && !c.corrupt, '잠식 만료 + 내 기물: 파괴 후 사악한 기물 G1');
+  c = cell(11, { owner: 'E', grade: 2 }, { counter: 0, type: 'erode' }); assert(c.piece.grade === 3, '잠식 만료 + 사악한 기물: G +1');
+  c = cell(12, { owner: 'P', defId: 'altar', grade: 2 }, { counter: 0, type: 'corrode' }); assert(c.piece === null, '부식 만료 + 내 기물: 파괴만, 사악한 기물 없음');
+  c = cell(13, null, { counter: 0, type: 'corrode' }); assert(c.piece?.owner === 'E' && c.piece.grade === 1, '부식 만료 + 빈 칸: 잠식과 동일 (G1)');
+  c = cell(14, null, { counter: 0, type: 'nest' }); assert(c.piece?.owner === 'E' && c.piece.grade === 2, '둥지 만료 + 빈 칸: 사악한 기물 G2');
+  c = cell(15, { owner: 'E', grade: 1 }, { counter: 0, type: 'nest' }); assert(c.piece.grade === 3, '둥지 만료 + 사악한 기물: G +2');
+  assert(CORRUPT_TYPES.erode.counter === 3 && CORRUPT_TYPES.corrode.counter === 2 && CORRUPT_TYPES.nest.counter === 4, '타락 유형 카운터 3/2/4');
+  // 배치 규칙: 최고 등급 기물 · 시작칸 앞 8칸 · 연속
+  const pl = bare(3); pl.startTrial();
+  pl.board[5].piece = { owner: 'P', defId: 'altar', grade: 1 }; pl.board[20].piece = { owner: 'P', defId: 'spire', grade: 4 }; pl.board[25].piece = { owner: 'P', defId: 'altar', grade: 2 };
+  assert(pl._leakTargets({ count: 1, type: 'nest', placement: 'highestPiece' })[0].id === 20, '최고 등급 기물 칸: G4 첨탑(20)');
+  let okNear = true; for (let k = 0; k < 20; k++) { const t = pl._leakTargets({ count: 2, type: 'erode', placement: 'nearStart' }); if (t.length !== 2 || !t.every(c => c.id >= 1 && c.id <= 8)) okNear = false; }
+  assert(okNear, '시작칸 앞 8칸 이내: 20회 모두 1~8');
+  let okCons = true; for (let k = 0; k < 20; k++) { const t = pl._leakTargets({ count: 3, type: 'erode', placement: 'consecutive' }); if (t.length !== 3 || t[1].id !== (t[0].id + 1) % 32 || t[2].id !== (t[0].id + 2) % 32) okCons = false; }
+  assert(okCons, '연속 N칸: 20회 모두 연속');
+  let okEmpty = true; for (let k = 0; k < 20; k++) { const t = pl._leakTargets({ count: 3, type: 'erode', placement: 'emptyRandom' }); if (t.length !== 3 || t.some(c => c.piece || c.id === 0)) okEmpty = false; }
+  assert(okEmpty, '빈 칸 무작위: 기물 칸·시작칸 제외');
+
+  // [기준] 여러 몬스터의 기물 효과 독립 발동 · 처치 로그 · 마지막 웨이브 전 처치는 승리 아님
+  const two = bare(4, { monsters: MONSTERS, waves: [{ turn: 1, monsters: ['raider', 'raider'] }, { turn: 6, monsters: ['pilgrim'] }] }); two.rng = () => 0.5; two.startTrial(); two.player.faith = 1000;
+  two.board[3].piece = { owner: 'P', defId: 'spire', grade: 3 }; two.board[7].piece = { owner: 'P', defId: 'sanctum', grade: 2 };
+  finishTurn(two);
+  assert(two.monsters.length === 2 && two.monsters.every(m => m.faith === 90 - 9 - 4 - 12) && two.log.filter(l => l.text.includes('약탈자 멈춤  칸 7 성소')).length === 2, '약탈자 2마리 각각 첨탑 밟음(−9)·성소 밟음+멈춤(−16) 독립 발동');
+  two.monsters.forEach(m => { m.faith = 5; }); two.board[10].piece = { owner: 'P', defId: 'stake', grade: 6 };
+  finishTurn(two);
+  assert(two.monsters.length === 0 && two.kills === 2 && two.phase === 'trial' && two.log.some(l => l.text === '★ 약탈자 처치 (남은 몬스터 1)') && two.log.some(l => l.text === '★ 약탈자 처치 (남은 몬스터 0)'), '두 마리 처치 로그, 웨이브가 남아 승리 아님');
+  // [기준] 조기 소환: 보드가 비었을 때만
+  assert(two.canEarlyCall() && two.turn === 3, '보드가 비고 다음 웨이브(턴 6)가 남음 → 턴 3에 조기 소환 가능');
+  assert(two.earlyCall() && two.monsters.length === 1 && two.monsters[0].def.id === 'pilgrim' && two.waveIndex === 2 && two.log.some(l => l.text === '조기 소환 · 웨이브 2'), '조기 소환 → 웨이브 2 순례자 즉시 출현 (로그)');
+  assert(!two.canEarlyCall(), '웨이브가 더 없으면 조기 소환 불가');
+  // [기준] 마지막 웨이브 전멸 → 즉시 승리
+  two.monsters[0].faith = 3; finishTurn(two);
+  assert(two.phase === 'end' && two.result === 'victory' && two.log.some(l => l.text === '★ 마지막 웨이브 격파. 승리.'), '마지막 웨이브 순례자 처치 → 즉시 승리 (로그)');
+  assert(two.backToPrep() && two.phase === 'prep', '승리 후 정비 복귀');
+  // 정규 웨이브 3 (턴 14) 출현 · 거체 서행
+  const w3 = bare(5); w3.rng = () => 0.5; w3.startTrial(); w3.player.faith = 5000;
+  while (w3.turn < 14 && w3.phase === 'trial') finishTurn(w3);
+  assert(w3.turn === 14 && w3.waveIndex === 3 && w3.monsters.some(m => m.def.id === 'colossus' && m.def.moveMode === 'slow' && m.faith === 400) && w3.log.some(l => l.text === '웨이브 3 · 거체, 순례자 출현'), '턴 14: 웨이브 3 거체(서행, 400)+순례자 출현');
+  // [기준] 패배: 강제지불 불가 → 게임 포기 버튼(로그)
+  const df = bare(6); df.startTrial(); df._forceUp([0, 0, 0]); df.confirm(); df.player.faith = 0; df.board[1].piece = { owner: 'E', grade: 6 };
+  df.chooseMoveDie(0);
+  assert(df.pending?.type === 'pay' && df.mustGiveUp() && df.log.some(l => l.text.includes('지불 불가. 게임 포기 가능')), '강제지불 불가 → 게임 포기 노출 (로그)');
+  assert(df.giveUp() && df.result === 'defeat', '게임 포기 → 패배');
+  // [기준] 몬스터·웨이브 데이터 교체 (도약자 포함 4마리, 2웨이브)
+  const custom = { monsters: { ...MONSTERS, blitz: { id: 'blitz', name: '질풍', icon: '▲', faith: 40, moveMode: 'teleport', pattern: [11, 11], leak: { count: 2, type: 'nest', placement: 'consecutive' } } }, waves: [{ turn: 1, monsters: ['leaper', 'blitz'] }, { turn: 4, monsters: ['blitz', 'colossus'] }] };
+  const cm = bare(7, custom); cm.rng = () => 0.5; cm.startTrial(); cm.player.faith = 1000;
+  assert(cm.monsters.length === 2 && cm.monsters[0].def.id === 'leaper' && cm.monsters[1].def.name === '질풍' && cm.waveCount() === 2, '커스텀 웨이브: 도약자 + 질풍 출현');
+  cm.board[1].piece = { owner: 'P', defId: 'stake', grade: 1 }; cm.board[2].piece = { owner: 'P', defId: 'stake', grade: 1 }; cm.board[11].piece = { owner: 'P', defId: 'stake', grade: 1 };
+  finishTurn(cm);
+  assert(cm.monsters[0].pos === 6 && cm.monsters[0].faith === 150 - 1 && cm.monsters[1].pos === 11 && cm.monsters[1].faith === 40 - 1, '도약자 점프 6(짝수 칸만 −1) · 질풍 순간이동 11(도착 칸만 −1)');
+  finishTurn(cm); finishTurn(cm);
+  const nest = cm.board.filter(c => c.corrupt?.type === 'nest');
+  assert(cm.turn === 4 && cm.monsters.length === 4 && nest.length === 2 && nest[1].id === nest[0].id + 1, '질풍 완주 → 둥지 2 연속 칸, 턴 4 웨이브 2 누적 (4마리)');
 }
 
 console.log('시나리오 6 — 빌드별 봇 (기획안 §18 대조)');
@@ -270,10 +326,13 @@ console.log('시나리오 6 — 빌드별 봇 (기획안 §18 대조)');
   const r = {};
   for (const b of ['starter', 'plus', 'semimid', 'mid', 'advanced']) r[b] = runBuild(b, seeds);
   console.log('  ' + Object.entries(r).map(([k, v]) => `${k} ${v.win}/20 (승리 턴 ${med(v.winTurns)}, 패배 턴 ${med(v.loseTurns)})`).join(' · '));
-  assert(r.starter.win <= 4, `입문(6스킬): 무릎 아래 → 거의 전패 (${r.starter.win}/20)`);
-  assert(r.semimid.win >= 14, `준중급(+침강·증폭): 무릎 통과 → 대부분 승리 (${r.semimid.win}/20)`);
-  assert(r.mid.win >= 16, `중급: 승률 80% 이상 (${r.mid.win}/20)`);
+  assert(r.starter.win <= 2, `입문(6스킬): 무릎 아래 → 전패에 가까움 (${r.starter.win}/20)`);
+  assert(r.plus.win <= 8, `입문+(7스킬): 낮은 승률 (${r.plus.win}/20)`);
+  assert(r.semimid.win >= 16, `준중급(+침강·증폭): 무릎 통과 → 대부분 승리 (${r.semimid.win}/20)`);
+  assert(r.mid.win >= 18, `중급: 승률 90% 이상 (${r.mid.win}/20)`);
   assert(r.advanced.win >= 18 && med(r.advanced.winTurns) <= 16, `상급: 거의 전승, 빠른 승리 (${r.advanced.win}/20, 중앙 ${med(r.advanced.winTurns)}턴)`);
+  const lost = new TndGame({ rng: mulberry32(11) }); applyBuild(lost, BUILDS.empty); playTrial(lost);
+  assert(lost.result === 'defeat' && lost.log.some(l => l.text.startsWith('✕ 강제지불')), '무장착 빌드: 강제지불 불가로 패배 (패배 시계 = 완주→타락→사악한 기물→강제지불)');
   assert(Object.values(r).every(v => v.timeout === 0), '60턴 내 전부 종료');
   const g = new TndGame({ rng: mulberry32(3) }); applyBuild(g, BUILDS.mid, ['doyak', 'gongheo', 'jongjang']); playTrial(g);
   const types = new Set(g.log.map(l => l.type));

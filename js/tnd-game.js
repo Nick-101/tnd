@@ -2,7 +2,7 @@
 import { OPPOSITE, FACE_COUNT, condAllows } from './config.js';
 import { mulberry32, faceState, layerMatches } from './game.js';
 import {
-  TND, MONSTERS, actionLabel, ENGRAVINGS_BY_ID, MOVE_MODE_LABEL,
+  TND, MONSTERS, WAVES, CORRUPT_TYPES, leakLabel, ENGRAVINGS_BY_ID, MOVE_MODE_LABEL,
   TND_SKILLS_BY_ID, PIECES_BY_ID, STARTER_BUILD, STARTER_DECK,
   ceil, upgradeCost, sellPrice, enemyPieceCost,
 } from './tnd-config.js';
@@ -43,7 +43,7 @@ export function evalEffectTnd(skill, ctx) {
     case 'perPiece': return add(skill.v * ctx.pieces);
     case 'perCorrupt': return add(skill.v * ctx.corrupts);
     case 'perEnemyPieceMult': return ctx.enemyPieces > 0 ? mul(Math.pow(skill.v, ctx.enemyPieces)) : null;
-    case 'safeZone': return ctx.playerPos >= 1 && ctx.playerPos <= 8 ? add(skill.v) : null;
+    case 'homeNear': return Math.min(ctx.playerPos, N - ctx.playerPos) <= TND.HOME_RANGE ? add(skill.v) : null;
     default: return null;
   }
 }
@@ -62,12 +62,12 @@ export function calcOrder(dice) {
 export function calcFaithPoints(dice, ctx) {
   const order = calcOrder(dice);
   const activePips = dice.map(effPip);
-  const lines = []; const growthEvents = [];
+  const lines = []; const growthEvents = []; const fired = []; // fired: { die, face(-1=각인), op, n, note }
   let S = ctx.accBonus || 0;
   dice.forEach((d, i) => {
     const e = engrOf(d);
     const noActiveSkill = !d.faces[d.upIndex].skill;
-    if (e?.id === 'heonsin' && noActiveSkill) { S += activePips[i] * 3; lines.push({ text: `[${'①②③'[i]}] 헌신 · 눈 ${activePips[i]} ×3`, type: 'calc' }); }
+    if (e?.id === 'heonsin' && noActiveSkill) { S += activePips[i] * 3; lines.push({ text: `[${'①②③'[i]}] 헌신 · 눈 ${activePips[i]} ×3`, type: 'calc' }); fired.push({ die: i, face: -1, name: '헌신', op: 'add', n: activePips[i] * 2, note: '' }); }
     else S += activePips[i];
   });
   lines.unshift({ text: `기본 눈합  ${S}${ctx.accBonus ? ` (회당 +${ctx.accBonus})` : ''}`, type: 'calc' });
@@ -87,12 +87,13 @@ export function calcFaithPoints(dice, ctx) {
       if (e?.id === 'gongheo' && st !== 'active') { eff = eff.op === 'add' ? { op: 'add', n: eff.n * 2 } : { op: 'mul', n: eff.n * eff.n }; note = ' (공허 ×2)'; }
       S = ceil(eff.op === 'add' ? S + eff.n : S * eff.n);
       lines.push({ text: `[${di + 1}번·F${f + 1}] ${skill.name}  ${eff.op === 'add' ? '+' : '×'}${fmtN(eff.n)}${note}  →  ${S}`, type: eff.op });
+      fired.push({ die: di, face: f, name: skill.name, op: eff.op, n: eff.n, note });
       if (skill.kind === 'growCount') growthEvents.push({ uid: inst.uid, field: 'count', delta: 1 });
       if (skill.kind === 'growAdd' || skill.kind === 'growMult') growthEvents.push({ uid: inst.uid, field: 'growth', delta: skill.step });
     }
-    if (e?.id === 'jjakheart' && upPip % 2 === 0) { S = ceil(S * 1.2); lines.push({ text: `[${'①②③'[di]}] 짝의 심장  ×1.2  →  ${S}`, type: 'mul' }); }
+    if (e?.id === 'jjakheart' && upPip % 2 === 0) { S = ceil(S * 1.2); lines.push({ text: `[${'①②③'[di]}] 짝의 심장  ×1.2  →  ${S}`, type: 'mul' }); fired.push({ die: di, face: -1, name: '짝의 심장', op: 'mul', n: 1.2, note: '' }); }
   });
-  return { total: S, lines, growthEvents };
+  return { total: S, lines, growthEvents, fired };
 }
 function fmtN(n) { return Number.isInteger(n) ? String(n) : (Math.round(n * 1000) / 1000).toString(); }
 
@@ -130,27 +131,13 @@ export function resolveMove(board, from, n, mode, opts = {}) {
   return { path, to: wrap(from + dist), crossings: Math.floor((from + dist) / N), extended };
 }
 
-// 몬스터 이동 (기본 방식 + 비행 기믹): 시작칸에 닿는 걸음이 즉시 landAt 칸으로
-export function resolveEnemyMove(from, n, monsterDef) {
-  const fly = (monsterDef.gimmicks || []).find(g => g.t === 'flyover');
-  const path = []; let cur = from;
-  for (let k = 1; k <= n; k++) {
-    let next = wrap(cur + 1); let assault = false;
-    if (next === TND.START_CELL) { assault = true; if (fly) next = fly.landAt; }
-    else if (fly && next >= fly.from && next <= fly.to) next = fly.landAt; // 비행 구간은 절대 밟지 않는다
-    path.push({ cell: next, pass: true, stop: k === n, assault });
-    cur = next;
-  }
-  return { path, to: cur };
-}
-
-const emptyCell = id => ({ id, piece: null, corrupt: null, safe: id >= 1 && id <= 8 });
+const emptyCell = id => ({ id, piece: null, corrupt: null });
 
 export class TndGame {
-  constructor({ rng, monster } = {}) {
+  constructor({ rng, monsters, waves } = {}) {
     this.rng = rng || Math.random;
-    // 몬스터는 데이터: 키(MONSTERS) 또는 정의 객체를 직접 넘길 수 있다
-    this.monsterDef = typeof monster === 'object' && monster ? monster : MONSTERS[monster || TND.MONSTER];
+    // 몬스터·웨이브는 데이터: 정의 사전과 웨이브 배열을 통째로 교체할 수 있다 (코드 수정 없이 동작)
+    this.monsterDefs = monsters || MONSTERS; this.waves = waves || WAVES;
     this.onChange = null; this.log = [];
     this.dice = Array.from({ length: TND.DICE }, () => ({
       faces: Array.from({ length: FACE_COUNT }, (_, f) => ({ pip: f + 1, skill: null })),
@@ -160,7 +147,7 @@ export class TndGame {
     this.deck = [...STARTER_DECK];
     this.phase = 'prep'; this.sub = null; this.pending = null; this.result = null; this.queue = [];
     this.selectedDie = null; this.selectedFace = null; this.selectedSkill = null; this.selectedEngraving = null;
-    this.board = []; this.player = null; this.monster = null; this.turn = 0;
+    this.board = []; this.player = null; this.monsters = []; this.waveIndex = 0; this.turn = 0;
   }
   _emit() { if (this.onChange) this.onChange(); }
   addLog(text, type = 'action') { this.log.push({ text, type }); if (this.log.length > 1500) this.log.splice(0, this.log.length - 1500); }
@@ -188,16 +175,26 @@ export class TndGame {
     for (let d = -2; d <= 2; d++) { if (d === 0) continue; const c = this.cellAt(cell.id + d); if (c.piece?.owner === 'P' && c.piece.defId === 'cathedral' && !c.corrupt) return 2; }
     return 1;
   }
-  nextAssaultCost() { const a = this.monsterDef.assault; return a[Math.min(this.monster.laps, a.length - 1)]; }
-  nextAction() { const p = this.monsterDef.pattern; const s = this.monster.skipNext ? (this.monster.step + 1) % p.length : this.monster.step; return { step: s, action: p[s] }; }
-  // 적 의도: 다음 행동과 (이동이면) 경유·도착 칸
+  aliveMonsters() { return this.monsters; }
+  nextWave() { return this.waveIndex < this.waves.length ? this.waves[this.waveIndex] : null; }
+  waveCount() { return this.waves.length; }
+  // 조기 소환: 보드에 몬스터가 없고 다음 웨이브가 남았을 때만 (대화창 중에는 불가)
+  canEarlyCall() { return TND.EARLY_CALL && this.phase === 'trial' && this.sub !== 'dialog' && this.monsters.length === 0 && !!this.nextWave(); }
+  cellsToLap(m) { return m.pos === TND.START_CELL ? N : N - m.pos; }
+  // 몬스터 한 마리의 다음 이동 (순수 계산). 성문에 걸렸으면 이동 0
+  _nextMove(m) {
+    if (m.skipNext) return { n: 0, path: [], to: m.pos, skipping: true, laps: 0 };
+    const n = m.def.pattern[m.step];
+    const r = resolveMove(this.board, m.pos, n, m.def.moveMode);
+    return { n, path: r.path, to: r.to, skipping: false, laps: r.crossings };
+  }
+  // 적 의도: 마리별 다음 이동·도착 칸·완주까지 남은 칸·완주 결과
   intent() {
     if (this.phase !== 'trial') return null;
-    const { step, action } = this.nextAction();
-    const after = this.monsterDef.pattern[(step + 1) % this.monsterDef.pattern.length];
-    const r = action.t === 'move' ? resolveEnemyMove(this.monster.pos, action.n, this.monsterDef) : null;
-    return { step, action, after, path: r ? r.path : [], to: r ? r.to : null, skipping: this.monster.skipNext };
+    return this.monsters.map(m => ({ uid: m.uid, defId: m.def.id, name: m.def.name, icon: m.def.icon, faith: m.faith, maxFaith: m.def.faith,
+      moveMode: m.def.moveMode, step: m.step, pattern: m.def.pattern, ...this._nextMove(m), cellsToLap: this.cellsToLap(m), leak: m.def.leak, leakText: leakLabel(m.def.leak) }));
   }
+  intentOf(uid) { return this.intent()?.find(i => i.uid === uid) || null; }
 
   // ───────── 정비 ─────────
   selectDie(i) { if (this.phase !== 'prep') return false; this.selectedDie = i; this.selectedFace = null; this._emit(); return true; }
@@ -238,13 +235,13 @@ export class TndGame {
     if (!this.canStart()) return false;
     this.board = Array.from({ length: N }, (_, i) => emptyCell(i));
     this.player = { pos: 0, faith: TND.PLAYER_START_FAITH, gauge: 0, purifyCost: TND.PURIFY_START, laps: 0, stoppedAt: [] };
-    this.monster = { pos: 0, faith: this.monsterDef.faith, laps: 0, step: 0, skipNext: false };
+    this.monsters = []; this.waveIndex = 0; this.monsterUid = 1; this.kills = 0;
     for (const inst of this.allInstances()) { inst.growth = 0; inst.count = 0; }
     for (const d of this.dice) { d.locked = false; d.pipBonus = 0; d.lastUp = null; }
     this.turn = 0; this.result = null; this.pending = null; this.queue = []; this.log = [];
     this.rerollBonus = 0; this.accBonus = 0; this.usedDice = []; this.segment = null;
     this.phase = 'trial';
-    this.addLog(`━━ 고행 시작 — ${this.monsterDef.name} (신앙 ${this.monsterDef.faith}) ━━`, 'event');
+    this.addLog(`━━ 고행 시작 — 웨이브 ${this.waves.length}개 · ${this.waves.map(w => w.monsters.map(id => this.monsterDefs[id].name).join('+')).join(' → ')} ━━`, 'event');
     this._startPlayerTurn(); this._emit(); return true;
   }
   backToPrep() {
@@ -263,6 +260,7 @@ export class TndGame {
     if (this.rerollBonus) this.addLog(`성물함 효과 — 이번 턴 재굴림 +${this.rerollBonus}`, 'calc');
     this.rerollBonus = 0; this.rollNo = 1;
     this.addLog(`── 턴 ${this.turn} · 플레이어 ──`, 'action');
+    this._spawnDueWaves();
     const temple = this.myPieces().find(c => c.piece.defId === 'temple' && !c.corrupt);
     if (temple) { const g = 10 * temple.piece.grade; this.player.faith += g; this.addLog(`신전 오라 · 턴 시작 신앙 +${g}`, 'calc'); }
     // 인내: 잠긴 채 넘어온 주사위는 굴리지 않고 눈 +1
@@ -272,8 +270,23 @@ export class TndGame {
     });
     this._rollUnlocked(false);
     this.rollsLeft -= 1;
-    const t = this.intent();
-    this.addLog(`▶ ${this.monsterDef.name} 의도: ${actionLabel(t.action)}${t.to !== null ? ` → 도착 ${t.to}` : ''}`, 'event');
+    for (const t of this.intent()) this.addLog(`▶ ${t.name} 의도: ${t.skipping ? '이동 취소 (성문)' : `이동 ${t.n} → 도착 ${t.to}`} · 완주까지 ${t.cellsToLap}칸`, 'event');
+  }
+  // ───────── 웨이브 ─────────
+  _spawn(wave, label) {
+    const names = wave.monsters.map(id => this.monsterDefs[id]);
+    for (const def of names) this.monsters.push({ uid: this.monsterUid++, def, pos: TND.START_CELL, faith: def.faith, step: 0, skipNext: false, laps: 0 });
+    const summary = Object.entries(names.reduce((a, d) => (a[d.name] = (a[d.name] || 0) + 1, a), {})).map(([n, k]) => k > 1 ? `${n} ×${k}` : n).join(', ');
+    this.addLog(`${label} · ${summary} 출현`, 'event');
+    this.waveIndex += 1;
+  }
+  _spawnDueWaves() { while (this.nextWave() && this.turn >= this.nextWave().turn) this._spawn(this.nextWave(), `웨이브 ${this.waveIndex + 1}`); }
+  earlyCall() {
+    if (!this.canEarlyCall()) return false;
+    this.addLog(`조기 소환 · 웨이브 ${this.waveIndex + 1}`, 'action');
+    this._spawn(this.nextWave(), `웨이브 ${this.waveIndex + 1}`);
+    for (const t of this.intent()) this.addLog(`▶ ${t.name} 의도: 이동 ${t.n} → 도착 ${t.to} · 완주까지 ${t.cellsToLap}칸`, 'event');
+    this._emit(); return true;
   }
   _rollDie(die, isReroll, idx) {
     const e = engrOf(die); const pick = () => Math.floor(this.rng() * FACE_COUNT);
@@ -304,7 +317,23 @@ export class TndGame {
     const r = calcFaithPoints(this.dice, this._calcCtx());
     const grail = this.hasAura('grail');
     const c = convert(r.total, grail ? 9 : this.player.gauge, { minGauge: grail ? 9 : 0 });
-    return { points: r.total, faith: c.faith, gauge: c.gauge };
+    return { points: r.total, faith: c.faith, gauge: c.gauge, fired: r.fired };
+  }
+  // 주사위 판 면 상태: 스킬이 있는 면마다 상태(활성/맞은편/측면)·발동 여부·효과. 정산 프리뷰(calcFaithPoints)와 같은 계산.
+  faceStatus() {
+    if (!this.player) return null;
+    const fired = calcFaithPoints(this.dice, this._calcCtx()).fired;
+    return this.dice.map((d, di) => {
+      const e = engrOf(d);
+      const order = [d.upIndex, OPPOSITE[d.upIndex], ...d.faces.map((_, f) => f).filter(f => f !== d.upIndex && f !== OPPOSITE[d.upIndex])];
+      const faces = order.filter(f => d.faces[f].skill).map(f => {
+        const skill = TND_SKILLS_BY_ID[d.faces[f].skill.id]; const state = faceState(f, d.upIndex);
+        const hit = fired.find(x => x.die === di && x.face === f) || null;
+        return { face: f, pip: d.faces[f].pip, skill, state, layerOk: layerMatches(skill.layer, state), fired: !!hit, op: hit?.op, n: hit?.n, note: hit?.note || '', gongheo: e?.id === 'gongheo' && state !== 'active' };
+      });
+      const engr = fired.filter(x => x.die === di && x.face === -1);
+      return { die: di, faces, engr, firedCount: faces.filter(x => x.fired).length + engr.length };
+    });
   }
   confirm() {
     if (this.phase !== 'trial' || this.sub !== 'roll') return false;
@@ -403,6 +432,7 @@ export class TndGame {
           let cost = this.finalEnemyCost(cell); let note = '';
           if (this.segment?.jingsu) { cost = ceil(cost / 2); note = ' (징수: 절반)'; }
           this.addLog(`멈춤 ${this.segment.no}/3  칸 ${cell.id} · 사악한 기물 G${cell.piece.grade} · 강제지불 ${cost}${note}`, 'event');
+          if (this.player.faith + this.totalSellable() < cost) this.addLog(`✕ 강제지불 ${cost} · 지불 불가. 게임 포기 가능.`, 'decision');
           this.pending = { type: 'pay', pos: cell.id, cost }; this.sub = 'dialog'; return;
         }
         case 'purify': {
@@ -447,27 +477,26 @@ export class TndGame {
   }
 
   // ───────── 대화창 응답 ─────────
-  _resume() { if (this.pending) return; if (this.sub === 'enemy') this._enemyContinue(); else { this.sub = 'act'; this._next(); } }
-  canPay() { return !!this.pending && (this.pending.type === 'pay' || this.pending.type === 'assault') && this.player.faith >= this.pending.cost; }
-  mustGiveUp() { return !!this.pending && (this.pending.type === 'pay' || this.pending.type === 'assault') && this.player.faith + this.totalSellable() < this.pending.cost; }
+  _resume() { if (this.pending) return; this.sub = 'act'; this._next(); }
+  canPay() { return !!this.pending && this.pending.type === 'pay' && this.player.faith >= this.pending.cost; }
+  mustGiveUp() { return !!this.pending && this.pending.type === 'pay' && this.player.faith + this.totalSellable() < this.pending.cost; }
   payConfirm() {
-    const p = this.pending; if (!p || (p.type !== 'pay' && p.type !== 'assault') || this.player.faith < p.cost) return false;
+    const p = this.pending; if (!p || p.type !== 'pay' || this.player.faith < p.cost) return false;
     this.player.faith -= p.cost;
-    if (p.type === 'assault') { this.addLog(`강습!  바퀴 ${this.monster.laps} · ${p.cost} 신앙 지불 (잔여 ${this.player.faith})`, 'event'); this.pending = null; this.sub = 'enemy'; this._enemyContinue(); }
-    else { this.addLog(`강제지불  사악한 기물 G${this.board[p.pos].piece.grade} · ${p.cost} 신앙 (잔여 ${this.player.faith})`, 'event'); this.pending = null; this._resume(); }
+    this.addLog(`강제지불  사악한 기물 G${this.board[p.pos].piece.grade} · ${p.cost} 신앙 (잔여 ${this.player.faith})`, 'event'); this.pending = null; this._resume();
     this._emit(); return true;
   }
   sellPiece(pos) {
     const cell = this.board[pos];
-    if (!this.pending || (this.pending.type !== 'pay' && this.pending.type !== 'assault') || cell.piece?.owner !== 'P') return false;
+    if (!this.pending || this.pending.type !== 'pay' || cell.piece?.owner !== 'P') return false;
     const def = PIECES_BY_ID[cell.piece.defId]; const grade = cell.piece.grade; const price = sellPrice(def, grade);
     this.player.faith += price; cell.piece = null;
     this.addLog(`판매  칸 ${pos} ${def.name} G${grade} · +${price} 신앙`, 'action');
     this._emit(); return true;
   }
   giveUp() {
-    const p = this.pending; if (!p || (p.type !== 'pay' && p.type !== 'assault')) return false;
-    this._finish('defeat', p.type === 'assault' ? `✕ 강습 비용 ${p.cost} · 지불 불가. 패배.` : '✕ 강제지불 불가. 패배.');
+    const p = this.pending; if (!p || p.type !== 'pay') return false;
+    this._finish('defeat', `✕ 강제지불 ${p.cost} · 지불 불가. 패배.`);
     this._emit(); return true;
   }
   purify() {
@@ -550,101 +579,112 @@ export class TndGame {
       default: this.addLog(`${def.name} G${g} · 멈춤 효과 없음`, 'calc');
     }
   }
-  // 적이 밟음 (foePass). 타락 칸은 묘지만.
-  _foePass(cell) {
+  // 적이 밟음 (foePass). 타락 칸은 묘지만. 반환: 몬스터가 살아 있는가
+  _foePass(m, cell) {
     if (cell.piece?.owner !== 'P') return true;
     const def = PIECES_BY_ID[cell.piece.defId];
     if (cell.corrupt && def.id !== 'grave') return true;
-    const g = this.effGrade(cell); const m = this.auraMult(cell); const Nn = this.myPieceCount();
+    const g = this.effGrade(cell); const mult = this.auraMult(cell); const Nn = this.myPieceCount();
     const x = { stake: g, altar: g, grave: g, sanctum: 2 * g, hall: g, beacon: 2 * g, taxman: g * Nn, reliquary: 2 * g, spire: g * g, road: 2 * g, gate: 2 * g, constellation: 3 * g, temple: 50 }[def.id] || 0;
-    return this._hit(x * m, `${this.monsterDef.name} 밟음  칸 ${cell.id} ${def.name} G${g}${m > 1 ? ' (대성당 ×2)' : ''}`);
+    return this._hit(m, x * mult, `${m.def.name} 밟음  칸 ${cell.id} ${def.name} G${g}${mult > 1 ? ' (대성당 ×2)' : ''}`);
   }
-  _foeStop(cell) {
+  _foeStop(m, cell) {
     if (cell.piece?.owner !== 'P' || cell.corrupt) return true;
-    const def = PIECES_BY_ID[cell.piece.defId]; const g = this.effGrade(cell); const m = this.auraMult(cell);
-    const pre = `${this.monsterDef.name} 멈춤  칸 ${cell.id} ${def.name} G${g}${m > 1 ? ' (대성당 ×2)' : ''}`;
+    const def = PIECES_BY_ID[cell.piece.defId]; const g = this.effGrade(cell); const mult = this.auraMult(cell);
+    const pre = `${m.def.name} 멈춤  칸 ${cell.id} ${def.name} G${g}${mult > 1 ? ' (대성당 ×2)' : ''}`;
     switch (def.id) {
-      case 'altar': return this._hit(3 * g * m, pre);
-      case 'sanctum': return this._hit(6 * g * m, pre);
-      case 'spire': return this._hit(3 * g * g * m, pre);
-      case 'cathedral': return this._hit(10 * g * m, pre);
-      case 'grail': return this._hit(100 * m, pre);
-      case 'court': return this._hit(ceil(this.monster.faith * Math.min(100, 5 * g * m) / 100), `${pre} · 현재 신앙의 ${5 * g * m}%`);
-      case 'bell': { const back = 2 * g * m; this.monster.pos = Math.max(9, this.monster.pos - back); this.addLog(`${pre} · 적 ${back}칸 후퇴 → 칸 ${this.monster.pos}`, 'calc'); return true; }
-      case 'gate': { this.monster.skipNext = true; this.addLog(`${pre} · 적의 다음 패턴 행동 건너뜀`, 'calc'); return true; }
+      case 'altar': return this._hit(m, 3 * g * mult, pre);
+      case 'sanctum': return this._hit(m, 6 * g * mult, pre);
+      case 'spire': return this._hit(m, 3 * g * g * mult, pre);
+      case 'cathedral': return this._hit(m, 10 * g * mult, pre);
+      case 'grail': return this._hit(m, 100 * mult, pre);
+      case 'court': return this._hit(m, ceil(m.faith * Math.min(100, 5 * g * mult) / 100), `${pre} · 현재 신앙의 ${5 * g * mult}%`);
+      case 'bell': { const back = 2 * g * mult; m.pos = Math.max(TND.START_CELL, m.pos - back); this.addLog(`${pre} · ${m.def.name} ${back}칸 후퇴 → 칸 ${m.pos}`, 'calc'); return true; }
+      case 'gate': { m.skipNext = true; this.addLog(`${pre} · ${m.def.name}의 다음 이동 취소`, 'calc'); return true; }
       default: return true;
     }
   }
-  _hit(x, prefix) {
+  _hit(m, x, prefix) {
     if (x <= 0) return true;
-    this.monster.faith -= x;
-    this.addLog(`${prefix} · −${x} (잔량 ${Math.max(0, this.monster.faith)})`, 'calc');
-    if (this.monster.faith <= 0) { this._finish('victory', `★ ${this.monsterDef.name}의 신앙이 바닥났다. 승리.`); return false; }
+    m.faith -= x;
+    this.addLog(`${prefix} · −${x} (잔량 ${Math.max(0, m.faith)})`, 'calc');
+    if (m.faith <= 0) { this._kill(m); return false; }
     return true;
   }
+  _kill(m) {
+    this.monsters = this.monsters.filter(x => x !== m); this.kills += 1;
+    this.addLog(`★ ${m.def.name} 처치 (남은 몬스터 ${this.monsters.length})`, 'event');
+    if (this.monsters.length === 0 && !this.nextWave()) this._finish('victory', '★ 마지막 웨이브 격파. 승리.');
+  }
 
-  // ───────── 타락 · 소환 ─────────
+  // ───────── 타락 (유형별 만료) · 완주 ─────────
   _expireCorrupt(cell) {
+    const type = cell.corrupt.type || 'erode'; const T = CORRUPT_TYPES[type] || CORRUPT_TYPES.erode;
     cell.corrupt = null;
-    if (cell.piece?.owner === 'P') { const def = PIECES_BY_ID[cell.piece.defId]; this.addLog(`파괴됨  칸 ${cell.id} ${def.name} G${cell.piece.grade} (타락 만료)`, 'event'); cell.piece = null; }
-    if (cell.piece?.owner === 'E') { const b = cell.piece.grade; cell.piece.grade = Math.min(TND.MAX_GRADE, b + 1); this.addLog(`타락 만료  칸 ${cell.id} · 사악한 기물 G${b} → G${cell.piece.grade}`, 'event'); }
-    else { cell.piece = { owner: 'E', grade: 1 }; this.addLog(`타락 만료  칸 ${cell.id} · 사악한 기물 G1 건설`, 'event'); }
+    const gain = type === 'nest' ? 2 : 1; let mine = false;
+    if (cell.piece?.owner === 'P') { const def = PIECES_BY_ID[cell.piece.defId]; this.addLog(`파괴됨  칸 ${cell.id} ${def.name} G${cell.piece.grade} (${T.name} 만료)`, 'event'); cell.piece = null; mine = true; }
+    if (type === 'corrode' && mine) return; // 부식: 내 기물만 파괴, 사악한 기물은 생기지 않음
+    if (cell.piece?.owner === 'E') { const b = cell.piece.grade; cell.piece.grade = Math.min(TND.MAX_GRADE, b + gain); this.addLog(`${T.name} 만료  칸 ${cell.id} · 사악한 기물 G${b} → G${cell.piece.grade}`, 'event'); }
+    else { cell.piece = { owner: 'E', grade: gain }; this.addLog(`${T.name} 만료  칸 ${cell.id} · 사악한 기물 G${gain} 건설`, 'event'); }
   }
-  _defenseCells(pred) { return this.board.filter(c => c.id >= 9 && c.id <= 31 && pred(c)); }
-  _spawnCorruption(k) {
-    const cands = this._defenseCells(c => !c.corrupt); const placed = [];
-    for (let i = 0; i < k && cands.length; i++) { const c = cands.splice(Math.floor(this.rng() * cands.length), 1)[0]; c.corrupt = { counter: TND.CORRUPT_COUNTER }; placed.push(c.id); }
-    return placed;
+  _cells(pred) { return this.board.filter(c => c.id !== TND.START_CELL && pred(c)); }
+  _pick(arr) { return arr.splice(Math.floor(this.rng() * arr.length), 1)[0]; }
+  // 배치 규칙에 따라 타락시킬 칸을 고른다 (이미 타락한 칸·시작칸 제외)
+  _leakTargets(leak) {
+    const free = c => !c.corrupt; const out = [];
+    const take = (cands, k) => { while (out.length < k && cands.length) out.push(this._pick(cands)); };
+    const emptyRandom = () => { take(this._cells(c => free(c) && !c.piece), leak.count); take(this._cells(c => free(c) && !out.includes(c)), leak.count); };
+    switch (leak.placement) {
+      case 'pieceFirst': take(this._cells(c => free(c) && c.piece?.owner === 'P'), leak.count); emptyRandom(); break;
+      case 'highestPiece': {
+        const mine = this._cells(c => free(c) && c.piece?.owner === 'P').sort((a, b) => b.piece.grade - a.piece.grade);
+        while (out.length < leak.count && mine.length) { const top = mine.filter(c => c.piece.grade === mine[0].piece.grade); const c = this._pick(top); mine.splice(mine.indexOf(c), 1); out.push(c); }
+        emptyRandom(); break;
+      }
+      case 'nearStart': take(this._cells(c => free(c) && c.id >= 1 && c.id <= TND.HOME_RANGE), leak.count); emptyRandom(); break;
+      case 'consecutive': { // 시작칸을 끼지 않고 전부 타락 가능한 연속 구간 중 무작위
+        const run = s0 => Array.from({ length: leak.count }, (_, k) => this.cellAt(s0 + k));
+        const starts = this._cells(free).filter(c => run(c.id).every(x => x.id !== TND.START_CELL && free(x)));
+        if (starts.length) out.push(...run(this._pick(starts).id));
+        emptyRandom(); break;
+      }
+      default: emptyRandom();
+    }
+    return out.slice(0, leak.count);
   }
-  _summon(k) {
-    const cands = this._defenseCells(c => !c.piece && !c.corrupt); const placed = [];
-    for (let i = 0; i < k && cands.length; i++) { const c = cands.splice(Math.floor(this.rng() * cands.length), 1)[0]; c.piece = { owner: 'E', grade: 1 }; placed.push(c.id); }
-    return placed;
+  _leak(m) {
+    m.laps += 1;
+    const leak = m.def.leak; const T = CORRUPT_TYPES[leak.type];
+    const targets = this._leakTargets(leak);
+    for (const c of targets) c.corrupt = { counter: T.counter, type: leak.type };
+    const where = targets.map(c => `칸 ${c.id}${c.piece?.owner === 'P' ? `(${PIECES_BY_ID[c.piece.defId].name} G${c.piece.grade})` : ''}`).join(', ') || '자리 없음';
+    this.addLog(`${m.def.name} 완주 · ${T.name} ${leak.count} → ${where}`, 'event');
   }
 
-  // ───────── 적 턴: 패턴 1행동 ─────────
+  // ───────── 적 턴: 모든 몬스터가 순서대로 이동 ─────────
   _enemyTurn() {
     if (this.phase !== 'trial') return;
-    this.sub = 'enemy'; this.enemyQueue = [];
-    const m = this.monster; const P = this.monsterDef.pattern;
-    this.addLog(`── 턴 ${this.turn} · ${this.monsterDef.name} ──`, 'action');
-    if (m.skipNext) { this.addLog(`${this.monsterDef.name} ${'①②③④⑤⑥'[m.step]} ${actionLabel(P[m.step])} — 성문 효과로 건너뜀`, 'event'); m.skipNext = false; m.step = (m.step + 1) % P.length; }
-    const a = P[m.step]; const mark = '①②③④⑤⑥'[m.step] || `${m.step + 1}`;
-    m.step = (m.step + 1) % P.length;
-    if (a.t === 'move') {
-      const r = resolveEnemyMove(m.pos, a.n, this.monsterDef);
-      this.addLog(`${this.monsterDef.name} ${mark} 이동 ${a.n} → 칸 ${r.to}`, 'action');
-      this.enemyQueue = r.path.map(step => ({ step }));
-    } else if (a.t === 'corrupt') { const p = this._spawnCorruption(a.k); this.addLog(`${this.monsterDef.name} ${mark} 타락 ${a.k} → ${p.map(c => `칸 ${c}`).join(', ') || '자리 없음'}`, 'event'); }
-    else if (a.t === 'summon') { const p = this._summon(a.k); this.addLog(`${this.monsterDef.name} ${mark} 소환 ${a.k} → ${p.map(c => `칸 ${c} 사악한 기물 G1`).join(', ') || '자리 없음'}`, 'event'); }
-    else if (a.t === 'empower') { let n = 0; for (const c of this.board) if (c.piece?.owner === 'E' && c.piece.grade < TND.MAX_GRADE) { c.piece.grade++; n++; } this.addLog(`${this.monsterDef.name} ${mark} 강화 · 사악한 기물 ${n}개 등급 +1`, 'event'); }
-    else if (a.t === 'heal') { m.faith += a.n; this.addLog(`${this.monsterDef.name} ${mark} 회복 +${a.n} (신앙 ${m.faith})`, 'event'); }
-    else this.addLog(`${this.monsterDef.name} ${mark} 대기`, 'action');
-    this._enemyContinue();
-  }
-  _enemyContinue() {
-    const m = this.monster; const constellation = this.hasAura('constellation');
-    while (this.enemyQueue.length > 0 && this.phase === 'trial' && !this.pending) {
-      const { step } = this.enemyQueue.shift();
-      if (step.assault) {
-        m.laps += 1; const cost = this.monsterDef.assault[Math.min(m.laps - 1, this.monsterDef.assault.length - 1)];
+    this.sub = 'enemy';
+    if (this.monsters.length === 0) this.addLog(`── 턴 ${this.turn} · 몬스터 없음 ──`, 'action');
+    const constellation = this.hasAura('constellation');
+    for (const m of [...this.monsters]) {
+      if (this.phase !== 'trial') return;
+      const P = m.def.pattern; const mark = '①②③④⑤⑥'[m.step] || `${m.step + 1}`;
+      if (m.skipNext) { this.addLog(`${m.def.name} ${mark} 이동 ${P[m.step]} — 성문 효과로 취소`, 'event'); m.skipNext = false; m.step = (m.step + 1) % P.length; continue; }
+      const mv = this._nextMove(m); m.step = (m.step + 1) % P.length;
+      this.addLog(`${m.def.name} ${mark} 이동 ${mv.n}(${MOVE_MODE_LABEL[m.def.moveMode]}) → 칸 ${mv.to}`, 'action');
+      for (const step of mv.path) {
         m.pos = step.cell;
-        this.addLog(`${this.monsterDef.name} 도약 · 시작칸을 지나 칸 ${step.cell}로 (바퀴 ${m.laps})`, 'event');
-        this.addLog(`강습!  바퀴 ${m.laps} · ${cost} 신앙 청구`, 'event');
-        this.enemyQueue.unshift({ step: { ...step, assault: false, moved: true } });
-        this.pending = { type: 'assault', cost }; this.sub = 'dialog'; return;
-      }
-      m.pos = step.cell;
-      const cell = this.board[step.cell];
-      const stopsHere = step.stop || constellation;
-      if (!this._foePass(cell)) return;
-      if (stopsHere) {
-        if (cell.corrupt) { cell.corrupt.counter -= 1; this.addLog(`${this.monsterDef.name} 멈춤  칸 ${cell.id} 타락 · 카운터 −1 → ${cell.corrupt.counter}`, 'action'); if (cell.corrupt.counter <= 0) this._expireCorrupt(cell); }
-        else if (!this._foeStop(cell)) return;
-        if (constellation && !step.stop && cell.piece?.owner === 'P') this.addLog('성좌 오라 · 밟음을 멈춤으로 판정', 'calc');
+        if (step.cell === TND.START_CELL) { this._leak(m); continue; }
+        const cell = this.board[step.cell];
+        if (step.pass && !this._foePass(m, cell)) break;
+        if (step.stop || (step.pass && constellation)) {
+          if (cell.corrupt) { cell.corrupt.counter -= 1; this.addLog(`${m.def.name} 멈춤  칸 ${cell.id} 타락 · 카운터 −1 → ${cell.corrupt.counter}`, 'action'); if (cell.corrupt.counter <= 0) this._expireCorrupt(cell); }
+          else { if (constellation && !step.stop && cell.piece?.owner === 'P') this.addLog('성좌 오라 · 밟음을 멈춤으로 판정', 'calc'); if (!this._foeStop(m, cell)) break; }
+        }
       }
     }
-    if (this.phase === 'trial' && !this.pending && this.enemyQueue.length === 0) this._startPlayerTurn();
+    if (this.phase === 'trial') this._startPlayerTurn();
   }
 
   // ───────── 테스트 훅 ─────────

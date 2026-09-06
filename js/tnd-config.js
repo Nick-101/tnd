@@ -13,7 +13,8 @@ export const TND = {
   PURIFY_START: 1, PURIFY_STEP: 2,
   STOP_DISCOUNT: 0.5,         // 이번 턴 멈춘 칸의 업그레이드 = (비용÷2)×0.5 = 비용÷4
   REPEAT_CAP: 15,
-  MONSTER: 'pilgrim',
+  EARLY_CALL: true,           // 보드가 비면 다음 웨이브 조기 소환 가능
+  HOME_RANGE: 8,              // '귀향': 시작칸에서 8칸 이내
 };
 
 export const ceil = n => Math.ceil(n - 1e-9);
@@ -21,20 +22,28 @@ export const upgradeCost = (def, stopped) => ceil(def.cost / 2 * (stopped ? TND.
 export const sellPrice = (def, g) => ceil(def.cost * g / 2);
 export const enemyPieceCost = (g, m) => 2 * g + g * m;
 
-// ── 몬스터 (데이터 정의 — 교체하면 다른 패턴·기믹이 코드 수정 없이 동작)
-// 행동: move n · corrupt k · summon k · empower · heal n · wait
+// ── 몬스터 (데이터 정의 — 정의 하나 추가 = 새 몬스터). 이동만 하며, 완주(시작칸 복귀) 시 leak대로 타락을 만든다.
+// leak.type: erode(잠식) | corrode(부식) | nest(둥지) · leak.placement: emptyRandom | pieceFirst | highestPiece | nearStart | consecutive
 export const MONSTERS = {
-  pilgrim: {
-    id: 'pilgrim', name: '순례자', faith: 250, moveMode: 'basic',
-    pattern: [{ t: 'move', n: 6 }, { t: 'move', n: 5 }, { t: 'corrupt', k: 1 }, { t: 'move', n: 7 }, { t: 'move', n: 6 }, { t: 'summon', k: 1 }],
-    gimmicks: [{ t: 'flyover', from: 1, to: 8, landAt: 9 }], // 시작칸을 지나면 즉시 9번 칸으로 — 1~8은 밟지 않는다
-    assault: [5, 10, 20, 40, 80, 160],
-  },
+  pilgrim:  { id: 'pilgrim',  name: '순례자', icon: '○', faith: 120, moveMode: 'basic', pattern: [5, 4, 6, 5], leak: { count: 3, type: 'erode',   placement: 'emptyRandom' } }, // 잠식 1→3: §18.3 노브 3 (봇 실측 캘리브레이션, progress.txt 반복 9)
+  raider:   { id: 'raider',   name: '약탈자', icon: '◇', faith: 90,  moveMode: 'basic', pattern: [7, 6, 8],    leak: { count: 2, type: 'corrode', placement: 'pieceFirst' } },
+  leaper:   { id: 'leaper',   name: '도약자', icon: '◆', faith: 150, moveMode: 'jump',  pattern: [6, 6, 8],    leak: { count: 2, type: 'erode',   placement: 'nearStart' } },
+  colossus: { id: 'colossus', name: '거체',   icon: '□', faith: 400, moveMode: 'slow',  pattern: [3, 3, 4],    leak: { count: 1, type: 'nest',    placement: 'highestPiece' } },
 };
-export function actionLabel(a) {
-  return a.t === 'move' ? `이동 ${a.n}` : a.t === 'corrupt' ? `타락 ${a.k}` : a.t === 'summon' ? `소환 ${a.k}`
-    : a.t === 'empower' ? '강화' : a.t === 'heal' ? `회복 ${a.n}` : '대기';
-}
+// 웨이브: 정해진 턴에 시작칸에 소환. 이전 웨이브가 살아 있어도 누적.
+export const WAVES = [
+  { turn: 1, monsters: ['pilgrim'] },
+  { turn: 7, monsters: ['raider', 'raider'] },
+  { turn: 14, monsters: ['colossus', 'pilgrim'] },
+];
+// 타락 유형: 카운터 0에서의 처리
+export const CORRUPT_TYPES = {
+  erode:   { name: '잠식', counter: 3, desc: '카운터 3 → 사악한 기물 G1 (이미 있으면 +1)' },
+  corrode: { name: '부식', counter: 2, desc: '카운터 2 → 그 칸의 내 기물만 파괴 (빈 칸이면 잠식과 동일)' },
+  nest:    { name: '둥지', counter: 4, desc: '카운터 4 → 사악한 기물 G2 (이미 있으면 +2)' },
+};
+export const PLACEMENT_LABEL = { emptyRandom: '빈 칸 무작위', pieceFirst: '기물 있는 칸 우선', highestPiece: '최고 등급 기물 칸', nearStart: '시작칸 앞 8칸 이내', consecutive: '연속 칸' };
+export const leakLabel = leak => `타락 ${leak.count} · ${CORRUPT_TYPES[leak.type].name} · ${PLACEMENT_LABEL[leak.placement]}`;
 
 // ── 각인 18종 (주사위당 1, 중복 불가). kind: move | roll | settle | board
 export const ENGRAVINGS = [
@@ -96,7 +105,7 @@ const NEW_SKILLS = [
   { id: 'seongjeon', name: '성전', grade: 'advanced', layer: 'active',   cond: { kind: 'any' },  op: 'add', kind: 'perPiece', v: 3, desc: '보드 위 내 기물 1개당 +3' },
   { id: 'sungyo',    name: '순교', grade: 'advanced', layer: 'latent',   cond: { kind: 'any' },  op: 'add', kind: 'perCorrupt', v: 2, desc: '보드 위 타락 칸 1개당 +2' },
   { id: 'eungjing',  name: '응징', grade: 'rare',     layer: 'active',   cond: { kind: 'high' }, op: 'mul', kind: 'perEnemyPieceMult', v: 1.15, desc: '보드 위 사악한 기물 1개당 ×1.15' },
-  { id: 'gwihyang',  name: '귀향', grade: 'advanced', layer: 'opposite', cond: { kind: 'any' },  op: 'add', kind: 'safeZone', v: 12, desc: '내 말이 안전지대(1~8)에 있으면 +12' },
+  { id: 'gwihyang',  name: '귀향', grade: 'advanced', layer: 'opposite', cond: { kind: 'any' },  op: 'add', kind: 'homeNear', v: 12, desc: '내 말이 시작칸에서 8칸 이내에 있으면 +12' },
 ];
 export const TND_SKILLS = [
   ...SKILLS.filter(s => !REMOVED.has(s.id)).map(s => ({ ...s, ...(OVERRIDE[s.id] || {}) })),
@@ -118,7 +127,7 @@ export const TND_SKILL_DETAILS = {
   seongjeon: '활성형 (보드 참조). 이 면이 윗면이면 보드 위 내 기물 1개당 +3.',
   sungyo: '잠재형 (보드 참조). 윗면이 아니면 보드 위 타락 칸 1개당 +2.',
   eungjing: '활성형 곱셈 (보드 참조). 눈 4~6 면 전용. 이 면이 윗면이면 보드 위 사악한 기물 1개당 ×1.15 (곱으로 중첩).',
-  gwihyang: '맞은편형 (보드 참조). 이 면이 바닥면이고 내 말이 안전지대(1~8, 순례자가 밟지 않는 비행 구간)에 있으면 +12.',
+  gwihyang: '맞은편형 (보드 참조). 이 면이 바닥면이고 내 말이 시작칸(0)에서 시계·반시계 어느 쪽으로든 8칸 이내에 있으면 +12.',
 };
 
 // ── 기물 20종. 훅: myPass(내밟) myStop(내멈) foePass(적밟) foeStop(적멈) aura. 효과 로직은 tnd-game.js
@@ -131,15 +140,15 @@ export const PIECES = [
   { id: 'grave',     name: '묘지',   tier: 1, cost: 5,    hooks: ['foePass'],                 desc: '적밟: −G · 타락해도 효과 유지' },
   { id: 'sanctum',   name: '성소',   tier: 2, cost: 10,   hooks: ['foePass', 'foeStop'],      desc: '적밟: −2G · 적멈: −6G' },
   { id: 'purifier',  name: '정화소', tier: 2, cost: 12,   hooks: ['myStop'],                  desc: '내멈: 정화 비용 1로 초기화, 좌우 G칸의 타락 제거' },
-  { id: 'bell',      name: '종탑',   tier: 2, cost: 12,   hooks: ['foeStop'],                 desc: '적멈: 적을 2G칸 뒤로 (되돌아간 칸은 밟지 않음)' },
+  { id: 'bell',      name: '종탑',   tier: 2, cost: 12,   hooks: ['foeStop'],                 desc: '적멈: 그 몬스터를 2G칸 뒤로 (되돌아간 칸은 밟지 않음)' },
   { id: 'hall',      name: '회당',   tier: 2, cost: 15,   hooks: ['myStop', 'foePass'],       desc: '내멈: 다음 정산 누산기 +5G · 적밟: −G' },
   { id: 'beacon',    name: '봉화',   tier: 2, cost: 15,   hooks: ['myPass', 'foePass'],       desc: '내밟: 좌우 G칸 타락 카운터 +1 · 적밟: −2G' },
   { id: 'taxman',    name: '세리',   tier: 2, cost: 20,   hooks: ['foePass'],                 desc: '적밟: −(G×N)' },
   { id: 'reliquary', name: '성물함', tier: 3, cost: 50,   hooks: ['myStop', 'foePass'],       desc: '내멈: 다음 턴 재굴림 +G · 적밟: −2G' },
   { id: 'spire',     name: '첨탑',   tier: 3, cost: 60,   hooks: ['foePass', 'foeStop'],      desc: '적밟: −G² · 적멈: −3G²' },
   { id: 'road',      name: '순례길', tier: 3, cost: 70,   hooks: ['myStop', 'foePass'],       desc: '내멈: 즉시 G칸 추가 이동 (기본, 연쇄) · 적밟: −2G' },
-  { id: 'gate',      name: '성문',   tier: 3, cost: 80,   hooks: ['foeStop', 'foePass'],      desc: '적멈: 적의 다음 패턴 행동을 건너뜀 · 적밟: −2G' },
-  { id: 'court',     name: '심판소', tier: 4, cost: 350,  hooks: ['foeStop'],                 desc: '적멈: 적 현재 신앙의 5G% 차감' },
+  { id: 'gate',      name: '성문',   tier: 3, cost: 80,   hooks: ['foeStop', 'foePass'],      desc: '적멈: 그 몬스터의 다음 이동을 취소 · 적밟: −2G' },
+  { id: 'court',     name: '심판소', tier: 4, cost: 350,  hooks: ['foeStop'],                 desc: '적멈: 그 몬스터 현재 신앙의 5G% 차감' },
   { id: 'cathedral', name: '대성당', tier: 4, cost: 400,  hooks: ['aura', 'foeStop'],         desc: '오라: 좌우 2칸 기물의 모든 효과 ×2 · 적멈: −10G' },
   { id: 'constellation', name: '성좌', tier: 4, cost: 500, hooks: ['aura', 'foePass'],        desc: '오라: 적이 밟는 모든 칸을 멈춤으로도 판정 · 적밟: −3G' },
   { id: 'temple',    name: '신전',   tier: 5, cost: 2000, hooks: ['aura', 'foePass'],         desc: '오라: 내 모든 기물 등급 +2 (최대 6) · 턴 시작 시 신앙 +10G · 적밟: −50' },

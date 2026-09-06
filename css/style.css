@@ -447,9 +447,7 @@ body {
 #trial-btns { display: flex; gap: 8px; }
 #trial-btns .btn { flex: 1; font-size: 15px; padding: 10px 12px; }
 #btn-plan.on { background: var(--gold); color: #5c4300; box-shadow: 0 4px 0 #b8860b; }
-/* 보드: 안전지대 · 의도 · 프리뷰 · 계획 */
-.cell.safe { background: #e3e9dc; border-color: #b9c4ad; }
-.cell.safe.owner-P { background: #cfeef2; }
+/* 보드: 의도 · 프리뷰 · 계획 */
 .cell.intent-path { box-shadow: 0 0 0 3px #d98c8c; }
 .cell.intent-stop { border-color: var(--red); }
 .cell .star { position: absolute; top: -12px; left: -6px; color: var(--red); font-size: 16px; text-shadow: 0 0 2px #fff; }
@@ -467,3 +465,42 @@ body {
 .die-engr small { font-weight: 400; color: #999; }
 .die.small .die-face small { font-size: 12px; color: #2e9db0; }
 .half-badge { font-size: 11px; background: var(--gold); color: #5c4300; padding: 1px 6px; border-radius: 6px; margin-left: 6px; }
+
+/* ======================= TnD v2.1 개정: 웨이브 · 다중 몬스터 · 면 상태 ======================= */
+#topbar { gap: 18px; font-size: 15px; flex-wrap: wrap; }
+#topbar .wave-next { display: flex; align-items: center; gap: 8px; }
+.btn.small { font-size: 12px; padding: 4px 10px; box-shadow: 0 3px 0 rgba(0,0,0,0.25); }
+.btn.small.disabled, .btn.small:disabled { opacity: 0.4; box-shadow: none; }
+#intent-panel { max-height: 260px; overflow-y: auto; }
+.intent-row { padding: 6px 4px; border-bottom: 1px dashed #e5dfd2; cursor: help; }
+.intent-row:hover { background: #fff3e0; }
+.intent-row .intent-main { font-size: 15px; margin: 0; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.intent-row .intent-main small { color: #999; font-weight: 400; }
+.intent-row .hpbar { width: 70px; height: 9px; }
+.intent-move { margin-left: auto; font-size: 16px; }
+.intent-move small { font-size: 10px; margin-left: 2px; }
+.mon-icon { font-size: 18px; color: #7a2f9e; }
+.cell.intent-focus { box-shadow: 0 0 0 4px var(--red); }
+.cell .star i { font-size: 9px; font-style: normal; color: #fff; background: var(--red); border-radius: 6px; padding: 0 3px; margin-left: 1px; }
+.cell.plan-hit { box-shadow: 0 0 0 3px var(--red), 0 0 0 6px var(--gold); }
+.pawn.e { display: flex; gap: 1px; right: 1px; bottom: 0; font-size: 15px; }
+.pawn.e .mon { position: relative; display: inline-block; color: #6a2390; text-shadow: 0 0 2px #fff; }
+.pawn.e .mon small { position: absolute; top: -11px; left: 50%; transform: translateX(-50%); font-size: 8px; font-weight: 900; background: #6a2390; color: #fff; padding: 0 3px; border-radius: 5px; line-height: 1.3; white-space: nowrap; }
+/* 주사위 판: 면 상태 (활성/맞은편/측면 중 발동하는 것) */
+#dice-panel { width: 444px; padding: 10px 12px; }
+#trial-dice { gap: 8px; align-items: flex-start; }
+.die.small { width: 134px; padding: 8px 5px 6px; }
+.die.small .die-face { font-size: 28px; line-height: 1.05; }
+.die-skill .none { color: #bbb; font-weight: 400; }
+.die-faces { margin-top: 3px; border-top: 1px dashed #d8d2c4; padding-top: 3px; text-align: left; }
+.fs-head { font-size: 9px; color: #999; font-weight: 700; margin-bottom: 2px; text-align: center; }
+.fs { display: flex; align-items: center; gap: 3px; font-size: 10px; line-height: 1.25; padding: 1px 0; white-space: nowrap; }
+.fs.off { opacity: 0.42; }
+.fs.off .fs-name { text-decoration: line-through; text-decoration-color: #b99; }
+.fs.none { justify-content: center; color: #bbb; font-weight: 400; }
+.fs-state { flex: none; width: 34px; text-align: center; font-size: 9px; font-weight: 900; border-radius: 4px; padding: 0 2px; color: #fff; }
+.st-active { background: var(--gold); color: #5c4300; } .st-opposite { background: #2e9db0; } .st-side { background: #9a938a; } .st-engr { background: #8a6d1d; }
+.fs-name { flex: 1; overflow: hidden; text-overflow: ellipsis; }
+.fs-eff { flex: none; font-weight: 900; }
+.fs-eff i { font-size: 8px; font-style: normal; background: var(--red); color: #fff; padding: 0 3px; border-radius: 4px; margin-left: 2px; }
+.fs.off .fs-eff { color: #999; font-weight: 400; }
