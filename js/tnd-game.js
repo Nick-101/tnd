@@ -269,7 +269,7 @@ export class TndGame {
       const m = { ...src, def: src.def };
       const r = resolveLap(board, m);
       const changed = r.path.filter(p => p.cause).map(p => ({ cell: p.cell, cause: p.cause }));
-      return { uid: src.uid, name: src.name, icon: src.def.icon, mark: src.mark, hp: src.hp, maxHp: src.maxHp, boss: !!src.boss, moveMode: src.def.moveMode, pattern: src.def.pattern,
+      return { uid: src.uid, name: src.name, icon: src.def.icon, defId: src.def.id, mark: src.mark, hp: src.hp, maxHp: src.maxHp, boss: !!src.boss, moveMode: src.def.moveMode, pattern: src.def.pattern,
         leakText: src.boss ? '탈출 = 패배' : leakLabel(src.def.leak), damage: r.damage, killedAt: r.killedAt, escaped: r.escaped, remaining: Math.max(0, src.hp - r.damage), path: r.path, stops: r.stops, changed, moves: r.moves };
     });
     return { rows, anyEscape: rows.some(r => r.escaped), bossEscape: rows.some(r => r.escaped && r.boss) };

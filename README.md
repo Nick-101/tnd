@@ -17,7 +17,7 @@ python3 -m http.server 8000
 ## 구조
 
 - `design/plan.md` — 스테이지 데모 기획서 / `design/plan-tnd.md` — 결합 데모 기획서
-- `js/tnd-config.js` `js/tnd-game.js` `js/tnd-render.js` — 결합 데모 (데이터 / 순수 로직 / DOM)
+- `js/tnd-config.js` `js/tnd-game.js` `js/tnd-render.js` `js/tnd-art.js` — 결합 데모 (데이터 / 순수 로직 / DOM / 아이콘)
 - `index.html` + `css/style.css` — 화면 (발라트로풍, 애니메이션 없음, 마우스 전용)
 - `js/config.js` — 상수·스킬·스테이지 데이터
 - `js/game.js` — 순수 게임 로직 (DOM 의존 없음 → headless 테스트 가능)
@@ -31,3 +31,7 @@ python3 -m http.server 8000
 node test/sim.test.mjs   # 스테이지 데모
 node test/tnd.test.mjs   # 결합 데모
 ```
+
+## 크레딧
+
+- 아이콘: [game-icons.net](https://game-icons.net) — Lorc, Delapouite, [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/). `js/tnd-art.js`에 단색 path로 내장 (외부 요청 없음).

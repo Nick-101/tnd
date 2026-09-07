@@ -29,7 +29,7 @@ function title() {
           <button id="btn-mode-tnd" class="btn btn-red big">고행 — 결합 데모 (v1)</button>
           <button id="btn-mode-stage" class="btn btn-blue big">스테이지 — 주사위 덱빌딩 (v2)</button>
         </div>
-        <div class="title-hint">마우스 전용 · 결합 데모: 정비에서 주사위 3개(각인+면 스킬)와 기물덱을 편성해 3웨이브 5마리를 모두 처치하세요</div>
+        <div class="title-hint">마우스 전용 · 결합 데모: 정비에서 주사위 3개(각인+면 스킬)와 기물덱을 편성해 웨이브 12를 막으세요 · 아이콘: game-icons.net (CC BY 3.0)</div>
       </div>
     </div>`;
   document.getElementById('btn-mode-tnd').addEventListener('click', startTnd);

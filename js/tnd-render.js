@@ -5,6 +5,7 @@ import {
   TND, CORRUPT_TYPES, ENGRAVINGS, ENGRAVINGS_BY_ID, ENGRAVING_KIND_LABEL, ENGRAVING_DETAILS, MOVE_MODE_LABEL,
   TND_SKILLS, TND_SKILLS_BY_ID, TND_SKILL_DETAILS, TND_LAYER_LABEL, PIECES, PIECES_BY_ID, PIECE_DETAILS, TIER_LABEL, sellPrice,
 } from './tnd-config.js';
+import { icon, monsterIcon, PIECE_COLOR, MONSTER_COLOR, ART_CREDIT } from './tnd-art.js';
 
 const MARK = ['①', '②', '③'];
 const TND_LOG_MS = 95;
@@ -17,7 +18,9 @@ function cellXY(id) { const side = Math.floor(id / 8), t = (id % 8) / 8; const [
 const chips = s => `<span class="chip chip-${s.layer}">${TND_LAYER_LABEL[s.layer]}</span><span class="chip chip-${s.grade}">${GRADE_LABEL[s.grade]}</span><span class="cond">[${condLabel(s.cond)}]</span>`;
 const echip = e => `<span class="chip chip-k-${e.kind}">${ENGRAVING_KIND_LABEL[e.kind]}</span>${e.moveMode ? `<span class="cond">${MOVE_MODE_LABEL[e.moveMode]}</span>` : ''}`;
 const opClass = s => s.op === 'mul' ? 'op-mul' : 'op-add';
-const pieceLabel = p => `<span class="tier t${p.tier}">${TIER_LABEL[p.tier]}</span> ${p.name}`;
+const pieceLabel = p => `<span class="pc-ic" style="color:${PIECE_COLOR[p.id]}">${icon(p.id)}</span><span class="tier t${p.tier}">${TIER_LABEL[p.tier]}</span> ${p.name}`;
+// 몬스터 토큰 (모노폴리 말처럼 둥근 칩 + 머리 위 HP)
+const monsterToken = (m, hp, cls = '') => `<span class="mtok ${cls}" style="--mc:${MONSTER_COLOR[monsterIcon(m)]}">${hp !== undefined ? `<small>${hp}</small>` : ''}${icon(monsterIcon(m))}</span>`;
 const pieceState = (cell) => cell.piece?.defId === 'gate' ? ` · 닫힘 ${cell.piece.charges || 0}` : '';
 const STATE_LABEL = { active: '활성', opposite: '맞은편', side: '측면' };
 const CAUSE_ICON = { gate: '▮', decoy: '⚑', passage: '⇄' }; const CAUSE_LABEL = { gate: '성문', decoy: '미끼', passage: '통로' };
@@ -109,13 +112,13 @@ export class TndRenderer {
   _cellTip(id) {
     const g = this.game; const c = g.board[id];
     let s = `<b>칸 ${id}${id === 0 ? ' (시작칸 · 몬스터 출발/탈출)' : ''}</b><div>`;
-    if (c.piece) s += c.piece.owner === 'P' ? `내 기물 ${PIECES_BY_ID[c.piece.defId].name} G${c.piece.grade}${pieceState(c)} — ${PIECES_BY_ID[c.piece.defId].desc}<br>` : `사악한 기물 G${c.piece.grade} · 강제지불 ${g.finalEnemyCost(c)}<br>`;
+    if (c.piece) s += c.piece.owner === 'P' ? `${pieceLabel(PIECES_BY_ID[c.piece.defId])} G${c.piece.grade}${pieceState(c)} — ${PIECES_BY_ID[c.piece.defId].desc}<br>` : `${icon('evil')} 사악한 기물 G${c.piece.grade} · 강제지불 ${g.finalEnemyCost(c)}<br>`;
     if (c.corrupt) { const T = CORRUPT_TYPES[c.corrupt.type] || CORRUPT_TYPES.erode; s += `타락 · ${T.name} · 카운터 ${c.corrupt.counter} — ${T.desc}<br>`; }
     if (!c.piece && !c.corrupt) s += '빈 칸<br>';
     const up = g.upgradeInfo(id); if (up) s += `<span class="op-add">이번 턴 ${up.stopped ? '멈춘 칸 · 반값' : '밟은 칸'} → 업그레이드 등급당 ${up.perLevel}</span><br>`;
     else if (c.piece?.owner === 'P' && g.player) s += '<span class="cond">이번 턴 지나가지 않아 업그레이드 불가</span><br>';
     if (g.player?.pos === id) s += '● 내 말 · ';
-    for (const m of g.monsters) if (m.pos === id) s += `${m.def.icon} ${m.name} ${m.hp} · `;
+    for (const m of g.monsters) if (m.pos === id) s += `${icon(monsterIcon(m))} ${m.name} ${m.hp} · `;
     return s + '</div>';
   }
   _hoverPreview(i) {
@@ -226,7 +229,7 @@ export class TndRenderer {
     const left = g.waveCount() - g.turn;
     this.root.querySelector('#topbar').innerHTML = `
       <span>웨이브 <b>${g.turn}</b>/${g.waveCount()}${g.isBossWave() ? ' <span class="boss-tag">보스</span>' : ''}</span><span>신앙 <b class="op-add">${g.player.faith}</b></span>
-      <span>탈출 <b class="op-mul">${g.escapes}</b> · 처치 ${g.kills} · 타락 <b>${g.corruptCount()}</b>칸 · 사악한 기물 ${g.enemyPieceCount()}</span>
+      <span>탈출 <b class="op-mul">${g.escapes}</b> · 처치 ${g.kills} · ${icon('corrupt')} 타락 <b>${g.corruptCount()}</b>칸 · ${icon('evil')} 사악한 기물 ${g.enemyPieceCount()}</span>
       <span>${left > 0 ? `보스까지 <b>${left}</b>` : '<b class="op-mul">보스 웨이브</b>'}</span>
       <span class="gauge">${gauge} <small>${g.player.gauge}/${TND.GAUGE}</small></span>`;
     this._renderWavePanel(); this._renderBoard(); this._renderDicePanel(); this._renderDialog();
@@ -242,7 +245,7 @@ export class TndRenderer {
       const changed = r.changed.map(c => `${CAUSE_ICON[c.cause]} ${CAUSE_LABEL[c.cause]}→${c.cell}`).join(' ');
       const hp = Math.max(0, Math.round(r.remaining / r.maxHp * 100));
       return `<div class="wp-row ${r.escaped ? 'bad' : 'ok'}" data-wp="${r.uid}">
-        <div class="wp-main"><span class="mon-icon">${r.icon}</span>${r.name} ${r.mark}${r.boss ? ' <span class="boss-tag">보스</span>' : ''} <b>HP ${r.hp}</b><span class="hpbar"><span style="width:${hp}%"></span></span>
+        <div class="wp-main">${monsterToken(r.boss ? { boss: true } : r.defId, undefined, 'sm')}${r.name} ${r.mark}${r.boss ? ' <span class="boss-tag">보스</span>' : ''} <b>HP ${r.hp}</b><span class="hpbar"><span style="width:${hp}%"></span></span>
           <span class="wp-verdict ${r.escaped ? 'op-mul' : 'op-add'}">${r.escaped ? `✗ 탈출 · 부족 ${r.remaining}` : `✓ 처치 (칸 ${r.killedAt})`}</span></div>
         <div class="wp-sub">예상 피해 <b>${r.damage}</b> · ${MOVE_MODE_LABEL[r.moveMode]} ${r.pattern.join('·')} · ${r.leakText}</div>
         <div class="wp-sub">멈춤 ${r.stops.length ? r.stops.join('·') : '없음'}${changed ? ` · <span class="op-mul">${changed}</span>` : ''}</div></div>`;
@@ -261,15 +264,19 @@ export class TndRenderer {
       const here = g.monsters.filter(m => m.pos === c.id);
       const up = canUp && def ? g.upgradeInfo(c.id) : null;
       const cls = ['cell', c.piece ? `owner-${c.piece.owner}` : '', c.corrupt ? 'corrupt' : '', c.id === 0 ? 'start' : '',
-        stars.has(c.id) ? 'intent-stop' : '', plan.has(c.id) ? 'plan' : '', plan.has(c.id) && stars.has(c.id) ? 'plan-hit' : '', def && def.tier >= 4 ? `big t${def.tier}` : '',
+        stars.has(c.id) ? 'intent-stop' : '', plan.has(c.id) ? 'plan' : '', plan.has(c.id) && stars.has(c.id) ? 'plan-hit' : '',
         up ? 'upgradable' : '', canUp && def && !up ? 'no-up' : ''].join(' ');
-      const label = def ? `<i>${TIER_LABEL[def.tier]}</i> ${def.name}<b>G${c.piece.grade}${def.id === 'gate' ? `<small> ${c.piece.charges || 0}</small>` : ''}</b>` : c.piece ? `사악<b>G${c.piece.grade}</b>` : (c.id === 0 ? '시작' : '');
       const T = c.corrupt ? (CORRUPT_TYPES[c.corrupt.type] || CORRUPT_TYPES.erode) : null;
+      // 재산 카드: 위 색 띠(기물 색 / 사악 = 보라 / 시작 = 초록), 가운데 건물 아이콘 + 이름, 오른쪽 아래 등급 배지
+      const band = def ? `<span class="band" style="background:${PIECE_COLOR[def.id]}">${TIER_LABEL[def.tier]} · ${def.name}</span>`
+        : c.piece ? '<span class="band evil">사악한 기물</span>' : c.id === 0 ? '<span class="band start">출발</span>' : '<span class="band empty"></span>';
+      const body = def ? `<span class="bld" style="color:${PIECE_COLOR[def.id]}">${icon(def.id)}</span><b class="grade">G${c.piece.grade}${def.id === 'gate' ? `<small>·${c.piece.charges || 0}</small>` : ''}</b>`
+        : c.piece ? `<span class="bld evil">${icon('evil')}</span><b class="grade evil">G${c.piece.grade}</b>` : c.id === 0 ? `<span class="bld start">${icon('start')}</span>` : '';
       return `<div class="${cls}" style="left:${x}px;top:${y}px" data-tipcell="${c.id}">
-        <span class="cid">${c.id}</span><span class="clabel">${label}</span>
-        ${T ? `<span class="ccount">${T.name} ${c.corrupt.counter}</span>` : ''}${stars.has(c.id) ? `<span class="star">★${stars.get(c.id) > 1 ? `<i>×${stars.get(c.id)}</i>` : ''}${causes.has(c.id) ? `<em>${CAUSE_ICON[causes.get(c.id)]}</em>` : ''}</span>` : ''}${plan.has(c.id) ? '<span class="plan-dot">•</span>' : ''}
+        ${band}<span class="cid">${c.id}</span>${body}
+        ${T ? `<span class="ccount">${icon('corrupt')} ${T.name} ${c.corrupt.counter}</span>` : ''}${stars.has(c.id) ? `<span class="star">★${stars.get(c.id) > 1 ? `<i>×${stars.get(c.id)}</i>` : ''}${causes.has(c.id) ? `<em>${CAUSE_ICON[causes.get(c.id)]}</em>` : ''}</span>` : ''}${plan.has(c.id) ? '<span class="plan-dot">•</span>' : ''}
         ${up ? `<span class="up-mark ${up.stopped ? 'half' : ''}">${up.stopped ? '½' : '↑'}</span>` : ''}
-        ${g.player.pos === c.id ? '<span class="pawn p">●</span>' : ''}${here.length ? `<span class="pawn e">${here.map(m => `<span class="mon"><small>${Math.max(0, m.hp)}</small>${m.def.icon}</span>`).join('')}</span>` : ''}</div>`;
+        ${g.player.pos === c.id ? `<span class="pawn p" title="내 말">${icon('player')}</span>` : ''}${here.length ? `<span class="pawn e">${here.map(m => monsterToken(m, Math.max(0, m.hp))).join('')}</span>` : ''}</div>`;
     }).join('');
   }
   _renderDicePanel() {
@@ -363,7 +370,8 @@ export class TndRenderer {
   _renderDeckInfo() {
     const g = this.game;
     this.root.querySelector('#deckinfo-body').innerHTML = `<div class="deckinfo-dice">${g.dice.map((d, i) => { const en = d.engraving ? ENGRAVINGS_BY_ID[d.engraving] : null; return `<div class="card mini-net"><b>${MARK[i]} 주사위 ${i + 1} · 각인 ${en ? en.name : '없음'}</b>${d.faces.map((f, k) => { const s = f.skill ? TND_SKILLS_BY_ID[f.skill.id] : null; return `<div class="mini-face ${faceState(k, d.upIndex) === 'active' ? 'act' : ''}">F${k + 1} · ${f.pip} · ${s ? `<span class="lay-${s.layer}">${s.name}</span> ${s.desc}` : '—'}</div>`; }).join('')}</div>`; }).join('')}</div>
-      <div class="panel-title small">기물덱</div><div class="dlg-list">${g.deck.map(id => `<span class="dlg-item static" data-tippiece="${id}">${pieceLabel(PIECES_BY_ID[id])} · ${PIECES_BY_ID[id].cost}</span>`).join('')}</div>`;
+      <div class="panel-title small">기물덱</div><div class="dlg-list">${g.deck.map(id => `<span class="dlg-item static" data-tippiece="${id}">${pieceLabel(PIECES_BY_ID[id])} · ${PIECES_BY_ID[id].cost}</span>`).join('')}</div>
+      <div class="credit">${ART_CREDIT}</div>`;
   }
   _queueLog() {
     const g = this.game;
