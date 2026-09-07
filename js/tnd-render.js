@@ -1,9 +1,9 @@
-// TnD 결합 데모 렌더러 (v2.1) — 정비(각인+면 스킬+기물덱) / 고행(마름모 보드·의도 패널·구간 이동·원격 업그레이드) / 순차 로그
+// TnD 결합 데모 렌더러 (v2.2) — 정비(각인+면 스킬+기물덱) / 고행(마름모 보드·웨이브 프리뷰·구간 이동·밟음 한정 업그레이드) / 순차 로그(속도 조절)
 import { OPPOSITE, GRADE_LABEL, condLabel } from './config.js';
 import { faceState } from './game.js';
 import {
   TND, CORRUPT_TYPES, ENGRAVINGS, ENGRAVINGS_BY_ID, ENGRAVING_KIND_LABEL, ENGRAVING_DETAILS, MOVE_MODE_LABEL,
-  TND_SKILLS, TND_SKILLS_BY_ID, TND_SKILL_DETAILS, TND_LAYER_LABEL, PIECES, PIECES_BY_ID, TIER_LABEL, sellPrice,
+  TND_SKILLS, TND_SKILLS_BY_ID, TND_SKILL_DETAILS, TND_LAYER_LABEL, PIECES, PIECES_BY_ID, PIECE_DETAILS, TIER_LABEL, sellPrice,
 } from './tnd-config.js';
 
 const MARK = ['①', '②', '③'];
@@ -11,21 +11,24 @@ const TND_LOG_MS = 95;
 const LAYERS = ['all', 'active', 'opposite', 'side', 'latent'];
 const KINDS = ['all', 'move', 'roll', 'settle', 'board'];
 const TIERS = ['all', 1, 2, 3, 4, 5];
-const BOARD_PX = 700, R = 330, C = BOARD_PX / 2;
+const BOARD_PX = 800, R = 380, C = BOARD_PX / 2; // 마름모 반지름 380: 중앙 주사위 판(≤408×326)이 어느 칸과도 겹치지 않는 크기 (큰 기물 칸 66×54 포함)
 const CORNERS = [[C, C + R], [C - R, C], [C, C - R], [C + R, C]];
 function cellXY(id) { const side = Math.floor(id / 8), t = (id % 8) / 8; const [x1, y1] = CORNERS[side], [x2, y2] = CORNERS[(side + 1) % 4]; return [x1 + (x2 - x1) * t, y1 + (y2 - y1) * t]; }
 const chips = s => `<span class="chip chip-${s.layer}">${TND_LAYER_LABEL[s.layer]}</span><span class="chip chip-${s.grade}">${GRADE_LABEL[s.grade]}</span><span class="cond">[${condLabel(s.cond)}]</span>`;
 const echip = e => `<span class="chip chip-k-${e.kind}">${ENGRAVING_KIND_LABEL[e.kind]}</span>${e.moveMode ? `<span class="cond">${MOVE_MODE_LABEL[e.moveMode]}</span>` : ''}`;
 const opClass = s => s.op === 'mul' ? 'op-mul' : 'op-add';
 const pieceLabel = p => `<span class="tier t${p.tier}">${TIER_LABEL[p.tier]}</span> ${p.name}`;
+const pieceState = (cell) => cell.piece?.defId === 'gate' ? ` · 닫힘 ${cell.piece.charges || 0}` : '';
 const STATE_LABEL = { active: '활성', opposite: '맞은편', side: '측면' };
+const CAUSE_ICON = { gate: '▮', decoy: '⚑', passage: '⇄' }; const CAUSE_LABEL = { gate: '성문', decoy: '미끼', passage: '통로' };
+const LOG_SPEEDS = [{ n: 1, label: '1×' }, { n: 4, label: '4×' }, { n: 0, label: '즉시' }];
 const fmtEff = (op, n) => `${op === 'add' ? '+' : '×'}${Number.isInteger(n) ? n : Math.round(n * 1000) / 1000}`;
 
 export class TndRenderer {
   constructor(game, root) {
     this.game = game; this.root = root;
     this.layerFilter = 'all'; this.kindFilter = 'all'; this.tierFilter = 'all';
-    this.lastLogLength = 0; this.logQueue = []; this.upgradeFor = null; this.upgradeTarget = null; this.planOn = false;
+    this.lastLogLength = 0; this.logQueue = []; this.upgradeFor = null; this.upgradeTarget = null; this.planOn = false; this.logSpeed = 0;
     game.onChange = () => this.render();
     this._skeleton();
     this.ticker = setInterval(() => this._tickLog(), TND_LOG_MS);
@@ -54,7 +57,7 @@ export class TndRenderer {
           <div id="board-wrap"><div id="board"></div><div id="dice-panel" class="card"></div></div>
           <div id="trial-right">
             <div id="intent-panel" class="card"></div>
-            <div id="log-panel" class="card dark"><div class="log-title">로그</div><div id="log-body"></div></div>
+            <div id="log-panel" class="card dark"><div class="log-title">로그 <button id="btn-logspeed" class="btn btn-blue tiny" title="로그 출력 속도 (결과에는 영향 없음)">1×</button></div><div id="log-body"></div></div>
             <div id="trial-btns"><button id="btn-deckinfo" class="btn btn-blue">덱 정보</button><button id="btn-plan" class="btn btn-blue">경로 계획</button></div>
           </div>
         </div>
@@ -70,23 +73,24 @@ export class TndRenderer {
     q('#btn-deckinfo').addEventListener('click', () => { this._renderDeckInfo(); q('#deckinfo-overlay').classList.add('open'); });
     q('#btn-deckinfo-close').addEventListener('click', () => q('#deckinfo-overlay').classList.remove('open'));
     q('#btn-plan').addEventListener('click', () => { this.planOn = !this.planOn; this.render(); });
-    // 보드 위임: 건설 단계에서 내 기물 클릭 → 업그레이드 창
+    q('#btn-logspeed').addEventListener('click', () => { this.logSpeed = (this.logSpeed + 1) % LOG_SPEEDS.length; q('#btn-logspeed').textContent = LOG_SPEEDS[this.logSpeed].label; });
+    // 보드 위임: 행동·건설 단계에서 이번 턴 밟은 내 기물 클릭 → 업그레이드 창
     q('#board').addEventListener('click', (e) => {
       const el = e.target.closest('[data-tipcell]'); if (!el) return;
       const g = this.game; const id = Number(el.dataset.tipcell);
-      if (g.phase === 'trial' && g.sub === 'build' && g.upgradeInfo(id)) { this.upgradeFor = id; this.upgradeTarget = null; this._renderDialog(); }
+      if (g.phase === 'trial' && (g.sub === 'build' || g.sub === 'act') && g.upgradeInfo(id)) { this.upgradeFor = id; this.upgradeTarget = null; this._renderDialog(); }
     });
     // 툴팁 / 호버 프리뷰 위임
     const tip = q('#tooltip');
     this.root.addEventListener('mouseover', (e) => {
-      const el = e.target.closest('[data-tipskill],[data-tipengr],[data-tippiece],[data-tipcell],[data-die],[data-intent]');
+      const el = e.target.closest('[data-tipskill],[data-tipengr],[data-tippiece],[data-tipcell],[data-die],[data-wp]');
       if (!el) return;
       if (el.dataset.die !== undefined && this.game.sub === 'act') this._hoverPreview(Number(el.dataset.die));
-      if (el.dataset.intent !== undefined) this._highlightIntent(true, Number(el.dataset.intent));
+      if (el.dataset.wp !== undefined) this._highlightWave(true, Number(el.dataset.wp));
       let html = null;
       if (el.dataset.tipskill) { const s = TND_SKILLS_BY_ID[el.dataset.tipskill]; html = `<b>${s.name}</b> ${chips(s)}<div>${TND_SKILL_DETAILS[s.id]}</div>`; }
       else if (el.dataset.tipengr) { const en = ENGRAVINGS_BY_ID[el.dataset.tipengr]; html = `<b>${en.name}</b> ${echip(en)}<div>${ENGRAVING_DETAILS[en.id]}</div>`; }
-      else if (el.dataset.tippiece) { const p = PIECES_BY_ID[el.dataset.tippiece]; html = `<b>${pieceLabel(p)}</b> <span class="cond">비용 ${p.cost}</span><div>${p.desc}<br>업그레이드 등급당 ${Math.ceil(p.cost / 2)} (멈춘 칸 ${Math.ceil(p.cost / 4)}) · 판매 = 비용×G÷2</div>`; }
+      else if (el.dataset.tippiece) { const p = PIECES_BY_ID[el.dataset.tippiece]; html = `<b>${pieceLabel(p)}</b> <span class="cond">비용 ${p.cost}${p.pair ? ' ×2' : ''} · ${p.verb}</span><div>${p.desc}</div><div class="tip-detail">${PIECE_DETAILS[p.id]}<br>업그레이드: 이번 턴 밟은 칸 등급당 ${Math.ceil(p.cost / 2)}, 멈춘 칸 ${Math.ceil(p.cost / 4)} · 판매 = 비용×G÷2</div>`; }
       else if (el.dataset.tipcell) html = this._cellTip(Number(el.dataset.tipcell));
       if (!html) return;
       tip.innerHTML = html; tip.classList.add('show');
@@ -95,21 +99,23 @@ export class TndRenderer {
       tip.style.left = `${x}px`; tip.style.top = `${y}px`;
     });
     this.root.addEventListener('mouseout', (e) => {
-      const el = e.target.closest('[data-tipskill],[data-tipengr],[data-tippiece],[data-tipcell],[data-die],[data-intent]');
+      const el = e.target.closest('[data-tipskill],[data-tipengr],[data-tippiece],[data-tipcell],[data-die],[data-wp]');
       if (!el) return;
       tip.classList.remove('show');
       if (el.dataset.die !== undefined) this._clearPreview();
-      if (el.dataset.intent !== undefined) this._highlightIntent(false, Number(el.dataset.intent));
+      if (el.dataset.wp !== undefined) this._highlightWave(false, Number(el.dataset.wp));
     });
   }
   _cellTip(id) {
     const g = this.game; const c = g.board[id];
-    let s = `<b>칸 ${id}${id === 0 ? ' (시작칸)' : ''}</b><div>`;
-    if (c.piece) s += c.piece.owner === 'P' ? `내 기물 ${PIECES_BY_ID[c.piece.defId].name} G${c.piece.grade}${g.effGrade(c) !== c.piece.grade ? ` (유효 G${g.effGrade(c)})` : ''} — ${PIECES_BY_ID[c.piece.defId].desc}<br>` : `사악한 기물 G${c.piece.grade} · 강제지불 ${g.finalEnemyCost(c)}<br>`;
+    let s = `<b>칸 ${id}${id === 0 ? ' (시작칸 · 몬스터 출발/탈출)' : ''}</b><div>`;
+    if (c.piece) s += c.piece.owner === 'P' ? `내 기물 ${PIECES_BY_ID[c.piece.defId].name} G${c.piece.grade}${pieceState(c)} — ${PIECES_BY_ID[c.piece.defId].desc}<br>` : `사악한 기물 G${c.piece.grade} · 강제지불 ${g.finalEnemyCost(c)}<br>`;
     if (c.corrupt) { const T = CORRUPT_TYPES[c.corrupt.type] || CORRUPT_TYPES.erode; s += `타락 · ${T.name} · 카운터 ${c.corrupt.counter} — ${T.desc}<br>`; }
     if (!c.piece && !c.corrupt) s += '빈 칸<br>';
-    if (g.player.pos === id) s += '● 내 말 · ';
-    for (const m of g.monsters) if (m.pos === id) s += `${m.def.icon} ${m.def.name} ${m.faith}/${m.def.faith} · `;
+    const up = g.upgradeInfo(id); if (up) s += `<span class="op-add">이번 턴 ${up.stopped ? '멈춘 칸 · 반값' : '밟은 칸'} → 업그레이드 등급당 ${up.perLevel}</span><br>`;
+    else if (c.piece?.owner === 'P' && g.player) s += '<span class="cond">이번 턴 지나가지 않아 업그레이드 불가</span><br>';
+    if (g.player?.pos === id) s += '● 내 말 · ';
+    for (const m of g.monsters) if (m.pos === id) s += `${m.def.icon} ${m.name} ${m.hp} · `;
     return s + '</div>';
   }
   _hoverPreview(i) {
@@ -117,10 +123,9 @@ export class TndRenderer {
     for (const p of pv.path) { const el = this.root.querySelector(`[data-tipcell="${p.cell}"]`); if (!el) continue; if (p.stop) el.classList.add('prev-stop'); else if (p.pass) el.classList.add('prev-pass'); else el.classList.add('prev-through'); }
   }
   _clearPreview() { this.root.querySelectorAll('.prev-stop,.prev-pass,.prev-through').forEach(el => el.classList.remove('prev-stop', 'prev-pass', 'prev-through')); }
-  _highlightIntent(on, uid) { // 의도 행 호버: 그 몬스터의 경로만 보드에 표시
-    const it = this.game.intentOf(uid); if (!it) return;
-    for (const p of it.path) { const el = this.root.querySelector(`[data-tipcell="${p.cell}"]`); if (el) el.classList.toggle('intent-path', on); }
-    const pawn = this.root.querySelector(`[data-tipcell="${it.to}"]`); if (pawn) pawn.classList.toggle('intent-focus', on);
+  _highlightWave(on, uid) { // 프리뷰 블록 호버: 그 몬스터의 경로(밟음)와 멈춤 칸만 강조
+    const pv = this.game.wavePreview(); const row = pv?.rows.find(r => r.uid === uid); if (!row) return;
+    for (const p of row.path) { const el = this.root.querySelector(`[data-tipcell="${p.cell}"]`); if (!el) continue; if (p.pass) el.classList.toggle('intent-path', on); if (p.stop) el.classList.toggle('intent-focus', on); }
   }
 
   render() {
@@ -218,52 +223,53 @@ export class TndRenderer {
   _renderTrial() {
     const g = this.game;
     const gauge = Array.from({ length: TND.GAUGE }, (_, i) => `<span class="gcell ${i < g.player.gauge ? 'on' : ''}"></span>`).join('');
-    const nw = g.nextWave(); const canEarly = g.canEarlyCall();
+    const left = g.waveCount() - g.turn;
     this.root.querySelector('#topbar').innerHTML = `
-      <span>턴 <b>${g.turn}</b></span><span>신앙 <b class="op-add">${g.player.faith}</b></span>
-      <span>웨이브 <b>${g.waveIndex}</b>/${g.waveCount()} · 몬스터 <b class="op-mul">${g.monsters.length}</b>마리</span>
-      <span class="wave-next">${nw ? `다음 웨이브 <b>${nw.turn}</b>턴 (${nw.monsters.map(id => g.monsterDefs[id].name).join('+')})` : '마지막 웨이브'}
-        ${nw ? `<button id="btn-early" class="btn btn-red small ${canEarly ? '' : 'disabled'}" ${canEarly ? '' : 'disabled'} title="보드에 몬스터가 없을 때만">조기 소환</button>` : ''}</span>
-      <span>기물 ${g.myPieceCount()} · 적 기물 ${g.enemyPieceCount()} · 타락 ${g.corruptCount()}</span>
+      <span>웨이브 <b>${g.turn}</b>/${g.waveCount()}${g.isBossWave() ? ' <span class="boss-tag">보스</span>' : ''}</span><span>신앙 <b class="op-add">${g.player.faith}</b></span>
+      <span>탈출 <b class="op-mul">${g.escapes}</b> · 처치 ${g.kills} · 타락 <b>${g.corruptCount()}</b>칸 · 사악한 기물 ${g.enemyPieceCount()}</span>
+      <span>${left > 0 ? `보스까지 <b>${left}</b>` : '<b class="op-mul">보스 웨이브</b>'}</span>
       <span class="gauge">${gauge} <small>${g.player.gauge}/${TND.GAUGE}</small></span>`;
-    this.root.querySelector('#btn-early')?.addEventListener('click', () => g.earlyCall());
-    this._renderIntent(); this._renderBoard(); this._renderDicePanel(); this._renderDialog();
+    this._renderWavePanel(); this._renderBoard(); this._renderDicePanel(); this._renderDialog();
     this.root.querySelector('#btn-plan').classList.toggle('on', this.planOn);
     const end = this.root.querySelector('#end-overlay'); end.classList.toggle('open', g.phase === 'end');
-    if (g.phase === 'end') { this.root.querySelector('#end-title').textContent = g.result === 'victory' ? '승리!' : '패배'; this.root.querySelector('#end-desc').textContent = g.result === 'victory' ? `턴 ${g.turn} · 마지막 웨이브까지 ${g.kills}마리 처치.` : `턴 ${g.turn} · 강제지불 불가. (처치 ${g.kills}마리)`; }
+    if (g.phase === 'end') { this.root.querySelector('#end-title').textContent = g.result === 'victory' ? '승리!' : '패배'; this.root.querySelector('#end-desc').textContent = g.result === 'victory' ? `웨이브 ${g.waveCount()} 격파 · 처치 ${g.kills} · 탈출 ${g.escapes}` : `웨이브 ${g.turn} · ${g.log[g.log.length - 1]?.text || ''}`; }
   }
-  _renderIntent() {
-    const g = this.game; const it = g.intent();
+  _renderWavePanel() {
+    const g = this.game; const pv = g.wavePreview();
     const panel = this.root.querySelector('#intent-panel');
-    if (!it) { panel.innerHTML = ''; return; }
-    const rows = it.map(m => {
-      const cells = m.path.filter(p => p.pass || p.stop).map(p => p.cell);
-      const range = cells.length > 1 ? `${cells[0]}~${cells[cells.length - 1]}` : cells.join('');
-      const hp = Math.max(0, Math.round(m.faith / m.maxFaith * 100));
-      return `<div class="intent-row" data-intent="${m.uid}">
-        <div class="intent-main"><span class="mon-icon">${m.icon}</span>${m.name} <b class="op-mul">${Math.max(0, m.faith)}</b><small>/${m.maxFaith}</small><span class="hpbar"><span style="width:${hp}%"></span></span>
-          <span class="intent-move">${m.skipping ? '<span class="op-mul">이동 취소 (성문)</span>' : `▶${m.n}<small>${MOVE_MODE_LABEL[m.moveMode]}</small> → <b class="op-mul">★${m.to}</b>`}</span></div>
-        <div class="intent-sub">완주까지 <b>${m.cellsToLap}</b>칸 · ${m.leakText}${m.laps > 0 ? ' · <span class="op-mul">이번 이동에 완주</span>' : ''}${cells.length ? ` · 경유 ${range}` : ''} · 패턴 ${m.pattern.map((n, k) => k === m.step ? `<b>${n}</b>` : n).join('·')}</div></div>`;
+    if (!pv) { panel.innerHTML = `<div class="panel-title">웨이브 ${g.turn} 진행 중</div>`; return; }
+    const rows = pv.rows.map(r => {
+      const changed = r.changed.map(c => `${CAUSE_ICON[c.cause]} ${CAUSE_LABEL[c.cause]}→${c.cell}`).join(' ');
+      const hp = Math.max(0, Math.round(r.remaining / r.maxHp * 100));
+      return `<div class="wp-row ${r.escaped ? 'bad' : 'ok'}" data-wp="${r.uid}">
+        <div class="wp-main"><span class="mon-icon">${r.icon}</span>${r.name} ${r.mark}${r.boss ? ' <span class="boss-tag">보스</span>' : ''} <b>HP ${r.hp}</b><span class="hpbar"><span style="width:${hp}%"></span></span>
+          <span class="wp-verdict ${r.escaped ? 'op-mul' : 'op-add'}">${r.escaped ? `✗ 탈출 · 부족 ${r.remaining}` : `✓ 처치 (칸 ${r.killedAt})`}</span></div>
+        <div class="wp-sub">예상 피해 <b>${r.damage}</b> · ${MOVE_MODE_LABEL[r.moveMode]} ${r.pattern.join('·')} · ${r.leakText}</div>
+        <div class="wp-sub">멈춤 ${r.stops.length ? r.stops.join('·') : '없음'}${changed ? ` · <span class="op-mul">${changed}</span>` : ''}</div></div>`;
     }).join('');
-    panel.innerHTML = `<div class="panel-title">의도 (${it.length}마리) <span class="panel-sub">행 호버: 그 몬스터의 경로 표시</span></div>${rows || '<div class="intent-sub">보드에 몬스터가 없습니다. 조기 소환으로 다음 웨이브를 부를 수 있습니다.</div>'}`;
+    panel.innerHTML = `<div class="panel-title">웨이브 ${g.turn} 프리뷰 <span class="panel-sub">현재 보드 기준 · 기물을 짓거나 올리면 즉시 갱신 · 블록 호버: 경로</span></div>${rows}`;
   }
   _renderBoard() {
-    const g = this.game; const it = g.intent() || [];
+    const g = this.game; const pv = g.wavePreview();
     const plan = new Set(this.planOn && g.sub === 'act' ? g.routePlan() : []);
-    const stars = new Map(); for (const m of it) stars.set(m.to, (stars.get(m.to) || 0) + 1);
+    const stars = new Map(); const causes = new Map();
+    for (const r of pv?.rows || []) { for (const c of r.stops) stars.set(c, (stars.get(c) || 0) + 1); for (const ch of r.changed) causes.set(ch.cell, ch.cause); }
+    const canUp = g.sub === 'act' || g.sub === 'build';
     this.root.querySelector('#board').innerHTML = g.board.map(c => {
       const [x, y] = cellXY(c.id);
       const def = c.piece?.owner === 'P' ? PIECES_BY_ID[c.piece.defId] : null;
       const here = g.monsters.filter(m => m.pos === c.id);
+      const up = canUp && def ? g.upgradeInfo(c.id) : null;
       const cls = ['cell', c.piece ? `owner-${c.piece.owner}` : '', c.corrupt ? 'corrupt' : '', c.id === 0 ? 'start' : '',
         stars.has(c.id) ? 'intent-stop' : '', plan.has(c.id) ? 'plan' : '', plan.has(c.id) && stars.has(c.id) ? 'plan-hit' : '', def && def.tier >= 4 ? `big t${def.tier}` : '',
-        g.sub === 'build' && def ? 'upgradable' : ''].join(' ');
-      const label = def ? `<i>${TIER_LABEL[def.tier]}</i> ${def.name}<b>G${c.piece.grade}</b>` : c.piece ? `사악<b>G${c.piece.grade}</b>` : (c.id === 0 ? '시작' : '');
+        up ? 'upgradable' : '', canUp && def && !up ? 'no-up' : ''].join(' ');
+      const label = def ? `<i>${TIER_LABEL[def.tier]}</i> ${def.name}<b>G${c.piece.grade}${def.id === 'gate' ? `<small> ${c.piece.charges || 0}</small>` : ''}</b>` : c.piece ? `사악<b>G${c.piece.grade}</b>` : (c.id === 0 ? '시작' : '');
       const T = c.corrupt ? (CORRUPT_TYPES[c.corrupt.type] || CORRUPT_TYPES.erode) : null;
       return `<div class="${cls}" style="left:${x}px;top:${y}px" data-tipcell="${c.id}">
         <span class="cid">${c.id}</span><span class="clabel">${label}</span>
-        ${T ? `<span class="ccount">${T.name} ${c.corrupt.counter}</span>` : ''}${stars.has(c.id) ? `<span class="star">★${stars.get(c.id) > 1 ? `<i>×${stars.get(c.id)}</i>` : ''}</span>` : ''}${plan.has(c.id) ? '<span class="plan-dot">•</span>' : ''}
-        ${g.player.pos === c.id ? '<span class="pawn p">●</span>' : ''}${here.length ? `<span class="pawn e">${here.map(m => `<span class="mon"><small>${Math.max(0, m.faith)}</small>${m.def.icon}</span>`).join('')}</span>` : ''}</div>`;
+        ${T ? `<span class="ccount">${T.name} ${c.corrupt.counter}</span>` : ''}${stars.has(c.id) ? `<span class="star">★${stars.get(c.id) > 1 ? `<i>×${stars.get(c.id)}</i>` : ''}${causes.has(c.id) ? `<em>${CAUSE_ICON[causes.get(c.id)]}</em>` : ''}</span>` : ''}${plan.has(c.id) ? '<span class="plan-dot">•</span>' : ''}
+        ${up ? `<span class="up-mark ${up.stopped ? 'half' : ''}">${up.stopped ? '½' : '↑'}</span>` : ''}
+        ${g.player.pos === c.id ? '<span class="pawn p">●</span>' : ''}${here.length ? `<span class="pawn e">${here.map(m => `<span class="mon"><small>${Math.max(0, m.hp)}</small>${m.def.icon}</span>`).join('')}</span>` : ''}</div>`;
     }).join('');
   }
   _renderDicePanel() {
@@ -285,16 +291,17 @@ export class TndRenderer {
         ${d.locked ? '<div class="lock-badge">잠금</div>' : ''}
         <div class="die-faces"><div class="fs-head">발동 ${st.firedCount}/${st.faces.length + st.engr.length}</div>${rows || '<div class="fs none">면 스킬 없음</div>'}</div></div>`;
     }).join('');
+    const pv = g.wavePreview();
     let status = '';
     if (rolling) { const p = g.preview(); status = `<div class="preview">신앙치 <b>${p.points}</b> → 신앙 <b class="op-add">+${p.faith}</b> <small>(잔량 ${p.gauge})</small></div>`; }
-    else if (acting) status = `<div class="preview">구간 ${g.usedDice.length + 1}/3 · 주사위를 클릭해 이동 (호버: 경유·도착 프리뷰)</div>`;
-    else if (building) status = '<div class="preview">건설 단계 — 보드의 내 기물을 클릭해 업그레이드 (멈춘 칸 반값)</div>';
-    else if (g.sub === 'enemy') status = '<div class="preview">몬스터 행동 중</div>';
+    else if (acting) status = `<div class="preview">구간 ${g.usedDice.length + 1}/3 · 주사위를 클릭해 이동 (호버: 경유·도착 프리뷰) · 밟은 기물(↑/½)은 지금도 업그레이드 가능</div>`;
+    else if (building) status = `<div class="preview">이동 완료 — 밟은 기물(↑ 정가 · ½ 반값)을 클릭해 업그레이드 · 턴 종료 = 웨이브 방출${pv?.anyEscape ? ' <b class="op-mul">(탈출 예상 있음)</b>' : ''}</div>`;
+    else if (g.sub === 'wave') status = '<div class="preview">웨이브 진행 중</div>';
     else status = '<div class="preview">상호작용 창에 응답하세요</div>';
     panel.innerHTML = `<div id="trial-dice">${dice}</div>${status}
       <div id="actions"><button id="btn-roll" class="btn btn-red" ${!rolling || g.rollsLeft <= 0 ? 'disabled' : ''}>굴림 ${rolling ? g.rollsLeft : ''}</button>
       <button id="btn-confirm" class="btn btn-blue" ${!rolling ? 'disabled' : ''}>확정</button>
-      <button id="btn-endturn" class="btn btn-red" ${!building ? 'disabled' : ''}>턴 종료</button></div>`;
+      <button id="btn-endturn" class="btn btn-red ${building && pv?.anyEscape ? 'warn' : ''}" ${!building ? 'disabled' : ''}>턴 종료 · 웨이브 방출</button></div>`;
     panel.querySelector('#btn-roll').addEventListener('click', () => g.reroll());
     panel.querySelector('#btn-confirm').addEventListener('click', () => g.confirm());
     panel.querySelector('#btn-endturn').addEventListener('click', () => g.endTurn());
@@ -302,7 +309,7 @@ export class TndRenderer {
   }
   _renderDialog() {
     const g = this.game; const ov = this.root.querySelector('#dialog-overlay'); const card = this.root.querySelector('#dialog-card');
-    const p = g.pending; const up = this.upgradeFor !== null && g.sub === 'build' ? g.upgradeInfo(this.upgradeFor) : null;
+    const p = g.pending; const up = this.upgradeFor !== null && (g.sub === 'build' || g.sub === 'act') && !p ? g.upgradeInfo(this.upgradeFor) : null;
     if (!up) this.upgradeFor = null;
     ov.classList.toggle('open', (!!p || !!up) && g.phase === 'trial');
     let html = '';
@@ -322,11 +329,17 @@ export class TndRenderer {
       html = `<div class="panel-title">건설 — 칸 ${p.pos}${p.discount ? ' <span class="op-add">(개척 −30%)</span>' : ''}</div><div class="dlg-line">보유 신앙 <b>${g.player.faith}</b></div>
         <div class="dlg-list">${g.deck.map(id => `<button class="dlg-item ${g.player.faith < g.buildCost(id) ? 'disabled' : ''}" data-build="${id}" data-tippiece="${id}">${pieceLabel(PIECES_BY_ID[id])} · ${g.buildCost(id)}</button>`).join('')}</div>
         <div class="dlg-actions"><button id="dlg-skip" class="btn btn-blue">건너뛰기</button></div>`;
+    } else if (p?.type === 'passage') {
+      html = `<div class="panel-title">통로 — 칸 ${p.pos} ⇄ 칸 ${p.to}</div><div class="dlg-line">다른 통로(칸 ${p.to})로 순간이동할까요? 사이 칸은 밟지 않고, 도착한 통로는 멈춘 칸으로 칩니다.</div>
+        <div class="dlg-actions"><button id="dlg-passage-go" class="btn btn-red">이동</button><button id="dlg-passage-stay" class="btn btn-blue">머무름</button></div>`;
+    } else if (p?.type === 'release') {
+      html = `<div class="panel-title">웨이브 방출 — 탈출 예상</div><div class="dlg-line">현재 보드로는 <b class="op-mul">${p.names.join(', ')}</b>이(가) 탈출합니다.${p.boss ? ' <b class="op-mul">보스 탈출 = 패배!</b>' : ' 탈출한 몬스터는 타락을 남깁니다.'}</div>
+        <div class="dlg-actions"><button id="dlg-release" class="btn btn-red">그래도 방출</button><button id="dlg-release-cancel" class="btn btn-blue">돌아가서 보강</button></div>`;
     } else if (up) {
       if (this.upgradeTarget === null || this.upgradeTarget <= up.grade) this.upgradeTarget = Math.min(TND.MAX_GRADE, up.grade + 1);
       const total = (this.upgradeTarget - up.grade) * up.perLevel;
-      html = `<div class="panel-title">업그레이드 — 칸 ${up.pos} ${up.name} G${up.grade} ${up.stopped ? '<span class="half-badge">멈춘 칸 · 반값</span>' : ''}</div>
-        <div class="dlg-line">등급당 <b>${up.perLevel}</b> · 보유 신앙 <b>${g.player.faith}</b></div>
+      html = `<div class="panel-title">업그레이드 — 칸 ${up.pos} ${up.name} G${up.grade} ${up.stopped ? '<span class="half-badge">멈춘 칸 · 반값</span>' : '<span class="half-badge pass">밟은 칸 · 정가</span>'}</div>
+        <div class="dlg-line">등급당 <b>${up.perLevel}</b> · 보유 신앙 <b>${g.player.faith}</b>${up.reload ? ' · <span class="op-add">성문: 닫힘 횟수가 새 등급으로 재장전</span>' : ''}</div>
         <div class="dlg-grades">${Array.from({ length: TND.MAX_GRADE - up.grade }, (_, k) => up.grade + 1 + k).map(t => `<button class="grade-btn ${this.upgradeTarget === t ? 'on' : ''}" data-grade="${t}">G${t}</button>`).join('')}</div>
         <div class="dlg-line">G${up.grade} → G${this.upgradeTarget} 총액 <b class="op-mul">${total}</b></div>
         <div class="dlg-actions"><button id="dlg-upgrade" class="btn btn-red" ${g.player.faith >= total ? '' : 'disabled'}>업그레이드</button><button id="dlg-close" class="btn btn-blue">닫기</button></div>`;
@@ -338,6 +351,10 @@ export class TndRenderer {
     card.querySelector('#dlg-purify')?.addEventListener('click', () => g.purify());
     card.querySelector('#dlg-destroy')?.addEventListener('click', () => g.destroy());
     card.querySelectorAll('[data-build]').forEach(b => b.addEventListener('click', () => { if (!b.classList.contains('disabled')) g.build(b.dataset.build); }));
+    card.querySelector('#dlg-passage-go')?.addEventListener('click', () => g.passageGo());
+    card.querySelector('#dlg-passage-stay')?.addEventListener('click', () => g.passageStay());
+    card.querySelector('#dlg-release')?.addEventListener('click', () => g.releaseConfirm());
+    card.querySelector('#dlg-release-cancel')?.addEventListener('click', () => g.releaseCancel());
     card.querySelectorAll('[data-grade]').forEach(b => b.addEventListener('click', () => { this.upgradeTarget = Number(b.dataset.grade); this._renderDialog(); }));
     card.querySelector('#dlg-upgrade')?.addEventListener('click', () => { const pos = this.upgradeFor; this.upgradeFor = null; g.upgradePiece(pos, this.upgradeTarget); });
     card.querySelector('#dlg-close')?.addEventListener('click', () => { this.upgradeFor = null; this.render(); });
@@ -354,9 +371,10 @@ export class TndRenderer {
     for (let i = this.lastLogLength; i < g.log.length; i++) this.logQueue.push(g.log[i]);
     this.lastLogLength = g.log.length;
   }
-  _tickLog() {
+  _tickLog() { // 속도: 1× = 틱당 1줄, 4× = 4줄, 즉시 = 전부. 게임 결과는 이미 확정되어 있어 속도는 표시에만 영향
     if (!this.logQueue.length) return;
-    const e = this.logQueue.shift(); const body = this.root.querySelector('#log-body');
-    const div = document.createElement('div'); div.className = `log-line log-${e.type}`; div.textContent = e.text; body.appendChild(div); body.scrollTop = body.scrollHeight;
+    const n = LOG_SPEEDS[this.logSpeed].n || this.logQueue.length; const body = this.root.querySelector('#log-body');
+    for (let k = 0; k < n && this.logQueue.length; k++) { const e = this.logQueue.shift(); const div = document.createElement('div'); div.className = `log-line log-${e.type}`; div.textContent = e.text; body.appendChild(div); }
+    body.scrollTop = body.scrollHeight;
   }
 }

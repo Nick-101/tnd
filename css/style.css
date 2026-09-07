@@ -357,8 +357,8 @@ body {
 .gcell { width: 16px; height: 18px; border-radius: 3px; background: #e5dfd2; display: inline-block; }
 .gcell.on { background: var(--gold); }
 #topbar .gauge small { margin-left: 6px; color: #888; }
-#trial-main { display: grid; grid-template-columns: 700px 1fr; gap: 18px; }
-#board-wrap { position: relative; width: 700px; height: 700px; }
+#trial-main { display: grid; grid-template-columns: 800px minmax(380px, 1fr); gap: 18px; }
+#board-wrap { position: relative; width: 800px; height: 800px; }
 #board { position: absolute; inset: 0; }
 /* 보드: 채도 낮춘 모노폴리 톤 */
 .cell {
@@ -487,10 +487,10 @@ body {
 .pawn.e .mon { position: relative; display: inline-block; color: #6a2390; text-shadow: 0 0 2px #fff; }
 .pawn.e .mon small { position: absolute; top: -11px; left: 50%; transform: translateX(-50%); font-size: 8px; font-weight: 900; background: #6a2390; color: #fff; padding: 0 3px; border-radius: 5px; line-height: 1.3; white-space: nowrap; }
 /* 주사위 판: 면 상태 (활성/맞은편/측면 중 발동하는 것) */
-#dice-panel { width: 444px; padding: 10px 12px; }
-#trial-dice { gap: 8px; align-items: flex-start; }
-.die.small { width: 134px; padding: 8px 5px 6px; }
-.die.small .die-face { font-size: 28px; line-height: 1.05; }
+#dice-panel { width: 408px; padding: 8px 10px; }
+#trial-dice { gap: 6px; align-items: flex-start; margin-bottom: 4px; }
+.die.small { width: 122px; padding: 7px 4px 5px; }
+.die.small .die-face { font-size: 26px; line-height: 1.05; }
 .die-skill .none { color: #bbb; font-weight: 400; }
 .die-faces { margin-top: 3px; border-top: 1px dashed #d8d2c4; padding-top: 3px; text-align: left; }
 .fs-head { font-size: 9px; color: #999; font-weight: 700; margin-bottom: 2px; text-align: center; }
@@ -504,3 +504,32 @@ body {
 .fs-eff { flex: none; font-weight: 900; }
 .fs-eff i { font-size: 8px; font-style: normal; background: var(--red); color: #fff; padding: 0 3px; border-radius: 4px; margin-left: 2px; }
 .fs.off .fs-eff { color: #999; font-weight: 400; }
+
+/* ======================= TnD v2.2: 웨이브 프리뷰 · 밟음 한정 업그레이드 · 로그 속도 ======================= */
+#trial-screen { padding: 8px 16px 12px; gap: 8px; }
+#dice-panel .preview { margin: 4px 0 6px; font-size: 12px; }
+#dice-panel .btn { font-size: 13px; padding: 7px 12px; }
+.fs { font-size: 9.5px; }
+.fs-state { width: 32px; }
+#trial-right #log-panel { height: 520px; }
+.btn.tiny { font-size: 11px; padding: 2px 8px; margin-left: 8px; box-shadow: 0 2px 0 rgba(0,0,0,0.25); vertical-align: middle; }
+.boss-tag { font-size: 11px; background: var(--red); color: #fff; padding: 1px 6px; border-radius: 6px; }
+#intent-panel { max-height: 300px; }
+.wp-row { padding: 6px 6px; border-left: 5px solid #c9c1b0; border-bottom: 1px dashed #e5dfd2; cursor: help; }
+.wp-row.ok { border-left-color: #3f9a52; } .wp-row.bad { border-left-color: var(--red); background: #fff4f2; }
+.wp-row:hover { background: #fff3e0; }
+.wp-main { font-size: 15px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.wp-main .hpbar { width: 60px; height: 9px; }
+.wp-verdict { margin-left: auto; font-size: 15px; }
+.wp-sub { font-size: 12px; color: #666; font-weight: 400; margin-top: 2px; }
+.wp-sub b { color: var(--ink); }
+.cell .star em { font-size: 10px; font-style: normal; color: #fff; background: #3f6fb0; border-radius: 6px; padding: 0 3px; margin-left: 1px; }
+.cell.upgradable { cursor: pointer; box-shadow: 0 0 0 3px #2e9db0; }
+.cell.no-up { opacity: 0.62; }
+.cell .up-mark { position: absolute; top: -10px; right: -8px; background: #2e9db0; color: #fff; font-size: 11px; font-weight: 900; width: 18px; height: 18px; line-height: 18px; text-align: center; border-radius: 9px; }
+.cell .up-mark.half { background: var(--gold); color: #5c4300; }
+.cell .clabel b small { font-size: 9px; color: #b8860b; }
+.half-badge.pass { background: #2e9db0; color: #fff; }
+.btn.warn { background: #e8862a; box-shadow: 0 5px 0 #b56419; }
+.tip-detail { margin-top: 4px; color: #ddd; font-weight: 400; font-size: 12px; }
+@media (max-width: 1320px) { #trial-main { grid-template-columns: 800px 1fr; } }
