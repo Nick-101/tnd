@@ -9,7 +9,8 @@ const won = n => Math.round(n).toLocaleString('ko-KR');
 // ── 데이터 ──────────────────────────────────────────────────
 let data;
 try {
-  data = await (await fetch('data/yolodwarf_data.json', { cache: 'no-store' })).json();
+  // 한 파일로 묶은 판(build-single.mjs)은 데이터를 안에 품고 있다.
+  data = globalThis.__YOLO_DATA__ ?? await (await fetch('data/yolodwarf_data.json', { cache: 'no-store' })).json();
 } catch (e) {
   document.body.innerHTML = `<p style="padding:24px;color:#fff">데이터 파일(data/yolodwarf_data.json)을 읽지 못했습니다. README의 실행 방법대로 <code>npm start</code>로 열었는지, 파일의 쉼표나 따옴표가 깨지지 않았는지 확인해 주세요.<br><br>${e}</p>`;
   throw e;
@@ -41,7 +42,7 @@ function newGame(seed) {
   game = createGame(data, { seed: seed || randomSeed(), dislike: settings.dislike });
   Object.assign(ui, { sel: null, hover: null, playing: false, play: null, skip: false, modal: 'intro' });
   $('log').innerHTML = '';
-  history.replaceState(null, '', '?seed=' + encodeURIComponent(game.state.seed));
+  try { history.replaceState(null, '', '?seed=' + encodeURIComponent(game.state.seed)); } catch { /* 주소를 못 바꾸는 곳 */ }
   render();
 }
 
@@ -519,6 +520,13 @@ async function playSend(choice) {
 }
 
 // ── 조작 ────────────────────────────────────────────────────
+// 되돌릴 수 없는 단추는 두 번 눌러야 한다(브라우저 확인 창은 막힌 곳이 있어 쓰지 않는다).
+let armed = null;
+function twice(key, msg) {
+  if (armed && armed.key === key && Date.now() - armed.t < 5000) { armed = null; return true; }
+  armed = { key, t: Date.now() }; toast(msg);
+  return false;
+}
 function act(name, el) {
   const s = game.state;
   switch (name) {
@@ -526,7 +534,7 @@ function act(name, el) {
     case 'close': ui.modal = null; break;
     case 'deck': ui.modal = s.phase === 'intro' ? 'intro' : 'deck'; break;
     case 'settings': ui.modal = 'settings'; break;
-    case 'restart': if (s.phase === 'over' || s.phase === 'intro' || confirm('지금 판을 버리고 새 판을 시작할까요?')) return newGame();
+    case 'restart': if (s.phase === 'over' || s.phase === 'intro' || twice('restart', '한 번 더 누르면 지금 판을 버리고 새 판을 시작한다')) return newGame();
       return;
     case 'sameSeed': return newGame(s.seed);
     case 'seedGo': { const v = $('seed-in').value.trim(); if (v) return newGame(v); return; }
@@ -534,7 +542,7 @@ function act(name, el) {
     case 'clearBest': allTimeBest = null; store.set('best', null); break;
     case 'freeze': game.toggleFreeze(+el.dataset.slot); break;
     case 'refresh': { const cost = game.refreshCost(); if (game.refresh()) { ui.sel = null; addLog(`🔄 새로고침 −${won(cost)} · 가진 돈 ${won(s.money)}`, 'prepl'); } break; }
-    case 'startWave': if (s.buildsLeft > 0 && s.candidates.some(c => c) && !confirm(`건설이 ${s.buildsLeft}채 남았습니다. 남긴 건설은 다음으로 넘어가지 않습니다. 웨이브를 시작할까요?`)) return;
+    case 'startWave': if (s.buildsLeft > 0 && s.candidates.some(c => c) && !twice('wave' + s.wave, `건설이 ${s.buildsLeft}채 남았다. 남긴 건설은 넘어가지 않는다. 한 번 더 누르면 시작`)) return;
       ui.sel = null; game.startWave(); addLog(`— 웨이브 ${s.wave + 1} 시작 · 목표 ${won(game.target())} · 보드: ${s.board.map((b, i) => (b ? `${i}:${b}` : '')).filter(Boolean).join(', ') || '비어 있음'}`, 'mark'); break;
     case 'send': playSend(+el.dataset.i); return;
     case 'speed': ui.speed = +el.dataset.x; store.set('speed', ui.speed); renderTray(); return;
