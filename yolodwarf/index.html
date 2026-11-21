@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1280">
+  <title>욜로드워프 데모</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="app">
+    <header id="top"></header>
+    <main>
+      <section id="left">
+        <div id="board"></div>
+        <div id="tray"></div>
+      </section>
+      <aside id="side">
+        <div id="detail"></div>
+        <div id="log-wrap">
+          <h3>기록 <span class="hint">칸 · 건물 · 계산식 · 낸 돈 · 스택과 만족도의 변화</span></h3>
+          <div id="log"></div>
+        </div>
+      </aside>
+    </main>
+    <div id="modal"></div>
+    <div id="toasts"></div>
+  </div>
+  <noscript>자바스크립트가 필요합니다.</noscript>
+  <script type="module" src="js/ui.js"></script>
+</body>
+</html>
