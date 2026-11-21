@@ -1,0 +1,957 @@
+{
+ "note": "욜로드워프 데모의 내용물. 수치는 모두 임시다. 규칙은 제작 요청서를 본다.",
+ "config": {
+  "boardSize": 12,
+  "waves": 5,
+  "buildsPerPrep": 2,
+  "candidates": 5,
+  "sendsPerWave": 3,
+  "choicesPerSend": 3,
+  "startMoney": 10,
+  "targets": [
+   60,
+   350,
+   1000,
+   2400,
+   5000
+  ],
+  "refreshBaseRate": 0.05,
+  "refreshGrowth": 2,
+  "baseLaps": 2,
+  "lapCostStart": 3,
+  "lapCostGrowth": 2,
+  "drunkThreshold": 3,
+  "fullThreshold": 3,
+  "likeSatisfaction": 1,
+  "dislikeSatisfaction": -1
+ },
+ "kinds": [
+  {
+   "name": "운동",
+   "color": "초록",
+   "taste": "운동광"
+  },
+  {
+   "name": "식당",
+   "color": "주황",
+   "taste": "미식가"
+  },
+  {
+   "name": "술집",
+   "color": "보라",
+   "taste": "애주가"
+  },
+  {
+   "name": "오락",
+   "color": "빨강",
+   "taste": "놀이꾼"
+  },
+  {
+   "name": "공연",
+   "color": "분홍",
+   "taste": "풍류객"
+  },
+  {
+   "name": "상점",
+   "color": "노랑",
+   "taste": "쇼핑광"
+  },
+  {
+   "name": "휴식",
+   "color": "파랑",
+   "taste": "한량"
+  }
+ ],
+ "buildings": [
+  {
+   "name": "수영장",
+   "group": "shop",
+   "sub": "basic",
+   "kinds": [
+    "운동"
+   ],
+   "fee": 6,
+   "refuses": "drunk",
+   "effect": {
+    "giveHunger": 2
+   },
+   "weight": 3,
+   "text": "허기짐 +2. 만취하면 받지 않는다"
+  },
+  {
+   "name": "헬스장",
+   "group": "shop",
+   "sub": "basic",
+   "kinds": [
+    "운동"
+   ],
+   "fee": 8,
+   "refuses": "drunk",
+   "effect": {
+    "giveHunger": 1
+   },
+   "weight": 3,
+   "text": "허기짐 +1. 만취하면 받지 않는다"
+  },
+  {
+   "name": "국숫집",
+   "group": "shop",
+   "sub": "basic",
+   "kinds": [
+    "식당"
+   ],
+   "fee": 4,
+   "refuses": "full",
+   "effect": {
+    "giveFullness": 1,
+    "feePerHunger": 4
+   },
+   "weight": 3,
+   "text": "허기짐 하나당 요금 +4. 포만감 +1. 배부르면 받지 않는다"
+  },
+  {
+   "name": "고깃집",
+   "group": "shop",
+   "sub": "basic",
+   "kinds": [
+    "식당"
+   ],
+   "fee": 6,
+   "refuses": "full",
+   "effect": {
+    "giveFullness": 3,
+    "feePerHunger": 8
+   },
+   "weight": 3,
+   "text": "허기짐 하나당 요금 +8. 포만감 +3. 배부르면 받지 않는다"
+  },
+  {
+   "name": "디저트 카페",
+   "group": "shop",
+   "sub": "basic",
+   "kinds": [
+    "식당"
+   ],
+   "fee": 8,
+   "refuses": null,
+   "effect": {},
+   "weight": 3,
+   "text": "배불러도 받는다"
+  },
+  {
+   "name": "선술집",
+   "group": "shop",
+   "sub": "basic",
+   "kinds": [
+    "술집"
+   ],
+   "fee": 2,
+   "refuses": null,
+   "effect": {
+    "giveDrunk": 3
+   },
+   "weight": 3,
+   "text": "취함 +3"
+  },
+  {
+   "name": "호프집",
+   "group": "shop",
+   "sub": "basic",
+   "kinds": [
+    "술집"
+   ],
+   "fee": 6,
+   "refuses": null,
+   "effect": {
+    "giveDrunk": 1
+   },
+   "weight": 3,
+   "text": "취함 +1"
+  },
+  {
+   "name": "포토 부스",
+   "group": "shop",
+   "sub": "basic",
+   "kinds": [
+    "오락"
+   ],
+   "fee": 8,
+   "refuses": null,
+   "effect": {
+    "feePerDrunk": 4
+   },
+   "weight": 3,
+   "text": "취함 하나당 요금 +4"
+  },
+  {
+   "name": "오락실",
+   "group": "shop",
+   "sub": "basic",
+   "kinds": [
+    "오락"
+   ],
+   "fee": 12,
+   "refuses": null,
+   "effect": {
+    "doubleIfDrunkAtLeast": 3
+   },
+   "weight": 3,
+   "text": "만취(취함 3 이상)면 낸 돈 2배"
+  },
+  {
+   "name": "야외무대",
+   "group": "shop",
+   "sub": "basic",
+   "kinds": [
+    "공연"
+   ],
+   "fee": 4,
+   "refuses": null,
+   "effect": {
+    "giveHype": 2
+   },
+   "weight": 3,
+   "text": "흥 +2"
+  },
+  {
+   "name": "극장",
+   "group": "shop",
+   "sub": "basic",
+   "kinds": [
+    "공연"
+   ],
+   "fee": 8,
+   "refuses": "drunk",
+   "effect": {
+    "giveHype": 1
+   },
+   "weight": 3,
+   "text": "흥 +1. 만취하면 받지 않는다"
+  },
+  {
+   "name": "기념품 가게",
+   "group": "shop",
+   "sub": "basic",
+   "kinds": [
+    "상점"
+   ],
+   "fee": 10,
+   "refuses": null,
+   "effect": {
+    "feePerHype": 3
+   },
+   "weight": 3,
+   "text": "흥 하나당 요금 +3"
+  },
+  {
+   "name": "보석상",
+   "group": "shop",
+   "sub": "basic",
+   "kinds": [
+    "상점"
+   ],
+   "fee": 12,
+   "refuses": null,
+   "effect": {
+    "consumeAllHypeFeePer": 8
+   },
+   "weight": 3,
+   "text": "흥을 전부 쓰고 하나당 요금 +8"
+  },
+  {
+   "name": "공원",
+   "group": "shop",
+   "sub": "basic",
+   "kinds": [
+    "휴식"
+   ],
+   "fee": 0,
+   "refuses": null,
+   "effect": {
+    "giveHunger": 1,
+    "clearDrunk": true
+   },
+   "weight": 3,
+   "text": "취함을 모두 없앤다. 허기짐 +1"
+  },
+  {
+   "name": "여관",
+   "group": "shop",
+   "sub": "basic",
+   "kinds": [
+    "휴식"
+   ],
+   "fee": 10,
+   "refuses": null,
+   "effect": {
+    "clearAll": true
+   },
+   "weight": 3,
+   "text": "가진 스택을 모두 없앤다"
+  },
+  {
+   "name": "볼링장",
+   "group": "shop",
+   "sub": "compound",
+   "kinds": [
+    "운동",
+    "오락"
+   ],
+   "fee": 6,
+   "refuses": null,
+   "effect": {
+    "giveHunger": 1,
+    "feePerDrunk": 2
+   },
+   "weight": 3,
+   "text": "허기짐 +1. 취함 하나당 요금 +2"
+  },
+  {
+   "name": "노래방",
+   "group": "shop",
+   "sub": "compound",
+   "kinds": [
+    "오락",
+    "공연"
+   ],
+   "fee": 6,
+   "refuses": null,
+   "effect": {
+    "giveHype": 1,
+    "feePerDrunk": 2
+   },
+   "weight": 3,
+   "text": "흥 +1. 취함 하나당 요금 +2"
+  },
+  {
+   "name": "재즈바",
+   "group": "shop",
+   "sub": "compound",
+   "kinds": [
+    "술집",
+    "공연"
+   ],
+   "fee": 4,
+   "refuses": null,
+   "effect": {
+    "giveDrunk": 1,
+    "giveHype": 1
+   },
+   "weight": 3,
+   "text": "취함 +1, 흥 +1"
+  },
+  {
+   "name": "와인 가게",
+   "group": "shop",
+   "sub": "compound",
+   "kinds": [
+    "술집",
+    "상점"
+   ],
+   "fee": 6,
+   "refuses": null,
+   "effect": {
+    "giveDrunk": 1,
+    "feePerHype": 2
+   },
+   "weight": 3,
+   "text": "취함 +1. 흥 하나당 요금 +2"
+  },
+  {
+   "name": "야시장",
+   "group": "shop",
+   "sub": "compound",
+   "kinds": [
+    "식당",
+    "상점"
+   ],
+   "fee": 6,
+   "refuses": "full",
+   "effect": {
+    "giveFullness": 1,
+    "feePerHunger": 2,
+    "feePerHype": 2
+   },
+   "weight": 3,
+   "text": "허기짐과 흥 하나당 요금 +2. 포만감 +1. 배부르면 받지 않는다"
+  },
+  {
+   "name": "휴게소",
+   "group": "shop",
+   "sub": "compound",
+   "kinds": [
+    "식당",
+    "휴식"
+   ],
+   "fee": 4,
+   "refuses": "full",
+   "effect": {
+    "giveFullness": 1,
+    "feePerHunger": 2,
+    "reduceDrunk": 1
+   },
+   "weight": 3,
+   "text": "허기짐 하나당 요금 +2. 포만감 +1. 취함 -1. 배부르면 받지 않는다"
+  },
+  {
+   "name": "사우나",
+   "group": "shop",
+   "sub": "compound",
+   "kinds": [
+    "운동",
+    "휴식"
+   ],
+   "fee": 4,
+   "refuses": null,
+   "effect": {
+    "giveHunger": 1,
+    "reduceDrunk": 1
+   },
+   "weight": 3,
+   "text": "허기짐 +1. 취함 -1"
+  },
+  {
+   "name": "광고탑",
+   "group": "support",
+   "rarity": "common",
+   "weight": 3,
+   "effect": {
+    "type": "feeAdjacent",
+    "amount": 5
+   },
+   "text": "양옆 1칸 건물의 요금 +5"
+  },
+  {
+   "name": "가로등",
+   "group": "support",
+   "rarity": "common",
+   "weight": 3,
+   "effect": {
+    "type": "feeAll",
+    "amount": 2
+   },
+   "text": "보드의 모든 장사 건물 요금 +2"
+  },
+  {
+   "name": "네온사인",
+   "group": "support",
+   "rarity": "uncommon",
+   "weight": 2,
+   "effect": {
+    "type": "multAdjacent",
+    "mult": 1.5
+   },
+   "text": "양옆 1칸 건물이 낸 돈 1.5배"
+  },
+  {
+   "name": "회전문",
+   "group": "support",
+   "rarity": "uncommon",
+   "weight": 2,
+   "effect": {
+    "type": "againPrevious"
+   },
+   "text": "이전 칸의 건물을 한 번 더 이용하게 한다"
+  },
+  {
+   "name": "관광 안내소",
+   "group": "support",
+   "rarity": "rare",
+   "weight": 1,
+   "effect": {
+    "type": "multTop",
+    "mult": 2
+   },
+   "text": "보드에서 요금이 가장 높은 건물이 낸 돈 2배"
+  },
+  {
+   "name": "2호점",
+   "group": "support",
+   "rarity": "rare",
+   "weight": 1,
+   "effect": {
+    "type": "useTopHere"
+   },
+   "text": "보드에서 요금이 가장 높은 건물을 이 칸에서도 이용한다"
+  },
+  {
+   "name": "변전소",
+   "group": "support",
+   "rarity": "rare",
+   "weight": 1,
+   "effect": {
+    "type": "repeatAdjacentSupports"
+   },
+   "text": "양옆 1칸 지원 건물의 효과가 한 번 더 걸린다"
+  },
+  {
+   "name": "농장",
+   "group": "support",
+   "rarity": "common",
+   "weight": 3,
+   "effect": {
+    "type": "feeKindWithin2",
+    "kind": "식당",
+    "amount": 6
+   },
+   "text": "양옆 2칸 안의 식당 요금 +6"
+  },
+  {
+   "name": "발전소",
+   "group": "support",
+   "rarity": "common",
+   "weight": 3,
+   "effect": {
+    "type": "feeKindWithin2",
+    "kind": "오락",
+    "amount": 6
+   },
+   "text": "양옆 2칸 안의 오락 요금 +6"
+  },
+  {
+   "name": "창고",
+   "group": "support",
+   "rarity": "common",
+   "weight": 3,
+   "effect": {
+    "type": "feeKindWithin2",
+    "kind": "상점",
+    "amount": 6
+   },
+   "text": "양옆 2칸 안의 상점 요금 +6"
+  },
+  {
+   "name": "식자재 시장",
+   "group": "support",
+   "rarity": "uncommon",
+   "weight": 2,
+   "effect": {
+    "type": "multKindAll",
+    "kind": "식당",
+    "mult": 1.5
+   },
+   "text": "보드의 모든 식당이 낸 돈 1.5배"
+  },
+  {
+   "name": "번화가 간판",
+   "group": "support",
+   "rarity": "uncommon",
+   "weight": 2,
+   "effect": {
+    "type": "multKindAll",
+    "kind": "오락",
+    "mult": 1.5
+   },
+   "text": "보드의 모든 오락이 낸 돈 1.5배"
+  },
+  {
+   "name": "도매 시장",
+   "group": "support",
+   "rarity": "uncommon",
+   "weight": 2,
+   "effect": {
+    "type": "multKindAll",
+    "kind": "상점",
+    "mult": 1.5
+   },
+   "text": "보드의 모든 상점이 낸 돈 1.5배"
+  },
+  {
+   "name": "코치 사무소",
+   "group": "support",
+   "rarity": "uncommon",
+   "weight": 2,
+   "effect": {
+    "type": "againKindAdjacent",
+    "kind": "운동"
+   },
+   "text": "양옆 1칸 운동 건물을 한 번 더 이용하게 한다"
+  },
+  {
+   "name": "증류소",
+   "group": "support",
+   "rarity": "uncommon",
+   "weight": 2,
+   "effect": {
+    "type": "againKindAdjacent",
+    "kind": "술집"
+   },
+   "text": "양옆 1칸 술집을 한 번 더 이용하게 한다"
+  },
+  {
+   "name": "기획사",
+   "group": "support",
+   "rarity": "uncommon",
+   "weight": 2,
+   "effect": {
+    "type": "againKindAdjacent",
+    "kind": "공연"
+   },
+   "text": "양옆 1칸 공연 건물을 한 번 더 이용하게 한다"
+  },
+  {
+   "name": "목장",
+   "group": "support",
+   "rarity": "rare",
+   "weight": 1,
+   "effect": {
+    "type": "multBuildingAll",
+    "building": "고깃집",
+    "mult": 2.5
+   },
+   "text": "보드의 고깃집이 낸 돈 2.5배"
+  },
+  {
+   "name": "전자 상가",
+   "group": "support",
+   "rarity": "rare",
+   "weight": 1,
+   "effect": {
+    "type": "multBuildingAll",
+    "building": "오락실",
+    "mult": 2.5
+   },
+   "text": "보드의 오락실이 낸 돈 2.5배"
+  },
+  {
+   "name": "광산",
+   "group": "support",
+   "rarity": "rare",
+   "weight": 1,
+   "effect": {
+    "type": "multBuildingAll",
+    "building": "보석상",
+    "mult": 2.5
+   },
+   "text": "보드의 보석상이 낸 돈 2.5배"
+  },
+  {
+   "name": "꽃밭",
+   "group": "support",
+   "rarity": "common",
+   "weight": 3,
+   "effect": {
+    "type": "feeBuildingAll",
+    "building": "공원",
+    "amount": 12
+   },
+   "text": "보드의 공원 요금 +12"
+  },
+  {
+   "name": "신문사",
+   "group": "support",
+   "rarity": "common",
+   "weight": 3,
+   "effect": {
+    "type": "growFeeAll",
+    "amountPerLap": 1
+   },
+   "text": "드워프가 한 바퀴를 마칠 때마다 보드의 모든 장사 건물 요금 +1"
+  },
+  {
+   "name": "게시판",
+   "group": "support",
+   "rarity": "uncommon",
+   "weight": 2,
+   "effect": {
+    "type": "growFeeAdjacent",
+    "amountPerLap": 4
+   },
+   "text": "드워프가 한 바퀴를 마칠 때마다 양옆 1칸 건물의 요금 +4"
+  },
+  {
+   "name": "축제 본부",
+   "group": "support",
+   "rarity": "rare",
+   "weight": 1,
+   "effect": {
+    "type": "growMultAdjacent",
+    "addPerLap": 0.5
+   },
+   "text": "드워프가 한 바퀴를 마칠 때마다 양옆 1칸 건물이 낸 돈 +0.5배"
+  },
+  {
+   "name": "방송국",
+   "group": "support",
+   "rarity": "rare",
+   "weight": 1,
+   "effect": {
+    "type": "growMultTop",
+    "addPerLap": 0.5
+   },
+   "text": "드워프가 한 바퀴를 마칠 때마다 요금이 가장 높은 건물이 낸 돈 +0.5배"
+  }
+ ],
+ "dwarves": [
+  {
+   "id": 1,
+   "name": "삼두 브롬",
+   "likes": [
+    "운동",
+    "식당"
+   ],
+   "dislikes": "오락"
+  },
+  {
+   "id": 2,
+   "name": "꿀꺽 보르단",
+   "likes": [
+    "식당",
+    "술집"
+   ],
+   "dislikes": "운동"
+  },
+  {
+   "id": 3,
+   "name": "한판만 구스타",
+   "likes": [
+    "술집",
+    "오락"
+   ],
+   "dislikes": "휴식"
+  },
+  {
+   "id": 4,
+   "name": "지름신 도르카",
+   "likes": [
+    "오락",
+    "상점"
+   ],
+   "dislikes": "운동"
+  },
+  {
+   "id": 5,
+   "name": "반짝이 릴카",
+   "likes": [
+    "상점",
+    "공연"
+   ],
+   "dislikes": "술집"
+  },
+  {
+   "id": 6,
+   "name": "어깨춤 노리트",
+   "likes": [
+    "공연",
+    "휴식"
+   ],
+   "dislikes": "오락"
+  },
+  {
+   "id": 7,
+   "name": "새벽산책 하겐",
+   "likes": [
+    "휴식",
+    "운동"
+   ],
+   "dislikes": "술집"
+  },
+  {
+   "id": 8,
+   "name": "땀과맥주 달가",
+   "likes": [
+    "운동",
+    "술집"
+   ],
+   "dislikes": "상점"
+  },
+  {
+   "id": 9,
+   "name": "야식 우르고",
+   "likes": [
+    "식당",
+    "오락"
+   ],
+   "dislikes": "공연"
+  },
+  {
+   "id": 10,
+   "name": "취중쇼핑 페르다",
+   "likes": [
+    "술집",
+    "상점"
+   ],
+   "dislikes": "운동"
+  },
+  {
+   "id": 11,
+   "name": "신명 카잔",
+   "likes": [
+    "오락",
+    "공연"
+   ],
+   "dislikes": "휴식"
+  },
+  {
+   "id": 12,
+   "name": "어슬렁 모그",
+   "likes": [
+    "상점",
+    "휴식"
+   ],
+   "dislikes": "오락"
+  },
+  {
+   "id": 13,
+   "name": "덩실 스벤",
+   "likes": [
+    "공연",
+    "운동"
+   ],
+   "dislikes": "상점"
+  },
+  {
+   "id": 14,
+   "name": "한입만 티바",
+   "likes": [
+    "휴식",
+    "식당"
+   ],
+   "dislikes": "공연"
+  },
+  {
+   "id": 15,
+   "name": "승부욕 토르간",
+   "likes": [
+    "운동",
+    "오락"
+   ],
+   "dislikes": "휴식"
+  },
+  {
+   "id": 16,
+   "name": "장바구니 브린다",
+   "likes": [
+    "식당",
+    "상점"
+   ],
+   "dislikes": "술집"
+  },
+  {
+   "id": 17,
+   "name": "취흥 바르딘",
+   "likes": [
+    "술집",
+    "공연"
+   ],
+   "dislikes": "운동"
+  },
+  {
+   "id": 18,
+   "name": "놀다자다 니블",
+   "likes": [
+    "오락",
+    "휴식"
+   ],
+   "dislikes": "공연"
+  },
+  {
+   "id": 19,
+   "name": "새 운동화 케틸",
+   "likes": [
+    "상점",
+    "운동"
+   ],
+   "dislikes": "술집"
+  },
+  {
+   "id": 20,
+   "name": "디너쇼 헬가",
+   "likes": [
+    "공연",
+    "식당"
+   ],
+   "dislikes": "오락"
+  },
+  {
+   "id": 21,
+   "name": "낮술 그룬트",
+   "likes": [
+    "휴식",
+    "술집"
+   ],
+   "dislikes": "운동"
+  },
+  {
+   "id": 22,
+   "name": "벌크업 마르타",
+   "likes": [
+    "운동",
+    "식당"
+   ],
+   "dislikes": "술집"
+  },
+  {
+   "id": 23,
+   "name": "안주발 올벤",
+   "likes": [
+    "식당",
+    "술집"
+   ],
+   "dislikes": "상점"
+  },
+  {
+   "id": 24,
+   "name": "이차 가자 뤼카",
+   "likes": [
+    "술집",
+    "오락"
+   ],
+   "dislikes": "상점"
+  },
+  {
+   "id": 25,
+   "name": "한정판 푸르딘",
+   "likes": [
+    "오락",
+    "상점"
+   ],
+   "dislikes": "휴식"
+  },
+  {
+   "id": 26,
+   "name": "굿즈 솔베",
+   "likes": [
+    "상점",
+    "공연"
+   ],
+   "dislikes": "오락"
+  },
+  {
+   "id": 27,
+   "name": "돗자리 잉가",
+   "likes": [
+    "공연",
+    "휴식"
+   ],
+   "dislikes": "상점"
+  },
+  {
+   "id": 28,
+   "name": "스트레칭 라그나",
+   "likes": [
+    "휴식",
+    "운동"
+   ],
+   "dislikes": "공연"
+  },
+  {
+   "id": 29,
+   "name": "응원단장 비르타",
+   "likes": [
+    "운동",
+    "공연"
+   ],
+   "dislikes": "휴식"
+  },
+  {
+   "id": 30,
+   "name": "반주 한잔 욘델",
+   "likes": [
+    "술집",
+    "휴식"
+   ],
+   "dislikes": "공연"
+  }
+ ]
+}

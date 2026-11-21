@@ -1,0 +1,4086 @@
+{
+ "note": "엔진 검증 사례. board는 0번 칸(입구)부터 11번 칸까지. lapsDoneBeforeInWave는 같은 웨이브에서 앞서 보낸 드워프들이 마친 바퀴 수의 합이다(성장 지원이 그만큼 자라 있다).",
+ "singleRuns": [
+  {
+   "id": 1,
+   "label": "계산 예 (요청서 9절)",
+   "board": [
+    "수영장",
+    "헬스장",
+    "고깃집",
+    "신문사",
+    "야외무대",
+    "기념품 가게",
+    "보석상",
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "dwarf": "삼두 브롬",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 404,
+    "laps": 4,
+    "incomePerLap": [
+     92,
+     98,
+     104,
+     110
+    ]
+   }
+  },
+  {
+   "id": 2,
+   "label": "계산 예 (요청서 9절)",
+   "board": [
+    "수영장",
+    "헬스장",
+    "고깃집",
+    "신문사",
+    "야외무대",
+    "기념품 가게",
+    "보석상",
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "dwarf": "삼두 브롬",
+   "lapsDoneBeforeInWave": 4,
+   "expected": {
+    "income": 500,
+    "laps": 4,
+    "incomePerLap": [
+     116,
+     122,
+     128,
+     134
+    ]
+   }
+  },
+  {
+   "id": 3,
+   "label": "계산 예 (요청서 9절)",
+   "board": [
+    "수영장",
+    "헬스장",
+    "고깃집",
+    "신문사",
+    "야외무대",
+    "기념품 가게",
+    "보석상",
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "dwarf": "지름신 도르카",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 190,
+    "laps": 2,
+    "incomePerLap": [
+     92,
+     98
+    ]
+   }
+  },
+  {
+   "id": 4,
+   "label": "계산 예 (요청서 9절)",
+   "board": [
+    "수영장",
+    "헬스장",
+    "고깃집",
+    "신문사",
+    "야외무대",
+    "기념품 가게",
+    "보석상",
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "dwarf": "지름신 도르카",
+   "lapsDoneBeforeInWave": 4,
+   "expected": {
+    "income": 238,
+    "laps": 2,
+    "incomePerLap": [
+     116,
+     122
+    ]
+   }
+  },
+  {
+   "id": 5,
+   "label": "계산 예 (요청서 9절)",
+   "board": [
+    "수영장",
+    "헬스장",
+    "고깃집",
+    "신문사",
+    "야외무대",
+    "기념품 가게",
+    "보석상",
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "dwarf": "반짝이 릴카",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 404,
+    "laps": 4,
+    "incomePerLap": [
+     92,
+     98,
+     104,
+     110
+    ]
+   }
+  },
+  {
+   "id": 6,
+   "label": "계산 예 (요청서 9절)",
+   "board": [
+    "수영장",
+    "헬스장",
+    "고깃집",
+    "신문사",
+    "야외무대",
+    "기념품 가게",
+    "보석상",
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "dwarf": "반짝이 릴카",
+   "lapsDoneBeforeInWave": 4,
+   "expected": {
+    "income": 500,
+    "laps": 4,
+    "incomePerLap": [
+     116,
+     122,
+     128,
+     134
+    ]
+   }
+  },
+  {
+   "id": 7,
+   "label": "만취하면 운동과 극장이 받지 않는다, 오락실 2배",
+   "board": [
+    "선술집",
+    "수영장",
+    "헬스장",
+    "극장",
+    "오락실",
+    "포토 부스",
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "dwarf": "한판만 구스타",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 184,
+    "laps": 4,
+    "incomePerLap": [
+     46,
+     46,
+     46,
+     46
+    ]
+   }
+  },
+  {
+   "id": 8,
+   "label": "만취하면 운동과 극장이 받지 않는다, 오락실 2배",
+   "board": [
+    "선술집",
+    "수영장",
+    "헬스장",
+    "극장",
+    "오락실",
+    "포토 부스",
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "dwarf": "삼두 브롬",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 92,
+    "laps": 2,
+    "incomePerLap": [
+     46,
+     46
+    ]
+   }
+  },
+  {
+   "id": 9,
+   "label": "만취하면 운동과 극장이 받지 않는다, 오락실 2배",
+   "board": [
+    "선술집",
+    "수영장",
+    "헬스장",
+    "극장",
+    "오락실",
+    "포토 부스",
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "dwarf": "취흥 바르딘",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 92,
+    "laps": 2,
+    "incomePerLap": [
+     46,
+     46
+    ]
+   }
+  },
+  {
+   "id": 10,
+   "label": "취함 2에서는 받는다",
+   "board": [
+    "호프집",
+    "재즈바",
+    "수영장",
+    "극장",
+    "오락실",
+    "포토 부스",
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "dwarf": "땀과맥주 달가",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 208,
+    "laps": 4,
+    "incomePerLap": [
+     52,
+     52,
+     52,
+     52
+    ]
+   }
+  },
+  {
+   "id": 11,
+   "label": "취함 2에서는 받는다",
+   "board": [
+    "호프집",
+    "재즈바",
+    "수영장",
+    "극장",
+    "오락실",
+    "포토 부스",
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "dwarf": "신명 카잔",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 208,
+    "laps": 4,
+    "incomePerLap": [
+     52,
+     52,
+     52,
+     52
+    ]
+   }
+  },
+  {
+   "id": 12,
+   "label": "배부름과 디저트 카페",
+   "board": [
+    "수영장",
+    "고깃집",
+    "국숫집",
+    "야시장",
+    "휴게소",
+    "디저트 카페",
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "dwarf": "꿀꺽 보르단",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 184,
+    "laps": 4,
+    "incomePerLap": [
+     46,
+     46,
+     46,
+     46
+    ]
+   }
+  },
+  {
+   "id": 13,
+   "label": "배부름과 디저트 카페",
+   "board": [
+    "수영장",
+    "고깃집",
+    "국숫집",
+    "야시장",
+    "휴게소",
+    "디저트 카페",
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "dwarf": "한입만 티바",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 184,
+    "laps": 4,
+    "incomePerLap": [
+     46,
+     46,
+     46,
+     46
+    ]
+   }
+  },
+  {
+   "id": 14,
+   "label": "배부름과 디저트 카페",
+   "board": [
+    "수영장",
+    "고깃집",
+    "국숫집",
+    "야시장",
+    "휴게소",
+    "디저트 카페",
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "dwarf": "장바구니 브린다",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 184,
+    "laps": 4,
+    "incomePerLap": [
+     46,
+     46,
+     46,
+     46
+    ]
+   }
+  },
+  {
+   "id": 15,
+   "label": "허기짐이 넉넉할 때 식당 줄",
+   "board": [
+    "수영장",
+    "수영장",
+    "헬스장",
+    "공원",
+    "국숫집",
+    "국숫집",
+    "야시장",
+    "고깃집",
+    "디저트 카페",
+    null,
+    null,
+    null
+   ],
+   "dwarf": "벌크업 마르타",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 620,
+    "laps": 5,
+    "incomePerLap": [
+     124,
+     124,
+     124,
+     124,
+     124
+    ]
+   }
+  },
+  {
+   "id": 16,
+   "label": "허기짐이 넉넉할 때 식당 줄",
+   "board": [
+    "수영장",
+    "수영장",
+    "헬스장",
+    "공원",
+    "국숫집",
+    "국숫집",
+    "야시장",
+    "고깃집",
+    "디저트 카페",
+    null,
+    null,
+    null
+   ],
+   "dwarf": "삼두 브롬",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 620,
+    "laps": 5,
+    "incomePerLap": [
+     124,
+     124,
+     124,
+     124,
+     124
+    ]
+   }
+  },
+  {
+   "id": 17,
+   "label": "공원과 여관",
+   "board": [
+    "선술집",
+    "공원",
+    "수영장",
+    "국숫집",
+    "야외무대",
+    "여관",
+    "기념품 가게",
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "dwarf": "새벽산책 하겐",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 144,
+    "laps": 3,
+    "incomePerLap": [
+     48,
+     48,
+     48
+    ]
+   }
+  },
+  {
+   "id": 18,
+   "label": "공원과 여관",
+   "board": [
+    "선술집",
+    "공원",
+    "수영장",
+    "국숫집",
+    "야외무대",
+    "여관",
+    "기념품 가게",
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "dwarf": "낮술 그룬트",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 144,
+    "laps": 3,
+    "incomePerLap": [
+     48,
+     48,
+     48
+    ]
+   }
+  },
+  {
+   "id": 19,
+   "label": "공원과 여관",
+   "board": [
+    "선술집",
+    "공원",
+    "수영장",
+    "국숫집",
+    "야외무대",
+    "여관",
+    "기념품 가게",
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "dwarf": "어슬렁 모그",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 192,
+    "laps": 4,
+    "incomePerLap": [
+     48,
+     48,
+     48,
+     48
+    ]
+   }
+  },
+  {
+   "id": 20,
+   "label": "복합 건물 전부",
+   "board": [
+    "재즈바",
+    "와인 가게",
+    "노래방",
+    "볼링장",
+    "사우나",
+    "휴게소",
+    "야시장",
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "dwarf": "취흥 바르딘",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 112,
+    "laps": 2,
+    "incomePerLap": [
+     56,
+     56
+    ]
+   }
+  },
+  {
+   "id": 21,
+   "label": "복합 건물 전부",
+   "board": [
+    "재즈바",
+    "와인 가게",
+    "노래방",
+    "볼링장",
+    "사우나",
+    "휴게소",
+    "야시장",
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "dwarf": "승부욕 토르간",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 112,
+    "laps": 2,
+    "incomePerLap": [
+     56,
+     56
+    ]
+   }
+  },
+  {
+   "id": 22,
+   "label": "복합 건물 전부",
+   "board": [
+    "재즈바",
+    "와인 가게",
+    "노래방",
+    "볼링장",
+    "사우나",
+    "휴게소",
+    "야시장",
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "dwarf": "반주 한잔 욘델",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 168,
+    "laps": 3,
+    "incomePerLap": [
+     56,
+     56,
+     56
+    ]
+   }
+  },
+  {
+   "id": 23,
+   "label": "복합 건물 전부",
+   "board": [
+    "재즈바",
+    "와인 가게",
+    "노래방",
+    "볼링장",
+    "사우나",
+    "휴게소",
+    "야시장",
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "dwarf": "취중쇼핑 페르다",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 112,
+    "laps": 2,
+    "incomePerLap": [
+     56,
+     56
+    ]
+   }
+  },
+  {
+   "id": 24,
+   "label": "고리: 0번 칸의 회전문이 11번 칸에 걸린다",
+   "board": [
+    "회전문",
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    "야외무대",
+    "광고탑",
+    "보석상"
+   ],
+   "dwarf": "반짝이 릴카",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 236,
+    "laps": 4,
+    "incomePerLap": [
+     59,
+     59,
+     59,
+     59
+    ]
+   }
+  },
+  {
+   "id": 25,
+   "label": "고리: 0번 칸의 회전문이 11번 칸에 걸린다",
+   "board": [
+    "회전문",
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    "야외무대",
+    "광고탑",
+    "보석상"
+   ],
+   "dwarf": "굿즈 솔베",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 236,
+    "laps": 4,
+    "incomePerLap": [
+     59,
+     59,
+     59,
+     59
+    ]
+   }
+  },
+  {
+   "id": 26,
+   "label": "고리: 11번 칸의 지원이 0번 칸에 걸린다",
+   "board": [
+    "포토 부스",
+    "선술집",
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    "발전소",
+    "네온사인"
+   ],
+   "dwarf": "한판만 구스타",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 69,
+    "laps": 3,
+    "incomePerLap": [
+     23,
+     23,
+     23
+    ]
+   }
+  },
+  {
+   "id": 27,
+   "label": "고리: 11번 칸의 지원이 0번 칸에 걸린다",
+   "board": [
+    "포토 부스",
+    "선술집",
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    "발전소",
+    "네온사인"
+   ],
+   "dwarf": "이차 가자 뤼카",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 69,
+    "laps": 3,
+    "incomePerLap": [
+     23,
+     23,
+     23
+    ]
+   }
+  },
+  {
+   "id": 28,
+   "label": "변전소가 여러 지원에 걸린다",
+   "board": [
+    "광산",
+    "변전소",
+    "관광 안내소",
+    "야외무대",
+    "기획사",
+    "변전소",
+    "보석상",
+    "2호점",
+    "변전소",
+    "네온사인",
+    "극장",
+    null
+   ],
+   "dwarf": "반짝이 릴카",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 8520,
+    "laps": 4,
+    "incomePerLap": [
+     2130,
+     2130,
+     2130,
+     2130
+    ]
+   }
+  },
+  {
+   "id": 29,
+   "label": "변전소가 여러 지원에 걸린다",
+   "board": [
+    "광산",
+    "변전소",
+    "관광 안내소",
+    "야외무대",
+    "기획사",
+    "변전소",
+    "보석상",
+    "2호점",
+    "변전소",
+    "네온사인",
+    "극장",
+    null
+   ],
+   "dwarf": "덩실 스벤",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 8520,
+    "laps": 4,
+    "incomePerLap": [
+     2130,
+     2130,
+     2130,
+     2130
+    ]
+   }
+  },
+  {
+   "id": 30,
+   "label": "변전소가 여러 지원에 걸린다",
+   "board": [
+    "광산",
+    "변전소",
+    "관광 안내소",
+    "야외무대",
+    "기획사",
+    "변전소",
+    "보석상",
+    "2호점",
+    "변전소",
+    "네온사인",
+    "극장",
+    null
+   ],
+   "dwarf": "굿즈 솔베",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 8520,
+    "laps": 4,
+    "incomePerLap": [
+     2130,
+     2130,
+     2130,
+     2130
+    ]
+   }
+  },
+  {
+   "id": 31,
+   "label": "요금이 가장 높은 건물이 둘일 때는 입구에서 먼저 나오는 쪽",
+   "board": [
+    "선술집",
+    "오락실",
+    "보석상",
+    "관광 안내소",
+    "2호점",
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "dwarf": "한판만 구스타",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 330,
+    "laps": 3,
+    "incomePerLap": [
+     110,
+     110,
+     110
+    ]
+   }
+  },
+  {
+   "id": 32,
+   "label": "요금이 가장 높은 건물이 둘일 때는 입구에서 먼저 나오는 쪽",
+   "board": [
+    "선술집",
+    "오락실",
+    "보석상",
+    "관광 안내소",
+    "2호점",
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "dwarf": "지름신 도르카",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 330,
+    "laps": 3,
+    "incomePerLap": [
+     110,
+     110,
+     110
+    ]
+   }
+  },
+  {
+   "id": 33,
+   "label": "지원이 얹은 요금으로 가장 높은 건물이 바뀐다",
+   "board": [
+    "선술집",
+    "오락실",
+    "광고탑",
+    "포토 부스",
+    "관광 안내소",
+    "2호점",
+    "가로등",
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "dwarf": "한판만 구스타",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 732,
+    "laps": 4,
+    "incomePerLap": [
+     183,
+     183,
+     183,
+     183
+    ]
+   }
+  },
+  {
+   "id": 34,
+   "label": "지원이 얹은 요금으로 가장 높은 건물이 바뀐다",
+   "board": [
+    "선술집",
+    "오락실",
+    "광고탑",
+    "포토 부스",
+    "관광 안내소",
+    "2호점",
+    "가로등",
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "dwarf": "이차 가자 뤼카",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 732,
+    "laps": 4,
+    "incomePerLap": [
+     183,
+     183,
+     183,
+     183
+    ]
+   }
+  },
+  {
+   "id": 35,
+   "label": "식당 쪽 지원",
+   "board": [
+    "농장",
+    "국숫집",
+    "고깃집",
+    "식자재 시장",
+    "수영장",
+    "코치 사무소",
+    "헬스장",
+    "목장",
+    null,
+    null,
+    null,
+    null
+   ],
+   "dwarf": "삼두 브롬",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 440,
+    "laps": 5,
+    "incomePerLap": [
+     88,
+     88,
+     88,
+     88,
+     88
+    ]
+   }
+  },
+  {
+   "id": 36,
+   "label": "식당 쪽 지원",
+   "board": [
+    "농장",
+    "국숫집",
+    "고깃집",
+    "식자재 시장",
+    "수영장",
+    "코치 사무소",
+    "헬스장",
+    "목장",
+    null,
+    null,
+    null,
+    null
+   ],
+   "dwarf": "벌크업 마르타",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 440,
+    "laps": 5,
+    "incomePerLap": [
+     88,
+     88,
+     88,
+     88,
+     88
+    ]
+   }
+  },
+  {
+   "id": 37,
+   "label": "식당 쪽 지원",
+   "board": [
+    "농장",
+    "국숫집",
+    "고깃집",
+    "식자재 시장",
+    "수영장",
+    "코치 사무소",
+    "헬스장",
+    "목장",
+    null,
+    null,
+    null,
+    null
+   ],
+   "dwarf": "한입만 티바",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 264,
+    "laps": 3,
+    "incomePerLap": [
+     88,
+     88,
+     88
+    ]
+   }
+  },
+  {
+   "id": 38,
+   "label": "오락 쪽 지원",
+   "board": [
+    "선술집",
+    "증류소",
+    "호프집",
+    "발전소",
+    "포토 부스",
+    "오락실",
+    "번화가 간판",
+    "전자 상가",
+    null,
+    null,
+    null,
+    null
+   ],
+   "dwarf": "한판만 구스타",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 1100,
+    "laps": 5,
+    "incomePerLap": [
+     220,
+     220,
+     220,
+     220,
+     220
+    ]
+   }
+  },
+  {
+   "id": 39,
+   "label": "오락 쪽 지원",
+   "board": [
+    "선술집",
+    "증류소",
+    "호프집",
+    "발전소",
+    "포토 부스",
+    "오락실",
+    "번화가 간판",
+    "전자 상가",
+    null,
+    null,
+    null,
+    null
+   ],
+   "dwarf": "야식 우르고",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 660,
+    "laps": 3,
+    "incomePerLap": [
+     220,
+     220,
+     220
+    ]
+   }
+  },
+  {
+   "id": 40,
+   "label": "상점 쪽 지원",
+   "board": [
+    "야외무대",
+    "기획사",
+    "극장",
+    "창고",
+    "기념품 가게",
+    "보석상",
+    "도매 시장",
+    "광산",
+    null,
+    null,
+    null,
+    null
+   ],
+   "dwarf": "반짝이 릴카",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 1610,
+    "laps": 5,
+    "incomePerLap": [
+     322,
+     322,
+     322,
+     322,
+     322
+    ]
+   }
+  },
+  {
+   "id": 41,
+   "label": "상점 쪽 지원",
+   "board": [
+    "야외무대",
+    "기획사",
+    "극장",
+    "창고",
+    "기념품 가게",
+    "보석상",
+    "도매 시장",
+    "광산",
+    null,
+    null,
+    null,
+    null
+   ],
+   "dwarf": "돗자리 잉가",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 966,
+    "laps": 3,
+    "incomePerLap": [
+     322,
+     322,
+     322
+    ]
+   }
+  },
+  {
+   "id": 42,
+   "label": "꽃밭과 가로등",
+   "board": [
+    "가로등",
+    "꽃밭",
+    "공원",
+    "선술집",
+    "공원",
+    "호프집",
+    "여관",
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "dwarf": "낮술 그룬트",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 208,
+    "laps": 4,
+    "incomePerLap": [
+     52,
+     52,
+     52,
+     52
+    ]
+   }
+  },
+  {
+   "id": 43,
+   "label": "꽃밭과 가로등",
+   "board": [
+    "가로등",
+    "꽃밭",
+    "공원",
+    "선술집",
+    "공원",
+    "호프집",
+    "여관",
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "dwarf": "반주 한잔 욘델",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 208,
+    "laps": 4,
+    "incomePerLap": [
+     52,
+     52,
+     52,
+     52
+    ]
+   }
+  },
+  {
+   "id": 44,
+   "label": "성장 지원 넷",
+   "board": [
+    "신문사",
+    "선술집",
+    "포토 부스",
+    "게시판",
+    "오락실",
+    "축제 본부",
+    "방송국",
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "dwarf": "한판만 구스타",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 564,
+    "laps": 4,
+    "incomePerLap": [
+     46,
+     96,
+     166,
+     256
+    ]
+   }
+  },
+  {
+   "id": 45,
+   "label": "성장 지원 넷",
+   "board": [
+    "신문사",
+    "선술집",
+    "포토 부스",
+    "게시판",
+    "오락실",
+    "축제 본부",
+    "방송국",
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "dwarf": "한판만 구스타",
+   "lapsDoneBeforeInWave": 3,
+   "expected": {
+    "income": 1764,
+    "laps": 4,
+    "incomePerLap": [
+     256,
+     366,
+     496,
+     646
+    ]
+   }
+  },
+  {
+   "id": 46,
+   "label": "성장 지원 넷",
+   "board": [
+    "신문사",
+    "선술집",
+    "포토 부스",
+    "게시판",
+    "오락실",
+    "축제 본부",
+    "방송국",
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "dwarf": "한판만 구스타",
+   "lapsDoneBeforeInWave": 9,
+   "expected": {
+    "income": 6324,
+    "laps": 4,
+    "incomePerLap": [
+     1216,
+     1446,
+     1696,
+     1966
+    ]
+   }
+  },
+  {
+   "id": 47,
+   "label": "성장 지원 넷",
+   "board": [
+    "신문사",
+    "선술집",
+    "포토 부스",
+    "게시판",
+    "오락실",
+    "축제 본부",
+    "방송국",
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "dwarf": "이차 가자 뤼카",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 564,
+    "laps": 4,
+    "incomePerLap": [
+     46,
+     96,
+     166,
+     256
+    ]
+   }
+  },
+  {
+   "id": 48,
+   "label": "성장 지원 넷",
+   "board": [
+    "신문사",
+    "선술집",
+    "포토 부스",
+    "게시판",
+    "오락실",
+    "축제 본부",
+    "방송국",
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "dwarf": "이차 가자 뤼카",
+   "lapsDoneBeforeInWave": 3,
+   "expected": {
+    "income": 1764,
+    "laps": 4,
+    "incomePerLap": [
+     256,
+     366,
+     496,
+     646
+    ]
+   }
+  },
+  {
+   "id": 49,
+   "label": "성장 지원 넷",
+   "board": [
+    "신문사",
+    "선술집",
+    "포토 부스",
+    "게시판",
+    "오락실",
+    "축제 본부",
+    "방송국",
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "dwarf": "이차 가자 뤼카",
+   "lapsDoneBeforeInWave": 9,
+   "expected": {
+    "income": 6324,
+    "laps": 4,
+    "incomePerLap": [
+     1216,
+     1446,
+     1696,
+     1966
+    ]
+   }
+  },
+  {
+   "id": 50,
+   "label": "성장 지원과 변전소",
+   "board": [
+    "변전소",
+    "방송국",
+    "변전소",
+    "축제 본부",
+    "보석상",
+    "야외무대",
+    "기획사",
+    "야외무대",
+    "신문사",
+    "변전소",
+    null,
+    null
+   ],
+   "dwarf": "반짝이 릴카",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 422,
+    "laps": 4,
+    "incomePerLap": [
+     28,
+     73,
+     128,
+     193
+    ]
+   }
+  },
+  {
+   "id": 51,
+   "label": "성장 지원과 변전소",
+   "board": [
+    "변전소",
+    "방송국",
+    "변전소",
+    "축제 본부",
+    "보석상",
+    "야외무대",
+    "기획사",
+    "야외무대",
+    "신문사",
+    "변전소",
+    null,
+    null
+   ],
+   "dwarf": "반짝이 릴카",
+   "lapsDoneBeforeInWave": 5,
+   "expected": {
+    "income": 2022,
+    "laps": 4,
+    "incomePerLap": [
+     353,
+     448,
+     553,
+     668
+    ]
+   }
+  },
+  {
+   "id": 52,
+   "label": "성장 지원과 변전소",
+   "board": [
+    "변전소",
+    "방송국",
+    "변전소",
+    "축제 본부",
+    "보석상",
+    "야외무대",
+    "기획사",
+    "야외무대",
+    "신문사",
+    "변전소",
+    null,
+    null
+   ],
+   "dwarf": "굿즈 솔베",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 422,
+    "laps": 4,
+    "incomePerLap": [
+     28,
+     73,
+     128,
+     193
+    ]
+   }
+  },
+  {
+   "id": 53,
+   "label": "성장 지원과 변전소",
+   "board": [
+    "변전소",
+    "방송국",
+    "변전소",
+    "축제 본부",
+    "보석상",
+    "야외무대",
+    "기획사",
+    "야외무대",
+    "신문사",
+    "변전소",
+    null,
+    null
+   ],
+   "dwarf": "굿즈 솔베",
+   "lapsDoneBeforeInWave": 5,
+   "expected": {
+    "income": 2022,
+    "laps": 4,
+    "incomePerLap": [
+     353,
+     448,
+     553,
+     668
+    ]
+   }
+  },
+  {
+   "id": 54,
+   "label": "2호점과 성장",
+   "board": [
+    "야외무대",
+    "기념품 가게",
+    "보석상",
+    "2호점",
+    "게시판",
+    "극장",
+    "방송국",
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "dwarf": "돗자리 잉가",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 160,
+    "laps": 2,
+    "incomePerLap": [
+     68,
+     92
+    ]
+   }
+  },
+  {
+   "id": 55,
+   "label": "2호점과 성장",
+   "board": [
+    "야외무대",
+    "기념품 가게",
+    "보석상",
+    "2호점",
+    "게시판",
+    "극장",
+    "방송국",
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "dwarf": "돗자리 잉가",
+   "lapsDoneBeforeInWave": 4,
+   "expected": {
+    "income": 352,
+    "laps": 2,
+    "incomePerLap": [
+     164,
+     188
+    ]
+   }
+  },
+  {
+   "id": 56,
+   "label": "2호점과 성장",
+   "board": [
+    "야외무대",
+    "기념품 가게",
+    "보석상",
+    "2호점",
+    "게시판",
+    "극장",
+    "방송국",
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "dwarf": "디너쇼 헬가",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 276,
+    "laps": 3,
+    "incomePerLap": [
+     68,
+     92,
+     116
+    ]
+   }
+  },
+  {
+   "id": 57,
+   "label": "2호점과 성장",
+   "board": [
+    "야외무대",
+    "기념품 가게",
+    "보석상",
+    "2호점",
+    "게시판",
+    "극장",
+    "방송국",
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "dwarf": "디너쇼 헬가",
+   "lapsDoneBeforeInWave": 4,
+   "expected": {
+    "income": 564,
+    "laps": 3,
+    "incomePerLap": [
+     164,
+     188,
+     212
+    ]
+   }
+  },
+  {
+   "id": 58,
+   "label": "싫어하는 건물이 앞에 있으면 만족도가 0에서 안 내려간다",
+   "board": [
+    "선술집",
+    "재즈바",
+    "포토 부스",
+    "노래방",
+    "오락실",
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "dwarf": "꿀꺽 보르단",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 204,
+    "laps": 3,
+    "incomePerLap": [
+     68,
+     68,
+     68
+    ]
+   }
+  },
+  {
+   "id": 59,
+   "label": "싫어하는 건물이 앞에 있으면 만족도가 0에서 안 내려간다",
+   "board": [
+    "선술집",
+    "재즈바",
+    "포토 부스",
+    "노래방",
+    "오락실",
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "dwarf": "안주발 올벤",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 204,
+    "laps": 3,
+    "incomePerLap": [
+     68,
+     68,
+     68
+    ]
+   }
+  },
+  {
+   "id": 60,
+   "label": "싫어하는 건물이 앞에 있으면 만족도가 0에서 안 내려간다",
+   "board": [
+    "선술집",
+    "재즈바",
+    "포토 부스",
+    "노래방",
+    "오락실",
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "dwarf": "한정판 푸르딘",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 272,
+    "laps": 4,
+    "incomePerLap": [
+     68,
+     68,
+     68,
+     68
+    ]
+   }
+  },
+  {
+   "id": 61,
+   "label": "회전문과 종류 한 번 더가 함께 걸린다",
+   "board": [
+    "수영장",
+    "코치 사무소",
+    "헬스장",
+    "회전문",
+    "고깃집",
+    "회전문",
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "dwarf": "삼두 브롬",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 680,
+    "laps": 5,
+    "incomePerLap": [
+     136,
+     136,
+     136,
+     136,
+     136
+    ]
+   }
+  },
+  {
+   "id": 62,
+   "label": "회전문과 종류 한 번 더가 함께 걸린다",
+   "board": [
+    "수영장",
+    "코치 사무소",
+    "헬스장",
+    "회전문",
+    "고깃집",
+    "회전문",
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "dwarf": "새 운동화 케틸",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 544,
+    "laps": 4,
+    "incomePerLap": [
+     136,
+     136,
+     136,
+     136
+    ]
+   }
+  },
+  {
+   "id": 63,
+   "label": "장사 건물이 없는 보드",
+   "board": [
+    "신문사",
+    "변전소",
+    "관광 안내소",
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "dwarf": "삼두 브롬",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 0,
+    "laps": 2,
+    "incomePerLap": [
+     0,
+     0
+    ]
+   }
+  },
+  {
+   "id": 64,
+   "label": "빈 보드",
+   "board": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "dwarf": "삼두 브롬",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 0,
+    "laps": 2,
+    "incomePerLap": [
+     0,
+     0
+    ]
+   }
+  },
+  {
+   "id": 65,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "네온사인",
+    "헬스장",
+    "헬스장",
+    "방송국",
+    "변전소",
+    "관광 안내소",
+    "신문사",
+    "2호점",
+    "헬스장",
+    null,
+    null,
+    "고깃집"
+   ],
+   "dwarf": "스트레칭 라그나",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 1512,
+    "laps": 4,
+    "incomePerLap": [
+     169,
+     292,
+     440,
+     611
+    ]
+   }
+  },
+  {
+   "id": 66,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "네온사인",
+    "헬스장",
+    "헬스장",
+    "방송국",
+    "변전소",
+    "관광 안내소",
+    "신문사",
+    "2호점",
+    "헬스장",
+    null,
+    null,
+    "고깃집"
+   ],
+   "dwarf": "스트레칭 라그나",
+   "lapsDoneBeforeInWave": 7,
+   "expected": {
+    "income": 7994,
+    "laps": 4,
+    "incomePerLap": [
+     1537,
+     1829,
+     2144,
+     2484
+    ]
+   }
+  },
+  {
+   "id": 67,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "네온사인",
+    "헬스장",
+    "헬스장",
+    "방송국",
+    "변전소",
+    "관광 안내소",
+    "신문사",
+    "2호점",
+    "헬스장",
+    null,
+    null,
+    "고깃집"
+   ],
+   "dwarf": "한입만 티바",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 461,
+    "laps": 2,
+    "incomePerLap": [
+     169,
+     292
+    ]
+   }
+  },
+  {
+   "id": 68,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "네온사인",
+    "헬스장",
+    "헬스장",
+    "방송국",
+    "변전소",
+    "관광 안내소",
+    "신문사",
+    "2호점",
+    "헬스장",
+    null,
+    null,
+    "고깃집"
+   ],
+   "dwarf": "한입만 티바",
+   "lapsDoneBeforeInWave": 3,
+   "expected": {
+    "income": 1418,
+    "laps": 2,
+    "incomePerLap": [
+     611,
+     807
+    ]
+   }
+  },
+  {
+   "id": 69,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "네온사인",
+    "헬스장",
+    "헬스장",
+    "방송국",
+    "변전소",
+    "관광 안내소",
+    "신문사",
+    "2호점",
+    "헬스장",
+    null,
+    null,
+    "고깃집"
+   ],
+   "dwarf": "반짝이 릴카",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 461,
+    "laps": 2,
+    "incomePerLap": [
+     169,
+     292
+    ]
+   }
+  },
+  {
+   "id": 70,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "네온사인",
+    "헬스장",
+    "헬스장",
+    "방송국",
+    "변전소",
+    "관광 안내소",
+    "신문사",
+    "2호점",
+    "헬스장",
+    null,
+    null,
+    "고깃집"
+   ],
+   "dwarf": "반짝이 릴카",
+   "lapsDoneBeforeInWave": 3,
+   "expected": {
+    "income": 1418,
+    "laps": 2,
+    "incomePerLap": [
+     611,
+     807
+    ]
+   }
+  },
+  {
+   "id": 71,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "네온사인",
+    "헬스장",
+    "헬스장",
+    "방송국",
+    "변전소",
+    "관광 안내소",
+    "신문사",
+    "2호점",
+    "헬스장",
+    null,
+    null,
+    "고깃집"
+   ],
+   "dwarf": "삼두 브롬",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 1512,
+    "laps": 4,
+    "incomePerLap": [
+     169,
+     292,
+     440,
+     611
+    ]
+   }
+  },
+  {
+   "id": 72,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "네온사인",
+    "헬스장",
+    "헬스장",
+    "방송국",
+    "변전소",
+    "관광 안내소",
+    "신문사",
+    "2호점",
+    "헬스장",
+    null,
+    null,
+    "고깃집"
+   ],
+   "dwarf": "삼두 브롬",
+   "lapsDoneBeforeInWave": 3,
+   "expected": {
+    "income": 3714,
+    "laps": 4,
+    "incomePerLap": [
+     611,
+     807,
+     1026,
+     1270
+    ]
+   }
+  },
+  {
+   "id": 73,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "게시판",
+    "보석상",
+    "재즈바",
+    "도매 시장",
+    "극장",
+    "극장",
+    "포토 부스",
+    null,
+    null,
+    "기념품 가게",
+    "네온사인",
+    "보석상"
+   ],
+   "dwarf": "장바구니 브린다",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 564,
+    "laps": 3,
+    "incomePerLap": [
+     173,
+     188,
+     203
+    ]
+   }
+  },
+  {
+   "id": 74,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "게시판",
+    "보석상",
+    "재즈바",
+    "도매 시장",
+    "극장",
+    "극장",
+    "포토 부스",
+    null,
+    null,
+    "기념품 가게",
+    "네온사인",
+    "보석상"
+   ],
+   "dwarf": "장바구니 브린다",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 564,
+    "laps": 3,
+    "incomePerLap": [
+     173,
+     188,
+     203
+    ]
+   }
+  },
+  {
+   "id": 75,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "게시판",
+    "보석상",
+    "재즈바",
+    "도매 시장",
+    "극장",
+    "극장",
+    "포토 부스",
+    null,
+    null,
+    "기념품 가게",
+    "네온사인",
+    "보석상"
+   ],
+   "dwarf": "삼두 브롬",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 361,
+    "laps": 2,
+    "incomePerLap": [
+     173,
+     188
+    ]
+   }
+  },
+  {
+   "id": 76,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "게시판",
+    "보석상",
+    "재즈바",
+    "도매 시장",
+    "극장",
+    "극장",
+    "포토 부스",
+    null,
+    null,
+    "기념품 가게",
+    "네온사인",
+    "보석상"
+   ],
+   "dwarf": "삼두 브롬",
+   "lapsDoneBeforeInWave": 7,
+   "expected": {
+    "income": 571,
+    "laps": 2,
+    "incomePerLap": [
+     278,
+     293
+    ]
+   }
+  },
+  {
+   "id": 77,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "게시판",
+    "보석상",
+    "재즈바",
+    "도매 시장",
+    "극장",
+    "극장",
+    "포토 부스",
+    null,
+    null,
+    "기념품 가게",
+    "네온사인",
+    "보석상"
+   ],
+   "dwarf": "돗자리 잉가",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 361,
+    "laps": 2,
+    "incomePerLap": [
+     173,
+     188
+    ]
+   }
+  },
+  {
+   "id": 78,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "게시판",
+    "보석상",
+    "재즈바",
+    "도매 시장",
+    "극장",
+    "극장",
+    "포토 부스",
+    null,
+    null,
+    "기념품 가게",
+    "네온사인",
+    "보석상"
+   ],
+   "dwarf": "돗자리 잉가",
+   "lapsDoneBeforeInWave": 7,
+   "expected": {
+    "income": 571,
+    "laps": 2,
+    "incomePerLap": [
+     278,
+     293
+    ]
+   }
+  },
+  {
+   "id": 79,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "게시판",
+    "보석상",
+    "재즈바",
+    "도매 시장",
+    "극장",
+    "극장",
+    "포토 부스",
+    null,
+    null,
+    "기념품 가게",
+    "네온사인",
+    "보석상"
+   ],
+   "dwarf": "어깨춤 노리트",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 564,
+    "laps": 3,
+    "incomePerLap": [
+     173,
+     188,
+     203
+    ]
+   }
+  },
+  {
+   "id": 80,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "게시판",
+    "보석상",
+    "재즈바",
+    "도매 시장",
+    "극장",
+    "극장",
+    "포토 부스",
+    null,
+    null,
+    "기념품 가게",
+    "네온사인",
+    "보석상"
+   ],
+   "dwarf": "어깨춤 노리트",
+   "lapsDoneBeforeInWave": 3,
+   "expected": {
+    "income": 699,
+    "laps": 3,
+    "incomePerLap": [
+     218,
+     233,
+     248
+    ]
+   }
+  },
+  {
+   "id": 81,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "여관",
+    "회전문",
+    "신문사",
+    null,
+    "광고탑",
+    null,
+    "헬스장",
+    "코치 사무소",
+    "사우나",
+    "게시판",
+    "기념품 가게",
+    "축제 본부"
+   ],
+   "dwarf": "취흥 바르딘",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 144,
+    "laps": 2,
+    "incomePerLap": [
+     54,
+     90
+    ]
+   }
+  },
+  {
+   "id": 82,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "여관",
+    "회전문",
+    "신문사",
+    null,
+    "광고탑",
+    null,
+    "헬스장",
+    "코치 사무소",
+    "사우나",
+    "게시판",
+    "기념품 가게",
+    "축제 본부"
+   ],
+   "dwarf": "취흥 바르딘",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 144,
+    "laps": 2,
+    "incomePerLap": [
+     54,
+     90
+    ]
+   }
+  },
+  {
+   "id": 83,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "여관",
+    "회전문",
+    "신문사",
+    null,
+    "광고탑",
+    null,
+    "헬스장",
+    "코치 사무소",
+    "사우나",
+    "게시판",
+    "기념품 가게",
+    "축제 본부"
+   ],
+   "dwarf": "반짝이 릴카",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 144,
+    "laps": 2,
+    "incomePerLap": [
+     54,
+     90
+    ]
+   }
+  },
+  {
+   "id": 84,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "여관",
+    "회전문",
+    "신문사",
+    null,
+    "광고탑",
+    null,
+    "헬스장",
+    "코치 사무소",
+    "사우나",
+    "게시판",
+    "기념품 가게",
+    "축제 본부"
+   ],
+   "dwarf": "반짝이 릴카",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 144,
+    "laps": 2,
+    "incomePerLap": [
+     54,
+     90
+    ]
+   }
+  },
+  {
+   "id": 85,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "여관",
+    "회전문",
+    "신문사",
+    null,
+    "광고탑",
+    null,
+    "헬스장",
+    "코치 사무소",
+    "사우나",
+    "게시판",
+    "기념품 가게",
+    "축제 본부"
+   ],
+   "dwarf": "어깨춤 노리트",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 466,
+    "laps": 4,
+    "incomePerLap": [
+     54,
+     90,
+     136,
+     186
+    ]
+   }
+  },
+  {
+   "id": 86,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "여관",
+    "회전문",
+    "신문사",
+    null,
+    "광고탑",
+    null,
+    "헬스장",
+    "코치 사무소",
+    "사우나",
+    "게시판",
+    "기념품 가게",
+    "축제 본부"
+   ],
+   "dwarf": "어깨춤 노리트",
+   "lapsDoneBeforeInWave": 7,
+   "expected": {
+    "income": 2398,
+    "laps": 4,
+    "incomePerLap": [
+     462,
+     550,
+     642,
+     744
+    ]
+   }
+  },
+  {
+   "id": 87,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "여관",
+    "회전문",
+    "신문사",
+    null,
+    "광고탑",
+    null,
+    "헬스장",
+    "코치 사무소",
+    "사우나",
+    "게시판",
+    "기념품 가게",
+    "축제 본부"
+   ],
+   "dwarf": "신명 카잔",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 144,
+    "laps": 2,
+    "incomePerLap": [
+     54,
+     90
+    ]
+   }
+  },
+  {
+   "id": 88,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "여관",
+    "회전문",
+    "신문사",
+    null,
+    "광고탑",
+    null,
+    "헬스장",
+    "코치 사무소",
+    "사우나",
+    "게시판",
+    "기념품 가게",
+    "축제 본부"
+   ],
+   "dwarf": "신명 카잔",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 144,
+    "laps": 2,
+    "incomePerLap": [
+     54,
+     90
+    ]
+   }
+  },
+  {
+   "id": 89,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "수영장",
+    "헬스장",
+    "게시판",
+    "고깃집",
+    "목장",
+    "헬스장",
+    "국숫집",
+    "야시장",
+    "관광 안내소",
+    "가로등",
+    null,
+    null
+   ],
+   "dwarf": "벌크업 마르타",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 860,
+    "laps": 5,
+    "incomePerLap": [
+     136,
+     154,
+     172,
+     190,
+     208
+    ]
+   }
+  },
+  {
+   "id": 90,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "수영장",
+    "헬스장",
+    "게시판",
+    "고깃집",
+    "목장",
+    "헬스장",
+    "국숫집",
+    "야시장",
+    "관광 안내소",
+    "가로등",
+    null,
+    null
+   ],
+   "dwarf": "벌크업 마르타",
+   "lapsDoneBeforeInWave": 3,
+   "expected": {
+    "income": 1130,
+    "laps": 5,
+    "incomePerLap": [
+     190,
+     208,
+     226,
+     244,
+     262
+    ]
+   }
+  },
+  {
+   "id": 91,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "수영장",
+    "헬스장",
+    "게시판",
+    "고깃집",
+    "목장",
+    "헬스장",
+    "국숫집",
+    "야시장",
+    "관광 안내소",
+    "가로등",
+    null,
+    null
+   ],
+   "dwarf": "낮술 그룬트",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 290,
+    "laps": 2,
+    "incomePerLap": [
+     136,
+     154
+    ]
+   }
+  },
+  {
+   "id": 92,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "수영장",
+    "헬스장",
+    "게시판",
+    "고깃집",
+    "목장",
+    "헬스장",
+    "국숫집",
+    "야시장",
+    "관광 안내소",
+    "가로등",
+    null,
+    null
+   ],
+   "dwarf": "낮술 그룬트",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 290,
+    "laps": 2,
+    "incomePerLap": [
+     136,
+     154
+    ]
+   }
+  },
+  {
+   "id": 93,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "수영장",
+    "헬스장",
+    "게시판",
+    "고깃집",
+    "목장",
+    "헬스장",
+    "국숫집",
+    "야시장",
+    "관광 안내소",
+    "가로등",
+    null,
+    null
+   ],
+   "dwarf": "땀과맥주 달가",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 462,
+    "laps": 3,
+    "incomePerLap": [
+     136,
+     154,
+     172
+    ]
+   }
+  },
+  {
+   "id": 94,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "수영장",
+    "헬스장",
+    "게시판",
+    "고깃집",
+    "목장",
+    "헬스장",
+    "국숫집",
+    "야시장",
+    "관광 안내소",
+    "가로등",
+    null,
+    null
+   ],
+   "dwarf": "땀과맥주 달가",
+   "lapsDoneBeforeInWave": 3,
+   "expected": {
+    "income": 624,
+    "laps": 3,
+    "incomePerLap": [
+     190,
+     208,
+     226
+    ]
+   }
+  },
+  {
+   "id": 95,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "수영장",
+    "헬스장",
+    "게시판",
+    "고깃집",
+    "목장",
+    "헬스장",
+    "국숫집",
+    "야시장",
+    "관광 안내소",
+    "가로등",
+    null,
+    null
+   ],
+   "dwarf": "반주 한잔 욘델",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 290,
+    "laps": 2,
+    "incomePerLap": [
+     136,
+     154
+    ]
+   }
+  },
+  {
+   "id": 96,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "수영장",
+    "헬스장",
+    "게시판",
+    "고깃집",
+    "목장",
+    "헬스장",
+    "국숫집",
+    "야시장",
+    "관광 안내소",
+    "가로등",
+    null,
+    null
+   ],
+   "dwarf": "반주 한잔 욘델",
+   "lapsDoneBeforeInWave": 3,
+   "expected": {
+    "income": 398,
+    "laps": 2,
+    "incomePerLap": [
+     190,
+     208
+    ]
+   }
+  },
+  {
+   "id": 97,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "재즈바",
+    "게시판",
+    "보석상",
+    "축제 본부",
+    "보석상",
+    "와인 가게",
+    "광산",
+    "와인 가게",
+    "보석상",
+    null,
+    null,
+    "도매 시장"
+   ],
+   "dwarf": "어깨춤 노리트",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 460,
+    "laps": 2,
+    "incomePerLap": [
+     187,
+     273
+    ]
+   }
+  },
+  {
+   "id": 98,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "재즈바",
+    "게시판",
+    "보석상",
+    "축제 본부",
+    "보석상",
+    "와인 가게",
+    "광산",
+    "와인 가게",
+    "보석상",
+    null,
+    null,
+    "도매 시장"
+   ],
+   "dwarf": "어깨춤 노리트",
+   "lapsDoneBeforeInWave": 3,
+   "expected": {
+    "income": 1114,
+    "laps": 2,
+    "incomePerLap": [
+     491,
+     623
+    ]
+   }
+  },
+  {
+   "id": 99,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "재즈바",
+    "게시판",
+    "보석상",
+    "축제 본부",
+    "보석상",
+    "와인 가게",
+    "광산",
+    "와인 가게",
+    "보석상",
+    null,
+    null,
+    "도매 시장"
+   ],
+   "dwarf": "취흥 바르딘",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 1326,
+    "laps": 4,
+    "incomePerLap": [
+     187,
+     273,
+     375,
+     491
+    ]
+   }
+  },
+  {
+   "id": 100,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "재즈바",
+    "게시판",
+    "보석상",
+    "축제 본부",
+    "보석상",
+    "와인 가게",
+    "광산",
+    "와인 가게",
+    "보석상",
+    null,
+    null,
+    "도매 시장"
+   ],
+   "dwarf": "취흥 바르딘",
+   "lapsDoneBeforeInWave": 7,
+   "expected": {
+    "income": 5638,
+    "laps": 4,
+    "incomePerLap": [
+     1107,
+     1299,
+     1505,
+     1727
+    ]
+   }
+  },
+  {
+   "id": 101,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "재즈바",
+    "게시판",
+    "보석상",
+    "축제 본부",
+    "보석상",
+    "와인 가게",
+    "광산",
+    "와인 가게",
+    "보석상",
+    null,
+    null,
+    "도매 시장"
+   ],
+   "dwarf": "신명 카잔",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 460,
+    "laps": 2,
+    "incomePerLap": [
+     187,
+     273
+    ]
+   }
+  },
+  {
+   "id": 102,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "재즈바",
+    "게시판",
+    "보석상",
+    "축제 본부",
+    "보석상",
+    "와인 가게",
+    "광산",
+    "와인 가게",
+    "보석상",
+    null,
+    null,
+    "도매 시장"
+   ],
+   "dwarf": "신명 카잔",
+   "lapsDoneBeforeInWave": 3,
+   "expected": {
+    "income": 1114,
+    "laps": 2,
+    "incomePerLap": [
+     491,
+     623
+    ]
+   }
+  },
+  {
+   "id": 103,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "재즈바",
+    "게시판",
+    "보석상",
+    "축제 본부",
+    "보석상",
+    "와인 가게",
+    "광산",
+    "와인 가게",
+    "보석상",
+    null,
+    null,
+    "도매 시장"
+   ],
+   "dwarf": "벌크업 마르타",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 460,
+    "laps": 2,
+    "incomePerLap": [
+     187,
+     273
+    ]
+   }
+  },
+  {
+   "id": 104,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "재즈바",
+    "게시판",
+    "보석상",
+    "축제 본부",
+    "보석상",
+    "와인 가게",
+    "광산",
+    "와인 가게",
+    "보석상",
+    null,
+    null,
+    "도매 시장"
+   ],
+   "dwarf": "벌크업 마르타",
+   "lapsDoneBeforeInWave": 3,
+   "expected": {
+    "income": 1114,
+    "laps": 2,
+    "incomePerLap": [
+     491,
+     623
+    ]
+   }
+  },
+  {
+   "id": 105,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "기념품 가게",
+    "축제 본부",
+    "보석상",
+    "게시판",
+    "변전소",
+    "광산",
+    "야시장",
+    "야시장",
+    "방송국",
+    "신문사",
+    null,
+    null
+   ],
+   "dwarf": "굿즈 솔베",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 2016,
+    "laps": 4,
+    "incomePerLap": [
+     97,
+     292,
+     602,
+     1025
+    ]
+   }
+  },
+  {
+   "id": 106,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "기념품 가게",
+    "축제 본부",
+    "보석상",
+    "게시판",
+    "변전소",
+    "광산",
+    "야시장",
+    "야시장",
+    "방송국",
+    "신문사",
+    null,
+    null
+   ],
+   "dwarf": "굿즈 솔베",
+   "lapsDoneBeforeInWave": 7,
+   "expected": {
+    "income": 21805,
+    "laps": 4,
+    "incomePerLap": [
+     3852,
+     4843,
+     5946,
+     7164
+    ]
+   }
+  },
+  {
+   "id": 107,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "기념품 가게",
+    "축제 본부",
+    "보석상",
+    "게시판",
+    "변전소",
+    "광산",
+    "야시장",
+    "야시장",
+    "방송국",
+    "신문사",
+    null,
+    null
+   ],
+   "dwarf": "어깨춤 노리트",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 389,
+    "laps": 2,
+    "incomePerLap": [
+     97,
+     292
+    ]
+   }
+  },
+  {
+   "id": 108,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "기념품 가게",
+    "축제 본부",
+    "보석상",
+    "게시판",
+    "변전소",
+    "광산",
+    "야시장",
+    "야시장",
+    "방송국",
+    "신문사",
+    null,
+    null
+   ],
+   "dwarf": "어깨춤 노리트",
+   "lapsDoneBeforeInWave": 3,
+   "expected": {
+    "income": 2587,
+    "laps": 2,
+    "incomePerLap": [
+     1025,
+     1562
+    ]
+   }
+  },
+  {
+   "id": 109,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "기념품 가게",
+    "축제 본부",
+    "보석상",
+    "게시판",
+    "변전소",
+    "광산",
+    "야시장",
+    "야시장",
+    "방송국",
+    "신문사",
+    null,
+    null
+   ],
+   "dwarf": "어슬렁 모그",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 2016,
+    "laps": 4,
+    "incomePerLap": [
+     97,
+     292,
+     602,
+     1025
+    ]
+   }
+  },
+  {
+   "id": 110,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "기념품 가게",
+    "축제 본부",
+    "보석상",
+    "게시판",
+    "변전소",
+    "광산",
+    "야시장",
+    "야시장",
+    "방송국",
+    "신문사",
+    null,
+    null
+   ],
+   "dwarf": "어슬렁 모그",
+   "lapsDoneBeforeInWave": 3,
+   "expected": {
+    "income": 7773,
+    "laps": 4,
+    "incomePerLap": [
+     1025,
+     1562,
+     2211,
+     2975
+    ]
+   }
+  },
+  {
+   "id": 111,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "기념품 가게",
+    "축제 본부",
+    "보석상",
+    "게시판",
+    "변전소",
+    "광산",
+    "야시장",
+    "야시장",
+    "방송국",
+    "신문사",
+    null,
+    null
+   ],
+   "dwarf": "디너쇼 헬가",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 991,
+    "laps": 3,
+    "incomePerLap": [
+     97,
+     292,
+     602
+    ]
+   }
+  },
+  {
+   "id": 112,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "기념품 가게",
+    "축제 본부",
+    "보석상",
+    "게시판",
+    "변전소",
+    "광산",
+    "야시장",
+    "야시장",
+    "방송국",
+    "신문사",
+    null,
+    null
+   ],
+   "dwarf": "디너쇼 헬가",
+   "lapsDoneBeforeInWave": 3,
+   "expected": {
+    "income": 4798,
+    "laps": 3,
+    "incomePerLap": [
+     1025,
+     1562,
+     2211
+    ]
+   }
+  },
+  {
+   "id": 113,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "여관",
+    "게시판",
+    "재즈바",
+    null,
+    "관광 안내소",
+    "방송국",
+    "휴게소",
+    "2호점",
+    "헬스장",
+    null,
+    "휴게소",
+    "네온사인"
+   ],
+   "dwarf": "이차 가자 뤼카",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 240,
+    "laps": 2,
+    "incomePerLap": [
+     85,
+     155
+    ]
+   }
+  },
+  {
+   "id": 114,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "여관",
+    "게시판",
+    "재즈바",
+    null,
+    "관광 안내소",
+    "방송국",
+    "휴게소",
+    "2호점",
+    "헬스장",
+    null,
+    "휴게소",
+    "네온사인"
+   ],
+   "dwarf": "이차 가자 뤼카",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 240,
+    "laps": 2,
+    "incomePerLap": [
+     85,
+     155
+    ]
+   }
+  },
+  {
+   "id": 115,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "여관",
+    "게시판",
+    "재즈바",
+    null,
+    "관광 안내소",
+    "방송국",
+    "휴게소",
+    "2호점",
+    "헬스장",
+    null,
+    "휴게소",
+    "네온사인"
+   ],
+   "dwarf": "스트레칭 라그나",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 856,
+    "laps": 4,
+    "incomePerLap": [
+     85,
+     155,
+     249,
+     367
+    ]
+   }
+  },
+  {
+   "id": 116,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "여관",
+    "게시판",
+    "재즈바",
+    null,
+    "관광 안내소",
+    "방송국",
+    "휴게소",
+    "2호점",
+    "헬스장",
+    null,
+    "휴게소",
+    "네온사인"
+   ],
+   "dwarf": "스트레칭 라그나",
+   "lapsDoneBeforeInWave": 7,
+   "expected": {
+    "income": 5840,
+    "laps": 4,
+    "incomePerLap": [
+     1079,
+     1317,
+     1579,
+     1865
+    ]
+   }
+  },
+  {
+   "id": 117,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "여관",
+    "게시판",
+    "재즈바",
+    null,
+    "관광 안내소",
+    "방송국",
+    "휴게소",
+    "2호점",
+    "헬스장",
+    null,
+    "휴게소",
+    "네온사인"
+   ],
+   "dwarf": "장바구니 브린다",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 489,
+    "laps": 3,
+    "incomePerLap": [
+     85,
+     155,
+     249
+    ]
+   }
+  },
+  {
+   "id": 118,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "여관",
+    "게시판",
+    "재즈바",
+    null,
+    "관광 안내소",
+    "방송국",
+    "휴게소",
+    "2호점",
+    "헬스장",
+    null,
+    "휴게소",
+    "네온사인"
+   ],
+   "dwarf": "장바구니 브린다",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 489,
+    "laps": 3,
+    "incomePerLap": [
+     85,
+     155,
+     249
+    ]
+   }
+  },
+  {
+   "id": 119,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "여관",
+    "게시판",
+    "재즈바",
+    null,
+    "관광 안내소",
+    "방송국",
+    "휴게소",
+    "2호점",
+    "헬스장",
+    null,
+    "휴게소",
+    "네온사인"
+   ],
+   "dwarf": "야식 우르고",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 489,
+    "laps": 3,
+    "incomePerLap": [
+     85,
+     155,
+     249
+    ]
+   }
+  },
+  {
+   "id": 120,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "여관",
+    "게시판",
+    "재즈바",
+    null,
+    "관광 안내소",
+    "방송국",
+    "휴게소",
+    "2호점",
+    "헬스장",
+    null,
+    "휴게소",
+    "네온사인"
+   ],
+   "dwarf": "야식 우르고",
+   "lapsDoneBeforeInWave": 3,
+   "expected": {
+    "income": 1551,
+    "laps": 3,
+    "incomePerLap": [
+     367,
+     509,
+     675
+    ]
+   }
+  },
+  {
+   "id": 121,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "오락실",
+    "보석상",
+    "볼링장",
+    "볼링장",
+    "신문사",
+    "고깃집",
+    "축제 본부",
+    "고깃집",
+    "목장",
+    "오락실",
+    null,
+    null
+   ],
+   "dwarf": "한판만 구스타",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 776,
+    "laps": 4,
+    "incomePerLap": [
+     118,
+     165,
+     218,
+     275
+    ]
+   }
+  },
+  {
+   "id": 122,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "오락실",
+    "보석상",
+    "볼링장",
+    "볼링장",
+    "신문사",
+    "고깃집",
+    "축제 본부",
+    "고깃집",
+    "목장",
+    "오락실",
+    null,
+    null
+   ],
+   "dwarf": "한판만 구스타",
+   "lapsDoneBeforeInWave": 3,
+   "expected": {
+    "income": 1496,
+    "laps": 4,
+    "incomePerLap": [
+     275,
+     338,
+     405,
+     478
+    ]
+   }
+  },
+  {
+   "id": 123,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "오락실",
+    "보석상",
+    "볼링장",
+    "볼링장",
+    "신문사",
+    "고깃집",
+    "축제 본부",
+    "고깃집",
+    "목장",
+    "오락실",
+    null,
+    null
+   ],
+   "dwarf": "응원단장 비르타",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 501,
+    "laps": 3,
+    "incomePerLap": [
+     118,
+     165,
+     218
+    ]
+   }
+  },
+  {
+   "id": 124,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "오락실",
+    "보석상",
+    "볼링장",
+    "볼링장",
+    "신문사",
+    "고깃집",
+    "축제 본부",
+    "고깃집",
+    "목장",
+    "오락실",
+    null,
+    null
+   ],
+   "dwarf": "응원단장 비르타",
+   "lapsDoneBeforeInWave": 3,
+   "expected": {
+    "income": 1018,
+    "laps": 3,
+    "incomePerLap": [
+     275,
+     338,
+     405
+    ]
+   }
+  },
+  {
+   "id": 125,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "오락실",
+    "보석상",
+    "볼링장",
+    "볼링장",
+    "신문사",
+    "고깃집",
+    "축제 본부",
+    "고깃집",
+    "목장",
+    "오락실",
+    null,
+    null
+   ],
+   "dwarf": "지름신 도르카",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 776,
+    "laps": 4,
+    "incomePerLap": [
+     118,
+     165,
+     218,
+     275
+    ]
+   }
+  },
+  {
+   "id": 126,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "오락실",
+    "보석상",
+    "볼링장",
+    "볼링장",
+    "신문사",
+    "고깃집",
+    "축제 본부",
+    "고깃집",
+    "목장",
+    "오락실",
+    null,
+    null
+   ],
+   "dwarf": "지름신 도르카",
+   "lapsDoneBeforeInWave": 7,
+   "expected": {
+    "income": 2736,
+    "laps": 4,
+    "incomePerLap": [
+     555,
+     638,
+     725,
+     818
+    ]
+   }
+  },
+  {
+   "id": 127,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "오락실",
+    "보석상",
+    "볼링장",
+    "볼링장",
+    "신문사",
+    "고깃집",
+    "축제 본부",
+    "고깃집",
+    "목장",
+    "오락실",
+    null,
+    null
+   ],
+   "dwarf": "이차 가자 뤼카",
+   "lapsDoneBeforeInWave": 0,
+   "expected": {
+    "income": 776,
+    "laps": 4,
+    "incomePerLap": [
+     118,
+     165,
+     218,
+     275
+    ]
+   }
+  },
+  {
+   "id": 128,
+   "label": "시뮬레이션이 지은 열 채 보드",
+   "board": [
+    "오락실",
+    "보석상",
+    "볼링장",
+    "볼링장",
+    "신문사",
+    "고깃집",
+    "축제 본부",
+    "고깃집",
+    "목장",
+    "오락실",
+    null,
+    null
+   ],
+   "dwarf": "이차 가자 뤼카",
+   "lapsDoneBeforeInWave": 3,
+   "expected": {
+    "income": 1496,
+    "laps": 4,
+    "incomePerLap": [
+     275,
+     338,
+     405,
+     478
+    ]
+   }
+  }
+ ],
+ "waves": [
+  {
+   "id": 1,
+   "board": [
+    "네온사인",
+    "헬스장",
+    "헬스장",
+    "방송국",
+    "변전소",
+    "관광 안내소",
+    "신문사",
+    "2호점",
+    "헬스장",
+    null,
+    null,
+    "고깃집"
+   ],
+   "sendOrder": [
+    "야식 우르고",
+    "어깨춤 노리트",
+    "취흥 바르딘"
+   ],
+   "expected": {
+    "sends": [
+     {
+      "dwarf": "야식 우르고",
+      "income": 461,
+      "laps": 2
+     },
+     {
+      "dwarf": "어깨춤 노리트",
+      "income": 1051,
+      "laps": 2
+     },
+     {
+      "dwarf": "취흥 바르딘",
+      "income": 1833,
+      "laps": 2
+     }
+    ],
+    "waveIncome": 3345
+   }
+  },
+  {
+   "id": 2,
+   "board": [
+    "게시판",
+    "보석상",
+    "재즈바",
+    "도매 시장",
+    "극장",
+    "극장",
+    "포토 부스",
+    null,
+    null,
+    "기념품 가게",
+    "네온사인",
+    "보석상"
+   ],
+   "sendOrder": [
+    "지름신 도르카",
+    "삼두 브롬",
+    "반짝이 릴카"
+   ],
+   "expected": {
+    "sends": [
+     {
+      "dwarf": "지름신 도르카",
+      "income": 782,
+      "laps": 4
+     },
+     {
+      "dwarf": "삼두 브롬",
+      "income": 481,
+      "laps": 2
+     },
+     {
+      "dwarf": "반짝이 릴카",
+      "income": 1142,
+      "laps": 4
+     }
+    ],
+    "waveIncome": 2405
+   }
+  },
+  {
+   "id": 3,
+   "board": [
+    "여관",
+    "회전문",
+    "신문사",
+    null,
+    "광고탑",
+    null,
+    "헬스장",
+    "코치 사무소",
+    "사우나",
+    "게시판",
+    "기념품 가게",
+    "축제 본부"
+   ],
+   "sendOrder": [
+    "스트레칭 라그나",
+    "안주발 올벤",
+    "새 운동화 케틸"
+   ],
+   "expected": {
+    "sends": [
+     {
+      "dwarf": "스트레칭 라그나",
+      "income": 712,
+      "laps": 5
+     },
+     {
+      "dwarf": "안주발 올벤",
+      "income": 694,
+      "laps": 2
+     },
+     {
+      "dwarf": "새 운동화 케틸",
+      "income": 2398,
+      "laps": 4
+     }
+    ],
+    "waveIncome": 3804
+   }
+  },
+  {
+   "id": 4,
+   "board": [
+    "수영장",
+    "헬스장",
+    "게시판",
+    "고깃집",
+    "목장",
+    "헬스장",
+    "국숫집",
+    "야시장",
+    "관광 안내소",
+    "가로등",
+    null,
+    null
+   ],
+   "sendOrder": [
+    "삼두 브롬",
+    "신명 카잔",
+    "응원단장 비르타"
+   ],
+   "expected": {
+    "sends": [
+     {
+      "dwarf": "삼두 브롬",
+      "income": 860,
+      "laps": 5
+     },
+     {
+      "dwarf": "신명 카잔",
+      "income": 470,
+      "laps": 2
+     },
+     {
+      "dwarf": "응원단장 비르타",
+      "income": 1156,
+      "laps": 4
+     }
+    ],
+    "waveIncome": 2486
+   }
+  },
+  {
+   "id": 5,
+   "board": [
+    "재즈바",
+    "게시판",
+    "보석상",
+    "축제 본부",
+    "보석상",
+    "와인 가게",
+    "광산",
+    "와인 가게",
+    "보석상",
+    null,
+    null,
+    "도매 시장"
+   ],
+   "sendOrder": [
+    "신명 카잔",
+    "이차 가자 뤼카",
+    "취중쇼핑 페르다"
+   ],
+   "expected": {
+    "sends": [
+     {
+      "dwarf": "신명 카잔",
+      "income": 460,
+      "laps": 2
+     },
+     {
+      "dwarf": "이차 가자 뤼카",
+      "income": 866,
+      "laps": 2
+     },
+     {
+      "dwarf": "취중쇼핑 페르다",
+      "income": 4729,
+      "laps": 5
+     }
+    ],
+    "waveIncome": 6055
+   }
+  },
+  {
+   "id": 6,
+   "board": [
+    "기념품 가게",
+    "축제 본부",
+    "보석상",
+    "게시판",
+    "변전소",
+    "광산",
+    "야시장",
+    "야시장",
+    "방송국",
+    "신문사",
+    null,
+    null
+   ],
+   "sendOrder": [
+    "한판만 구스타",
+    "굿즈 솔베",
+    "응원단장 비르타"
+   ],
+   "expected": {
+    "sends": [
+     {
+      "dwarf": "한판만 구스타",
+      "income": 389,
+      "laps": 2
+     },
+     {
+      "dwarf": "굿즈 솔베",
+      "income": 5400,
+      "laps": 4
+     },
+     {
+      "dwarf": "응원단장 비르타",
+      "income": 6827,
+      "laps": 2
+     }
+    ],
+    "waveIncome": 12616
+   }
+  },
+  {
+   "id": 7,
+   "board": [
+    "여관",
+    "게시판",
+    "재즈바",
+    null,
+    "관광 안내소",
+    "방송국",
+    "휴게소",
+    "2호점",
+    "헬스장",
+    null,
+    "휴게소",
+    "네온사인"
+   ],
+   "sendOrder": [
+    "장바구니 브린다",
+    "야식 우르고",
+    "반주 한잔 욘델"
+   ],
+   "expected": {
+    "sends": [
+     {
+      "dwarf": "장바구니 브린다",
+      "income": 489,
+      "laps": 3
+     },
+     {
+      "dwarf": "야식 우르고",
+      "income": 1551,
+      "laps": 3
+     },
+     {
+      "dwarf": "반주 한잔 욘델",
+      "income": 4840,
+      "laps": 4
+     }
+    ],
+    "waveIncome": 6880
+   }
+  },
+  {
+   "id": 8,
+   "board": [
+    "오락실",
+    "보석상",
+    "볼링장",
+    "볼링장",
+    "신문사",
+    "고깃집",
+    "축제 본부",
+    "고깃집",
+    "목장",
+    "오락실",
+    null,
+    null
+   ],
+   "sendOrder": [
+    "장바구니 브린다",
+    "땀과맥주 달가",
+    "지름신 도르카"
+   ],
+   "expected": {
+    "sends": [
+     {
+      "dwarf": "장바구니 브린다",
+      "income": 776,
+      "laps": 4
+     },
+     {
+      "dwarf": "땀과맥주 달가",
+      "income": 1221,
+      "laps": 3
+     },
+     {
+      "dwarf": "지름신 도르카",
+      "income": 2736,
+      "laps": 4
+     }
+    ],
+    "waveIncome": 4733
+   }
+  }
+ ]
+}

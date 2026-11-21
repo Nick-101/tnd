@@ -1,0 +1,9 @@
+{
+  "name": "yolodwarf-demo",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node serve.mjs",
+    "test": "node test/all.test.mjs"
+  }
+}
