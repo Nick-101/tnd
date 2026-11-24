@@ -1,0 +1,3285 @@
+{
+ "version": "demo 2.0 (2026-11-24)",
+ "note": "수치는 모두 임시다. 규칙은 욜로드워프_데모2_규칙.md, 화면의 글은 욜로드워프_데모2_텍스트_v3.md가 기준이다. text는 한국어 문구, oldName은 시뮬레이터와 옛 문서의 이름이다",
+ "constants": {
+  "startMoney": 10,
+  "wavesPerStage": 5,
+  "sendsPerWave": 3,
+  "handSize": 3,
+  "baseLaps": 2,
+  "extraLapCost": {
+   "first": 3,
+   "multiplier": 2
+  },
+  "thresholds": {
+   "drunk": 3,
+   "full": 3
+  },
+  "satisfaction": {
+   "like": 1,
+   "dislike": -1,
+   "floor": null
+  },
+  "fatiguePerUse": 1,
+  "upgrade": {
+   "maxStars": 3,
+   "salesMultPerStar": 2,
+   "costFactor": 2,
+   "minCost": 10,
+   "perPrep": 1,
+   "shopsOnly": true
+  },
+  "refresh": {
+   "multiplierPerPress": 2,
+   "resetsEachStage": true
+  },
+  "candidateRates": {
+   "shop": 0.62,
+   "common": 0.23,
+   "uncommon": 0.13,
+   "rare": 0.02
+  },
+  "deck": {
+   "size": 30,
+   "popularKinds": 2,
+   "unpopularKinds": 1,
+   "weights": {
+    "likePopular": 2.5,
+    "likeUnpopular": 0.4,
+    "dislikeUnpopular": 2.5,
+    "dislikePopular": 0.4
+   },
+   "traitsEach": 2
+  }
+ },
+ "kinds": [
+  "운동",
+  "식당",
+  "카페",
+  "술집",
+  "오락",
+  "공연",
+  "쇼핑",
+  "휴식"
+ ],
+ "tasteKinds": [
+  "운동",
+  "식당",
+  "카페",
+  "술집",
+  "오락",
+  "공연",
+  "쇼핑"
+ ],
+ "stacks": {
+  "hunger": "허기",
+  "fullness": "포만감",
+  "tipsy": "취기",
+  "hype": "흥",
+  "fatigue": "피로"
+ },
+ "stages": [
+  {
+   "stage": 1,
+   "tiles": 8,
+   "buildsPerPrep": 2,
+   "candidates": 5,
+   "refreshBase": 5,
+   "targets": [
+    30,
+    160,
+    500,
+    1500,
+    3000
+   ]
+  },
+  {
+   "stage": 2,
+   "tiles": 12,
+   "buildsPerPrep": 3,
+   "candidates": 6,
+   "refreshBase": 10,
+   "targets": [
+    3100,
+    3400,
+    4300,
+    6700,
+    10000
+   ]
+  },
+  {
+   "stage": 3,
+   "tiles": 16,
+   "buildsPerPrep": 4,
+   "candidates": 7,
+   "refreshBase": 20,
+   "targets": [
+    10500,
+    11000,
+    13000,
+    17000,
+    24000
+   ]
+  },
+  {
+   "stage": 4,
+   "tiles": 20,
+   "buildsPerPrep": 5,
+   "candidates": 8,
+   "refreshBase": 40,
+   "targets": [
+    24500,
+    25500,
+    28500,
+    36500,
+    49000
+   ]
+  },
+  {
+   "stage": 5,
+   "tiles": 24,
+   "buildsPerPrep": 6,
+   "candidates": 9,
+   "refreshBase": 80,
+   "targets": [
+    49500,
+    50500,
+    54000,
+    63500,
+    78000
+   ]
+  }
+ ],
+ "shops": [
+  {
+   "id": "swimming_pool",
+   "name": "수영장",
+   "nameEn": "Swimming Pool",
+   "oldName": "수영장",
+   "kinds": [
+    "운동"
+   ],
+   "fee": 6,
+   "skip": "drunk",
+   "read": [],
+   "threshold": null,
+   "give": {
+    "hunger": 2,
+    "fullness": 0,
+    "tipsy": 0,
+    "hype": 0
+   },
+   "regular": null,
+   "rest": null,
+   "text": "만취 상태의 드워프는 지나칩니다. 허기 +2."
+  },
+  {
+   "id": "gym",
+   "name": "헬스장",
+   "nameEn": "Gym",
+   "oldName": "헬스장",
+   "kinds": [
+    "운동"
+   ],
+   "fee": 8,
+   "skip": "drunk",
+   "read": [],
+   "threshold": null,
+   "give": {
+    "hunger": 1,
+    "fullness": 0,
+    "tipsy": 0,
+    "hype": 0
+   },
+   "regular": null,
+   "rest": null,
+   "text": "만취 상태의 드워프는 지나칩니다. 허기 +1."
+  },
+  {
+   "id": "climbing_wall",
+   "name": "클라이밍장",
+   "nameEn": "Climbing Wall",
+   "oldName": "클라이밍장",
+   "kinds": [
+    "운동"
+   ],
+   "fee": 6,
+   "skip": "drunk",
+   "read": [],
+   "threshold": null,
+   "give": {
+    "hunger": 1,
+    "fullness": 0,
+    "tipsy": 0,
+    "hype": 0
+   },
+   "regular": {
+    "stack": "hunger",
+    "extra": 2
+   },
+   "rest": null,
+   "text": "만취 상태의 드워프는 지나칩니다. 허기 +1. [운동]을 좋아하는 드워프는 대신 +3."
+  },
+  {
+   "id": "noodle_shop",
+   "name": "국숫집",
+   "nameEn": "Noodle Shop",
+   "oldName": "국숫집",
+   "kinds": [
+    "식당"
+   ],
+   "fee": 4,
+   "skip": "full",
+   "read": [
+    {
+     "stack": "hunger",
+     "per": 4,
+     "consume": false
+    }
+   ],
+   "threshold": null,
+   "give": {
+    "hunger": 0,
+    "fullness": 1,
+    "tipsy": 0,
+    "hype": 0
+   },
+   "regular": null,
+   "rest": null,
+   "text": "포만 상태의 드워프는 지나칩니다. 허기 1당 요금 +4. 포만감 +1."
+  },
+  {
+   "id": "steakhouse",
+   "name": "고깃집",
+   "nameEn": "Steakhouse",
+   "oldName": "고깃집",
+   "kinds": [
+    "식당"
+   ],
+   "fee": 6,
+   "skip": "full",
+   "read": [
+    {
+     "stack": "hunger",
+     "per": 8,
+     "consume": false
+    }
+   ],
+   "threshold": null,
+   "give": {
+    "hunger": 0,
+    "fullness": 3,
+    "tipsy": 0,
+    "hype": 0
+   },
+   "regular": null,
+   "rest": null,
+   "text": "포만 상태의 드워프는 지나칩니다. 허기 1당 요금 +8. 포만감 +3."
+  },
+  {
+   "id": "buffet",
+   "name": "뷔페",
+   "nameEn": "Buffet",
+   "oldName": "코스 요리집",
+   "kinds": [
+    "식당"
+   ],
+   "fee": 6,
+   "skip": "full",
+   "read": [],
+   "threshold": {
+    "stack": "hunger",
+    "at": 3,
+    "mult": 2
+   },
+   "give": {
+    "hunger": 0,
+    "fullness": 2,
+    "tipsy": 0,
+    "hype": 0
+   },
+   "regular": null,
+   "rest": null,
+   "text": "포만 상태의 드워프는 지나칩니다. 허기가 3 이상이면 매출 ×2. 포만감 +2."
+  },
+  {
+   "id": "coffee_shop",
+   "name": "커피숍",
+   "nameEn": "Coffee Shop",
+   "oldName": "디저트 카페",
+   "kinds": [
+    "카페"
+   ],
+   "fee": 6,
+   "skip": null,
+   "read": [
+    {
+     "stack": "fullness",
+     "per": 4,
+     "consume": false
+    }
+   ],
+   "threshold": null,
+   "give": {
+    "hunger": 0,
+    "fullness": 0,
+    "tipsy": 0,
+    "hype": 0
+   },
+   "regular": null,
+   "rest": null,
+   "text": "포만감 1당 요금 +4."
+  },
+  {
+   "id": "tea_room",
+   "name": "찻집",
+   "nameEn": "Tea Room",
+   "oldName": "찻집",
+   "kinds": [
+    "카페"
+   ],
+   "fee": 4,
+   "skip": null,
+   "read": [
+    {
+     "stack": "fullness",
+     "per": 8,
+     "consume": true
+    }
+   ],
+   "threshold": null,
+   "give": {
+    "hunger": 0,
+    "fullness": 0,
+    "tipsy": 0,
+    "hype": 0
+   },
+   "regular": null,
+   "rest": null,
+   "text": "포만감을 모두 소모합니다. 소모한 포만감 1당 요금 +8."
+  },
+  {
+   "id": "dessert_cafe",
+   "name": "디저트 카페",
+   "nameEn": "Dessert Café",
+   "oldName": "아이스크림 가게",
+   "kinds": [
+    "카페"
+   ],
+   "fee": 6,
+   "skip": null,
+   "read": [],
+   "threshold": {
+    "stack": "fullness",
+    "at": 3,
+    "mult": 2
+   },
+   "give": {
+    "hunger": 0,
+    "fullness": 0,
+    "tipsy": 0,
+    "hype": 0
+   },
+   "regular": null,
+   "rest": null,
+   "text": "포만 상태면 매출 ×2."
+  },
+  {
+   "id": "dive_bar",
+   "name": "선술집",
+   "nameEn": "Dive Bar",
+   "oldName": "선술집",
+   "kinds": [
+    "술집"
+   ],
+   "fee": 2,
+   "skip": null,
+   "read": [],
+   "threshold": null,
+   "give": {
+    "hunger": 0,
+    "fullness": 0,
+    "tipsy": 3,
+    "hype": 0
+   },
+   "regular": null,
+   "rest": null,
+   "text": "취기 +3."
+  },
+  {
+   "id": "beer_hall",
+   "name": "호프집",
+   "nameEn": "Beer Hall",
+   "oldName": "호프집",
+   "kinds": [
+    "술집"
+   ],
+   "fee": 6,
+   "skip": null,
+   "read": [],
+   "threshold": null,
+   "give": {
+    "hunger": 0,
+    "fullness": 0,
+    "tipsy": 1,
+    "hype": 0
+   },
+   "regular": null,
+   "rest": null,
+   "text": "취기 +1."
+  },
+  {
+   "id": "pub",
+   "name": "펍",
+   "nameEn": "Pub",
+   "oldName": "단골 펍",
+   "kinds": [
+    "술집"
+   ],
+   "fee": 4,
+   "skip": null,
+   "read": [],
+   "threshold": null,
+   "give": {
+    "hunger": 0,
+    "fullness": 0,
+    "tipsy": 1,
+    "hype": 0
+   },
+   "regular": {
+    "stack": "tipsy",
+    "extra": 3
+   },
+   "rest": null,
+   "text": "취기 +1. [술집]을 좋아하는 드워프는 대신 +4."
+  },
+  {
+   "id": "photo_booth",
+   "name": "포토 부스",
+   "nameEn": "Photo Booth",
+   "oldName": "포토 부스",
+   "kinds": [
+    "오락"
+   ],
+   "fee": 8,
+   "skip": null,
+   "read": [
+    {
+     "stack": "tipsy",
+     "per": 4,
+     "consume": false
+    }
+   ],
+   "threshold": null,
+   "give": {
+    "hunger": 0,
+    "fullness": 0,
+    "tipsy": 0,
+    "hype": 0
+   },
+   "regular": null,
+   "rest": null,
+   "text": "취기 1당 요금 +4."
+  },
+  {
+   "id": "arcade",
+   "name": "오락실",
+   "nameEn": "Arcade",
+   "oldName": "오락실",
+   "kinds": [
+    "오락"
+   ],
+   "fee": 6,
+   "skip": null,
+   "read": [],
+   "threshold": {
+    "stack": "tipsy",
+    "at": 3,
+    "mult": 2
+   },
+   "give": {
+    "hunger": 0,
+    "fullness": 0,
+    "tipsy": 0,
+    "hype": 0
+   },
+   "regular": null,
+   "rest": null,
+   "text": "만취 상태면 매출 ×2."
+  },
+  {
+   "id": "billiard_hall",
+   "name": "당구장",
+   "nameEn": "Billiard Hall",
+   "oldName": "당구장",
+   "kinds": [
+    "오락"
+   ],
+   "fee": 4,
+   "skip": null,
+   "read": [
+    {
+     "stack": "tipsy",
+     "per": 8,
+     "consume": true
+    }
+   ],
+   "threshold": null,
+   "give": {
+    "hunger": 0,
+    "fullness": 0,
+    "tipsy": 0,
+    "hype": 0
+   },
+   "regular": null,
+   "rest": null,
+   "text": "취기를 모두 소모합니다. 소모한 취기 1당 요금 +8."
+  },
+  {
+   "id": "outdoor_stage",
+   "name": "야외무대",
+   "nameEn": "Outdoor Stage",
+   "oldName": "야외무대",
+   "kinds": [
+    "공연"
+   ],
+   "fee": 4,
+   "skip": null,
+   "read": [],
+   "threshold": null,
+   "give": {
+    "hunger": 0,
+    "fullness": 0,
+    "tipsy": 0,
+    "hype": 2
+   },
+   "regular": null,
+   "rest": null,
+   "text": "흥 +2."
+  },
+  {
+   "id": "theater",
+   "name": "극장",
+   "nameEn": "Theater",
+   "oldName": "극장",
+   "kinds": [
+    "공연"
+   ],
+   "fee": 8,
+   "skip": "drunk",
+   "read": [],
+   "threshold": null,
+   "give": {
+    "hunger": 0,
+    "fullness": 0,
+    "tipsy": 0,
+    "hype": 1
+   },
+   "regular": null,
+   "rest": null,
+   "text": "만취 상태의 드워프는 지나칩니다. 흥 +1."
+  },
+  {
+   "id": "opera_house",
+   "name": "오페라 하우스",
+   "nameEn": "Opera House",
+   "oldName": "소극장",
+   "kinds": [
+    "공연"
+   ],
+   "fee": 6,
+   "skip": null,
+   "read": [],
+   "threshold": null,
+   "give": {
+    "hunger": 0,
+    "fullness": 0,
+    "tipsy": 0,
+    "hype": 1
+   },
+   "regular": {
+    "stack": "hype",
+    "extra": 2
+   },
+   "rest": null,
+   "text": "흥 +1. [공연]을 좋아하는 드워프는 대신 +3."
+  },
+  {
+   "id": "gift_shop",
+   "name": "기념품 가게",
+   "nameEn": "Gift Shop",
+   "oldName": "기념품 가게",
+   "kinds": [
+    "쇼핑"
+   ],
+   "fee": 10,
+   "skip": null,
+   "read": [
+    {
+     "stack": "hype",
+     "per": 3,
+     "consume": false
+    }
+   ],
+   "threshold": null,
+   "give": {
+    "hunger": 0,
+    "fullness": 0,
+    "tipsy": 0,
+    "hype": 0
+   },
+   "regular": null,
+   "rest": null,
+   "text": "흥 1당 요금 +3."
+  },
+  {
+   "id": "jewelry_store",
+   "name": "보석상",
+   "nameEn": "Jewelry Store",
+   "oldName": "보석상",
+   "kinds": [
+    "쇼핑"
+   ],
+   "fee": 4,
+   "skip": null,
+   "read": [
+    {
+     "stack": "hype",
+     "per": 8,
+     "consume": true
+    }
+   ],
+   "threshold": null,
+   "give": {
+    "hunger": 0,
+    "fullness": 0,
+    "tipsy": 0,
+    "hype": 0
+   },
+   "regular": null,
+   "rest": null,
+   "text": "흥을 모두 소모합니다. 소모한 흥 1당 요금 +8."
+  },
+  {
+   "id": "department_store",
+   "name": "백화점",
+   "nameEn": "Department Store",
+   "oldName": "백화점",
+   "kinds": [
+    "쇼핑"
+   ],
+   "fee": 6,
+   "skip": null,
+   "read": [],
+   "threshold": {
+    "stack": "hype",
+    "at": 3,
+    "mult": 2
+   },
+   "give": {
+    "hunger": 0,
+    "fullness": 0,
+    "tipsy": 0,
+    "hype": 0
+   },
+   "regular": null,
+   "rest": null,
+   "text": "흥이 3 이상이면 매출 ×2."
+  },
+  {
+   "id": "park",
+   "name": "공원",
+   "nameEn": "Park",
+   "oldName": "공원",
+   "kinds": [
+    "휴식"
+   ],
+   "fee": 0,
+   "skip": null,
+   "read": [],
+   "threshold": null,
+   "give": {
+    "hunger": 0,
+    "fullness": 0,
+    "tipsy": 0,
+    "hype": 0
+   },
+   "regular": null,
+   "rest": {
+    "mode": "per",
+    "per": 4
+   },
+   "text": "피로 4당 만족도 +1."
+  },
+  {
+   "id": "inn",
+   "name": "여관",
+   "nameEn": "Inn",
+   "oldName": "여관",
+   "kinds": [
+    "휴식"
+   ],
+   "fee": 4,
+   "skip": null,
+   "read": [],
+   "threshold": null,
+   "give": {
+    "hunger": 0,
+    "fullness": 0,
+    "tipsy": 0,
+    "hype": 0
+   },
+   "regular": null,
+   "rest": {
+    "mode": "consumePer",
+    "per": 3
+   },
+   "text": "피로를 모두 소모합니다. 소모한 피로 3당 만족도 +1."
+  },
+  {
+   "id": "hot_spring",
+   "name": "온천",
+   "nameEn": "Hot Spring",
+   "oldName": "온천",
+   "kinds": [
+    "휴식"
+   ],
+   "fee": 4,
+   "skip": null,
+   "read": [],
+   "threshold": null,
+   "give": {
+    "hunger": 0,
+    "fullness": 0,
+    "tipsy": 0,
+    "hype": 0
+   },
+   "regular": null,
+   "rest": {
+    "mode": "threshold",
+    "at": 6,
+    "gain": 3
+   },
+   "text": "피로가 6 이상이면 만족도 +3."
+  },
+  {
+   "id": "protein_kitchen",
+   "name": "프로틴 식당",
+   "nameEn": "Protein Kitchen",
+   "oldName": "샐러드 바",
+   "kinds": [
+    "운동",
+    "식당"
+   ],
+   "fee": 6,
+   "skip": "full",
+   "read": [
+    {
+     "stack": "hunger",
+     "per": 2,
+     "consume": false
+    }
+   ],
+   "threshold": null,
+   "give": {
+    "hunger": 1,
+    "fullness": 1,
+    "tipsy": 0,
+    "hype": 0
+   },
+   "regular": null,
+   "rest": null,
+   "text": "포만 상태의 드워프는 지나칩니다. 허기 1당 요금 +2."
+  },
+  {
+   "id": "cycling_cafe",
+   "name": "자전거 카페",
+   "nameEn": "Cycling Café",
+   "oldName": "주스 바",
+   "kinds": [
+    "운동",
+    "카페"
+   ],
+   "fee": 6,
+   "skip": null,
+   "read": [
+    {
+     "stack": "fullness",
+     "per": 2,
+     "consume": false
+    }
+   ],
+   "threshold": null,
+   "give": {
+    "hunger": 1,
+    "fullness": 0,
+    "tipsy": 0,
+    "hype": 0
+   },
+   "regular": null,
+   "rest": null,
+   "text": "포만감 1당 요금 +2. 허기 +1."
+  },
+  {
+   "id": "sports_bar",
+   "name": "스포츠 바",
+   "nameEn": "Sports Bar",
+   "oldName": "비치 클럽",
+   "kinds": [
+    "운동",
+    "술집"
+   ],
+   "fee": 6,
+   "skip": null,
+   "read": [],
+   "threshold": null,
+   "give": {
+    "hunger": 1,
+    "fullness": 0,
+    "tipsy": 1,
+    "hype": 0
+   },
+   "regular": null,
+   "rest": null,
+   "text": "허기 +1. 취기 +1."
+  },
+  {
+   "id": "bowling_alley",
+   "name": "볼링장",
+   "nameEn": "Bowling Alley",
+   "oldName": "볼링장",
+   "kinds": [
+    "운동",
+    "오락"
+   ],
+   "fee": 6,
+   "skip": null,
+   "read": [
+    {
+     "stack": "tipsy",
+     "per": 2,
+     "consume": false
+    }
+   ],
+   "threshold": null,
+   "give": {
+    "hunger": 1,
+    "fullness": 0,
+    "tipsy": 0,
+    "hype": 0
+   },
+   "regular": null,
+   "rest": null,
+   "text": "취기 1당 요금 +2. 허기 +1."
+  },
+  {
+   "id": "dance_studio",
+   "name": "댄스 스튜디오",
+   "nameEn": "Dance Studio",
+   "oldName": "댄스 스튜디오",
+   "kinds": [
+    "운동",
+    "공연"
+   ],
+   "fee": 6,
+   "skip": null,
+   "read": [],
+   "threshold": null,
+   "give": {
+    "hunger": 1,
+    "fullness": 0,
+    "tipsy": 0,
+    "hype": 1
+   },
+   "regular": null,
+   "rest": null,
+   "text": "허기 +1. 흥 +1."
+  },
+  {
+   "id": "sporting_goods_store",
+   "name": "스포츠 용품점",
+   "nameEn": "Sporting Goods Store",
+   "oldName": "스포츠 용품점",
+   "kinds": [
+    "운동",
+    "쇼핑"
+   ],
+   "fee": 6,
+   "skip": null,
+   "read": [
+    {
+     "stack": "hype",
+     "per": 2,
+     "consume": false
+    }
+   ],
+   "threshold": null,
+   "give": {
+    "hunger": 1,
+    "fullness": 0,
+    "tipsy": 0,
+    "hype": 0
+   },
+   "regular": null,
+   "rest": null,
+   "text": "흥 1당 요금 +2. 허기 +1."
+  },
+  {
+   "id": "yoga_studio",
+   "name": "요가원",
+   "nameEn": "Yoga Studio",
+   "oldName": "사우나",
+   "kinds": [
+    "운동",
+    "휴식"
+   ],
+   "fee": 4,
+   "skip": null,
+   "read": [],
+   "threshold": null,
+   "give": {
+    "hunger": 1,
+    "fullness": 0,
+    "tipsy": 0,
+    "hype": 0
+   },
+   "regular": null,
+   "rest": {
+    "mode": "per",
+    "per": 5
+   },
+   "text": "허기 +1. 피로 5당 만족도 +1."
+  },
+  {
+   "id": "brunch_cafe",
+   "name": "브런치 카페",
+   "nameEn": "Brunch Café",
+   "oldName": "브런치 카페",
+   "kinds": [
+    "식당",
+    "카페"
+   ],
+   "fee": 6,
+   "skip": null,
+   "read": [
+    {
+     "stack": "hunger",
+     "per": 2,
+     "consume": false
+    },
+    {
+     "stack": "fullness",
+     "per": 2,
+     "consume": false
+    }
+   ],
+   "threshold": null,
+   "give": {
+    "hunger": 0,
+    "fullness": 1,
+    "tipsy": 0,
+    "hype": 0
+   },
+   "regular": null,
+   "rest": null,
+   "text": "허기 1당 요금 +2. 포만감 1당 요금 +2. 포만감 +1."
+  },
+  {
+   "id": "dining_bar",
+   "name": "다이닝 바",
+   "nameEn": "Dining Bar",
+   "oldName": "비스트로",
+   "kinds": [
+    "식당",
+    "술집"
+   ],
+   "fee": 6,
+   "skip": "full",
+   "read": [
+    {
+     "stack": "hunger",
+     "per": 2,
+     "consume": false
+    }
+   ],
+   "threshold": null,
+   "give": {
+    "hunger": 0,
+    "fullness": 1,
+    "tipsy": 1,
+    "hype": 0
+   },
+   "regular": null,
+   "rest": null,
+   "text": "포만 상태의 드워프는 지나칩니다. 허기 1당 요금 +2. 포만감 +1. 취기 +1."
+  },
+  {
+   "id": "theme_restaurant",
+   "name": "테마 레스토랑",
+   "nameEn": "Theme Restaurant",
+   "oldName": "테마 레스토랑",
+   "kinds": [
+    "식당",
+    "오락"
+   ],
+   "fee": 6,
+   "skip": "full",
+   "read": [
+    {
+     "stack": "hunger",
+     "per": 2,
+     "consume": false
+    },
+    {
+     "stack": "tipsy",
+     "per": 2,
+     "consume": false
+    }
+   ],
+   "threshold": null,
+   "give": {
+    "hunger": 0,
+    "fullness": 1,
+    "tipsy": 0,
+    "hype": 0
+   },
+   "regular": null,
+   "rest": null,
+   "text": "포만 상태의 드워프는 지나칩니다. 허기 1당 요금 +2. 취기 1당 요금 +2. 포만감 +1."
+  },
+  {
+   "id": "dinner_theater",
+   "name": "극장식 식당",
+   "nameEn": "Dinner Theater",
+   "oldName": "디너쇼",
+   "kinds": [
+    "식당",
+    "공연"
+   ],
+   "fee": 6,
+   "skip": "full",
+   "read": [
+    {
+     "stack": "hunger",
+     "per": 2,
+     "consume": false
+    }
+   ],
+   "threshold": null,
+   "give": {
+    "hunger": 0,
+    "fullness": 1,
+    "tipsy": 0,
+    "hype": 1
+   },
+   "regular": null,
+   "rest": null,
+   "text": "포만 상태의 드워프는 지나칩니다. 허기 1당 요금 +2. 포만감 +1. 흥 +1."
+  },
+  {
+   "id": "night_market",
+   "name": "야시장",
+   "nameEn": "Night Market",
+   "oldName": "야시장",
+   "kinds": [
+    "식당",
+    "쇼핑"
+   ],
+   "fee": 6,
+   "skip": "full",
+   "read": [
+    {
+     "stack": "hunger",
+     "per": 2,
+     "consume": false
+    },
+    {
+     "stack": "hype",
+     "per": 2,
+     "consume": false
+    }
+   ],
+   "threshold": null,
+   "give": {
+    "hunger": 0,
+    "fullness": 1,
+    "tipsy": 0,
+    "hype": 0
+   },
+   "regular": null,
+   "rest": null,
+   "text": "포만 상태의 드워프는 지나칩니다. 허기 1당 요금 +2. 흥 1당 요금 +2. 포만감 +1."
+  },
+  {
+   "id": "rest_stop",
+   "name": "휴게소",
+   "nameEn": "Rest Stop",
+   "oldName": "휴게소",
+   "kinds": [
+    "식당",
+    "휴식"
+   ],
+   "fee": 4,
+   "skip": "full",
+   "read": [
+    {
+     "stack": "hunger",
+     "per": 2,
+     "consume": false
+    }
+   ],
+   "threshold": null,
+   "give": {
+    "hunger": 0,
+    "fullness": 1,
+    "tipsy": 0,
+    "hype": 0
+   },
+   "regular": null,
+   "rest": {
+    "mode": "per",
+    "per": 5
+   },
+   "text": "포만 상태의 드워프는 지나칩니다. 허기 1당 요금 +2. 포만감 +1. 피로 5당 만족도 +1."
+  },
+  {
+   "id": "cafe_bar",
+   "name": "카페 바",
+   "nameEn": "Café Bar",
+   "oldName": "디저트 바",
+   "kinds": [
+    "카페",
+    "술집"
+   ],
+   "fee": 6,
+   "skip": null,
+   "read": [
+    {
+     "stack": "fullness",
+     "per": 2,
+     "consume": false
+    }
+   ],
+   "threshold": null,
+   "give": {
+    "hunger": 0,
+    "fullness": 0,
+    "tipsy": 1,
+    "hype": 0
+   },
+   "regular": null,
+   "rest": null,
+   "text": "포만감 1당 요금 +2. 취기 +1."
+  },
+  {
+   "id": "board_game_cafe",
+   "name": "보드게임 카페",
+   "nameEn": "Board Game Café",
+   "oldName": "보드게임 카페",
+   "kinds": [
+    "카페",
+    "오락"
+   ],
+   "fee": 6,
+   "skip": null,
+   "read": [
+    {
+     "stack": "fullness",
+     "per": 2,
+     "consume": false
+    },
+    {
+     "stack": "tipsy",
+     "per": 2,
+     "consume": false
+    }
+   ],
+   "threshold": null,
+   "give": {
+    "hunger": 0,
+    "fullness": 0,
+    "tipsy": 0,
+    "hype": 0
+   },
+   "regular": null,
+   "rest": null,
+   "text": "포만감 1당 요금 +2. 취기 1당 요금 +2."
+  },
+  {
+   "id": "live_music_cafe",
+   "name": "라이브 카페",
+   "nameEn": "Live Music Café",
+   "oldName": "라이브 카페",
+   "kinds": [
+    "카페",
+    "공연"
+   ],
+   "fee": 6,
+   "skip": null,
+   "read": [
+    {
+     "stack": "fullness",
+     "per": 2,
+     "consume": false
+    }
+   ],
+   "threshold": null,
+   "give": {
+    "hunger": 0,
+    "fullness": 0,
+    "tipsy": 0,
+    "hype": 1
+   },
+   "regular": null,
+   "rest": null,
+   "text": "포만감 1당 요금 +2. 흥 +1."
+  },
+  {
+   "id": "chocolate_shop",
+   "name": "초콜릿 가게",
+   "nameEn": "Chocolate Shop",
+   "oldName": "초콜릿 가게",
+   "kinds": [
+    "카페",
+    "쇼핑"
+   ],
+   "fee": 6,
+   "skip": null,
+   "read": [
+    {
+     "stack": "fullness",
+     "per": 2,
+     "consume": false
+    },
+    {
+     "stack": "hype",
+     "per": 2,
+     "consume": false
+    }
+   ],
+   "threshold": null,
+   "give": {
+    "hunger": 0,
+    "fullness": 0,
+    "tipsy": 0,
+    "hype": 0
+   },
+   "regular": null,
+   "rest": null,
+   "text": "포만감 1당 요금 +2. 흥 1당 요금 +2."
+  },
+  {
+   "id": "book_cafe",
+   "name": "북카페",
+   "nameEn": "Book Café",
+   "oldName": "북카페",
+   "kinds": [
+    "카페",
+    "휴식"
+   ],
+   "fee": 4,
+   "skip": null,
+   "read": [
+    {
+     "stack": "fullness",
+     "per": 2,
+     "consume": false
+    }
+   ],
+   "threshold": null,
+   "give": {
+    "hunger": 0,
+    "fullness": 0,
+    "tipsy": 0,
+    "hype": 0
+   },
+   "regular": null,
+   "rest": {
+    "mode": "per",
+    "per": 5
+   },
+   "text": "포만감 1당 요금 +2. 피로 5당 만족도 +1."
+  },
+  {
+   "id": "darts_bar",
+   "name": "다트 바",
+   "nameEn": "Darts Bar",
+   "oldName": "다트 바",
+   "kinds": [
+    "술집",
+    "오락"
+   ],
+   "fee": 4,
+   "skip": null,
+   "read": [
+    {
+     "stack": "tipsy",
+     "per": 2,
+     "consume": false
+    }
+   ],
+   "threshold": null,
+   "give": {
+    "hunger": 0,
+    "fullness": 0,
+    "tipsy": 1,
+    "hype": 0
+   },
+   "regular": null,
+   "rest": null,
+   "text": "취기 1당 요금 +2. 취기 +1."
+  },
+  {
+   "id": "jazz_bar",
+   "name": "재즈 바",
+   "nameEn": "Jazz Bar",
+   "oldName": "재즈바",
+   "kinds": [
+    "술집",
+    "공연"
+   ],
+   "fee": 4,
+   "skip": null,
+   "read": [],
+   "threshold": null,
+   "give": {
+    "hunger": 0,
+    "fullness": 0,
+    "tipsy": 1,
+    "hype": 1
+   },
+   "regular": null,
+   "rest": null,
+   "text": "취기 +1. 흥 +1."
+  },
+  {
+   "id": "wine_shop",
+   "name": "와인 가게",
+   "nameEn": "Wine Shop",
+   "oldName": "와인 가게",
+   "kinds": [
+    "술집",
+    "쇼핑"
+   ],
+   "fee": 6,
+   "skip": null,
+   "read": [
+    {
+     "stack": "hype",
+     "per": 2,
+     "consume": false
+    }
+   ],
+   "threshold": null,
+   "give": {
+    "hunger": 0,
+    "fullness": 0,
+    "tipsy": 1,
+    "hype": 0
+   },
+   "regular": null,
+   "rest": null,
+   "text": "흥 1당 요금 +2. 취기 +1."
+  },
+  {
+   "id": "lounge_bar",
+   "name": "라운지 바",
+   "nameEn": "Lounge Bar",
+   "oldName": "라운지 바",
+   "kinds": [
+    "술집",
+    "휴식"
+   ],
+   "fee": 4,
+   "skip": null,
+   "read": [],
+   "threshold": null,
+   "give": {
+    "hunger": 0,
+    "fullness": 0,
+    "tipsy": 1,
+    "hype": 0
+   },
+   "regular": null,
+   "rest": {
+    "mode": "per",
+    "per": 5
+   },
+   "text": "취기 +1. 피로 5당 만족도 +1."
+  },
+  {
+   "id": "karaoke",
+   "name": "노래방",
+   "nameEn": "Karaoke",
+   "oldName": "노래방",
+   "kinds": [
+    "오락",
+    "공연"
+   ],
+   "fee": 6,
+   "skip": null,
+   "read": [
+    {
+     "stack": "tipsy",
+     "per": 2,
+     "consume": false
+    }
+   ],
+   "threshold": null,
+   "give": {
+    "hunger": 0,
+    "fullness": 0,
+    "tipsy": 0,
+    "hype": 1
+   },
+   "regular": null,
+   "rest": null,
+   "text": "취기 1당 요금 +2. 흥 +1."
+  },
+  {
+   "id": "toy_shop",
+   "name": "장난감 가게",
+   "nameEn": "Toy Shop",
+   "oldName": "장난감 가게",
+   "kinds": [
+    "오락",
+    "쇼핑"
+   ],
+   "fee": 6,
+   "skip": null,
+   "read": [
+    {
+     "stack": "tipsy",
+     "per": 2,
+     "consume": false
+    },
+    {
+     "stack": "hype",
+     "per": 2,
+     "consume": false
+    }
+   ],
+   "threshold": null,
+   "give": {
+    "hunger": 0,
+    "fullness": 0,
+    "tipsy": 0,
+    "hype": 0
+   },
+   "regular": null,
+   "rest": null,
+   "text": "취기 1당 요금 +2. 흥 1당 요금 +2."
+  },
+  {
+   "id": "fishing_pond",
+   "name": "낚시터",
+   "nameEn": "Fishing Pond",
+   "oldName": "만화방",
+   "kinds": [
+    "오락",
+    "휴식"
+   ],
+   "fee": 4,
+   "skip": null,
+   "read": [
+    {
+     "stack": "tipsy",
+     "per": 2,
+     "consume": false
+    }
+   ],
+   "threshold": null,
+   "give": {
+    "hunger": 0,
+    "fullness": 0,
+    "tipsy": 0,
+    "hype": 0
+   },
+   "regular": null,
+   "rest": {
+    "mode": "per",
+    "per": 5
+   },
+   "text": "취기 1당 요금 +2. 피로 5당 만족도 +1."
+  },
+  {
+   "id": "record_shop",
+   "name": "레코드 가게",
+   "nameEn": "Record Shop",
+   "oldName": "레코드 가게",
+   "kinds": [
+    "공연",
+    "쇼핑"
+   ],
+   "fee": 6,
+   "skip": null,
+   "read": [
+    {
+     "stack": "hype",
+     "per": 2,
+     "consume": false
+    }
+   ],
+   "threshold": null,
+   "give": {
+    "hunger": 0,
+    "fullness": 0,
+    "tipsy": 0,
+    "hype": 1
+   },
+   "regular": null,
+   "rest": null,
+   "text": "흥 1당 요금 +2. 흥 +1."
+  },
+  {
+   "id": "planetarium",
+   "name": "천문관",
+   "nameEn": "Planetarium",
+   "oldName": "천문관",
+   "kinds": [
+    "공연",
+    "휴식"
+   ],
+   "fee": 4,
+   "skip": null,
+   "read": [],
+   "threshold": null,
+   "give": {
+    "hunger": 0,
+    "fullness": 0,
+    "tipsy": 0,
+    "hype": 1
+   },
+   "regular": null,
+   "rest": {
+    "mode": "per",
+    "per": 5
+   },
+   "text": "흥 +1. 피로 5당 만족도 +1."
+  },
+  {
+   "id": "mattress_store",
+   "name": "침대 가게",
+   "nameEn": "Mattress Store",
+   "oldName": "서점",
+   "kinds": [
+    "쇼핑",
+    "휴식"
+   ],
+   "fee": 4,
+   "skip": null,
+   "read": [
+    {
+     "stack": "hype",
+     "per": 2,
+     "consume": false
+    }
+   ],
+   "threshold": null,
+   "give": {
+    "hunger": 0,
+    "fullness": 0,
+    "tipsy": 0,
+    "hype": 0
+   },
+   "regular": null,
+   "rest": {
+    "mode": "per",
+    "per": 5
+   },
+   "text": "흥 1당 요금 +2. 피로 5당 만족도 +1."
+  }
+ ],
+ "supports": [
+  {
+   "id": "ad_tower",
+   "name": "광고탑",
+   "nameEn": "Ad Tower",
+   "oldName": "광고탑",
+   "grade": "common",
+   "family": "범용",
+   "effect": {
+    "type": "fee",
+    "scope": "adj1",
+    "target": "shops",
+    "amount": 8
+   },
+   "text": "양옆 1칸의 매장은 요금 +8."
+  },
+  {
+   "id": "large_ad_tower",
+   "name": "대형 광고탑",
+   "nameEn": "Large Ad Tower",
+   "oldName": "가로등",
+   "grade": "common",
+   "family": "범용",
+   "effect": {
+    "type": "fee",
+    "scope": "all",
+    "target": "shops",
+    "amount": 2
+   },
+   "text": "모든 매장은 요금 +2."
+  },
+  {
+   "id": "neon_sign",
+   "name": "네온사인",
+   "nameEn": "Neon Sign",
+   "oldName": "네온사인",
+   "grade": "uncommon",
+   "family": "범용",
+   "effect": {
+    "type": "mult",
+    "scope": "adj1",
+    "target": "shops",
+    "amount": 1.5
+   },
+   "text": "양옆 1칸의 매장은 매출 ×1.5."
+  },
+  {
+   "id": "revolving_door",
+   "name": "회전문",
+   "nameEn": "Revolving Door",
+   "oldName": "회전문",
+   "grade": "rare",
+   "family": "범용",
+   "effect": {
+    "type": "again",
+    "scope": "prev",
+    "target": "shops",
+    "amount": 1
+   },
+   "text": "드워프가 이전 칸의 매장을 한 번 더 이용합니다."
+  },
+  {
+   "id": "royal_ad_tower",
+   "name": "왕실 광고탑",
+   "nameEn": "Royal Ad Tower",
+   "oldName": "관광 안내소",
+   "grade": "rare",
+   "family": "스윗스팟",
+   "effect": {
+    "type": "mult",
+    "scope": "top",
+    "target": "shops",
+    "amount": 2
+   },
+   "text": "요금이 가장 높은 매장은 매출 ×2."
+  },
+  {
+   "id": "second_branch",
+   "name": "2호점",
+   "nameEn": "Second Branch",
+   "oldName": "2호점",
+   "grade": "rare",
+   "family": "스윗스팟",
+   "effect": {
+    "type": "branch"
+   },
+   "text": "드워프가 이 칸에서도 요금이 가장 높은 매장을 이용합니다."
+  },
+  {
+   "id": "power_plant",
+   "name": "발전소",
+   "nameEn": "Power Plant",
+   "oldName": "변전소",
+   "grade": "rare",
+   "family": "지원 돕기",
+   "effect": {
+    "type": "boost",
+    "scope": "adj1"
+   },
+   "text": "양옆 1칸에 있는 지원 건물의 효과를 한 번 더 적용합니다."
+  },
+  {
+   "id": "newspaper",
+   "name": "신문사",
+   "nameEn": "Newspaper",
+   "oldName": "신문사",
+   "grade": "common",
+   "family": "성장",
+   "effect": {
+    "type": "growFee",
+    "scope": "all",
+    "target": "shops",
+    "amount": 1
+   },
+   "text": "추가 바퀴마다 모든 매장은 요금 +1. (지금 +0)"
+  },
+  {
+   "id": "notice_board",
+   "name": "게시판",
+   "nameEn": "Notice Board",
+   "oldName": "게시판",
+   "grade": "uncommon",
+   "family": "성장",
+   "effect": {
+    "type": "growFee",
+    "scope": "adj1",
+    "target": "shops",
+    "amount": 2
+   },
+   "text": "추가 바퀴마다 양옆 1칸의 매장은 요금 +2. (지금 +0)"
+  },
+  {
+   "id": "festival_hq",
+   "name": "축제 본부",
+   "nameEn": "Festival HQ",
+   "oldName": "축제 본부",
+   "grade": "rare",
+   "family": "성장",
+   "effect": {
+    "type": "growMult",
+    "scope": "adj1",
+    "target": "shops",
+    "amount": 0.5
+   },
+   "text": "추가 바퀴마다 양옆 1칸의 매장은 매출 배율 +0.5. (지금 ×1)"
+  },
+  {
+   "id": "tv_station",
+   "name": "방송국",
+   "nameEn": "TV Station",
+   "oldName": "방송국",
+   "grade": "rare",
+   "family": "성장",
+   "effect": {
+    "type": "growMult",
+    "scope": "top",
+    "target": "shops",
+    "amount": 0.5
+   },
+   "text": "추가 바퀴마다 요금이 가장 높은 매장은 매출 배율 +0.5. (지금 ×1)"
+  },
+  {
+   "id": "farm",
+   "name": "농장",
+   "nameEn": "Farm",
+   "oldName": "농장",
+   "grade": "common",
+   "family": "업종: 식당",
+   "effect": {
+    "type": "fee",
+    "scope": "adj2",
+    "target": "식당",
+    "amount": 12
+   },
+   "text": "양옆 2칸의 [식당]은 요금 +12."
+  },
+  {
+   "id": "large_farm",
+   "name": "대형 농장",
+   "nameEn": "Large Farm",
+   "oldName": "식자재 시장",
+   "grade": "uncommon",
+   "family": "업종: 식당",
+   "effect": {
+    "type": "mult",
+    "scope": "all",
+    "target": "식당",
+    "amount": 1.5
+   },
+   "text": "모든 [식당]은 매출 ×1.5."
+  },
+  {
+   "id": "royal_farm",
+   "name": "왕실 농장",
+   "nameEn": "Royal Farm",
+   "oldName": "목장",
+   "grade": "rare",
+   "family": "업종: 식당",
+   "effect": {
+    "type": "mult",
+    "scope": "top",
+    "target": "식당",
+    "amount": 2.5
+   },
+   "text": "요금이 가장 높은 [식당]은 매출 ×2.5."
+  },
+  {
+   "id": "roastery",
+   "name": "로스터리",
+   "nameEn": "Roastery",
+   "oldName": "설탕 공장",
+   "grade": "common",
+   "family": "업종: 카페",
+   "effect": {
+    "type": "fee",
+    "scope": "adj2",
+    "target": "카페",
+    "amount": 12
+   },
+   "text": "양옆 2칸의 [카페]는 요금 +12."
+  },
+  {
+   "id": "large_roastery",
+   "name": "대형 로스터리",
+   "nameEn": "Large Roastery",
+   "oldName": "로스터리",
+   "grade": "uncommon",
+   "family": "업종: 카페",
+   "effect": {
+    "type": "mult",
+    "scope": "all",
+    "target": "카페",
+    "amount": 1.5
+   },
+   "text": "모든 [카페]는 매출 ×1.5."
+  },
+  {
+   "id": "royal_roastery",
+   "name": "왕실 로스터리",
+   "nameEn": "Royal Roastery",
+   "oldName": "카카오 농장",
+   "grade": "rare",
+   "family": "업종: 카페",
+   "effect": {
+    "type": "mult",
+    "scope": "top",
+    "target": "카페",
+    "amount": 2.5
+   },
+   "text": "요금이 가장 높은 [카페]는 매출 ×2.5."
+  },
+  {
+   "id": "goblin_factory",
+   "name": "고블린 공장",
+   "nameEn": "Goblin Factory",
+   "oldName": "발전소",
+   "grade": "common",
+   "family": "업종: 오락",
+   "effect": {
+    "type": "fee",
+    "scope": "adj2",
+    "target": "오락",
+    "amount": 12
+   },
+   "text": "양옆 2칸의 [오락]은 요금 +12."
+  },
+  {
+   "id": "large_goblin_factory",
+   "name": "대형 고블린 공장",
+   "nameEn": "Large Goblin Factory",
+   "oldName": "번화가 간판",
+   "grade": "uncommon",
+   "family": "업종: 오락",
+   "effect": {
+    "type": "mult",
+    "scope": "all",
+    "target": "오락",
+    "amount": 1.5
+   },
+   "text": "모든 [오락]은 매출 ×1.5."
+  },
+  {
+   "id": "royal_goblin_factory",
+   "name": "왕실 고블린 공장",
+   "nameEn": "Royal Goblin Factory",
+   "oldName": "전자 상가",
+   "grade": "rare",
+   "family": "업종: 오락",
+   "effect": {
+    "type": "mult",
+    "scope": "top",
+    "target": "오락",
+    "amount": 2.5
+   },
+   "text": "요금이 가장 높은 [오락]은 매출 ×2.5."
+  },
+  {
+   "id": "workshop",
+   "name": "공방",
+   "nameEn": "Workshop",
+   "oldName": "창고",
+   "grade": "common",
+   "family": "업종: 쇼핑",
+   "effect": {
+    "type": "fee",
+    "scope": "adj2",
+    "target": "쇼핑",
+    "amount": 12
+   },
+   "text": "양옆 2칸의 [쇼핑]은 요금 +12."
+  },
+  {
+   "id": "large_workshop",
+   "name": "대형 공방",
+   "nameEn": "Large Workshop",
+   "oldName": "도매 시장",
+   "grade": "uncommon",
+   "family": "업종: 쇼핑",
+   "effect": {
+    "type": "mult",
+    "scope": "all",
+    "target": "쇼핑",
+    "amount": 1.5
+   },
+   "text": "모든 [쇼핑]은 매출 ×1.5."
+  },
+  {
+   "id": "royal_workshop",
+   "name": "왕실 공방",
+   "nameEn": "Royal Workshop",
+   "oldName": "광산",
+   "grade": "rare",
+   "family": "업종: 쇼핑",
+   "effect": {
+    "type": "mult",
+    "scope": "top",
+    "target": "쇼핑",
+    "amount": 2.5
+   },
+   "text": "요금이 가장 높은 [쇼핑]은 매출 ×2.5."
+  },
+  {
+   "id": "athletes_village",
+   "name": "선수촌",
+   "nameEn": "Athletes' Village",
+   "oldName": "정수장",
+   "grade": "common",
+   "family": "업종: 운동",
+   "effect": {
+    "type": "fee",
+    "scope": "adj2",
+    "target": "운동",
+    "amount": 12
+   },
+   "text": "양옆 2칸의 [운동]은 요금 +12."
+  },
+  {
+   "id": "extra_training_village",
+   "name": "특훈 선수촌",
+   "nameEn": "Extra-Training Village",
+   "oldName": "코치 사무소",
+   "grade": "uncommon",
+   "family": "업종: 운동",
+   "effect": {
+    "type": "again",
+    "scope": "adj1",
+    "target": "운동",
+    "amount": 1
+   },
+   "text": "드워프가 양옆 1칸의 [운동]을 한 번 더 이용합니다."
+  },
+  {
+   "id": "large_athletes_village",
+   "name": "대형 선수촌",
+   "nameEn": "Large Athletes' Village",
+   "oldName": "훈련소",
+   "grade": "rare",
+   "family": "업종: 운동",
+   "effect": {
+    "type": "again",
+    "scope": "all",
+    "target": "운동",
+    "amount": 1
+   },
+   "text": "드워프가 모든 [운동]을 한 번 더 이용합니다."
+  },
+  {
+   "id": "brewery",
+   "name": "양조장",
+   "nameEn": "Brewery",
+   "oldName": "양조장",
+   "grade": "common",
+   "family": "업종: 술집",
+   "effect": {
+    "type": "fee",
+    "scope": "adj2",
+    "target": "술집",
+    "amount": 12
+   },
+   "text": "양옆 2칸의 [술집]은 요금 +12."
+  },
+  {
+   "id": "all_night_brewery",
+   "name": "밤샘 양조장",
+   "nameEn": "All-Night Brewery",
+   "oldName": "증류소",
+   "grade": "uncommon",
+   "family": "업종: 술집",
+   "effect": {
+    "type": "again",
+    "scope": "adj1",
+    "target": "술집",
+    "amount": 1
+   },
+   "text": "드워프가 양옆 1칸의 [술집]을 한 번 더 이용합니다."
+  },
+  {
+   "id": "large_brewery",
+   "name": "대형 양조장",
+   "nameEn": "Large Brewery",
+   "oldName": "주류 조합",
+   "grade": "rare",
+   "family": "업종: 술집",
+   "effect": {
+    "type": "again",
+    "scope": "all",
+    "target": "술집",
+    "amount": 1
+   },
+   "text": "드워프가 모든 [술집]을 한 번 더 이용합니다."
+  },
+  {
+   "id": "talent_agency",
+   "name": "기획사",
+   "nameEn": "Talent Agency",
+   "oldName": "연습실",
+   "grade": "common",
+   "family": "업종: 공연",
+   "effect": {
+    "type": "fee",
+    "scope": "adj2",
+    "target": "공연",
+    "amount": 12
+   },
+   "text": "양옆 2칸의 [공연]은 요금 +12."
+  },
+  {
+   "id": "encore_agency",
+   "name": "앙코르 기획사",
+   "nameEn": "Encore Agency",
+   "oldName": "기획사",
+   "grade": "uncommon",
+   "family": "업종: 공연",
+   "effect": {
+    "type": "again",
+    "scope": "adj1",
+    "target": "공연",
+    "amount": 1
+   },
+   "text": "드워프가 양옆 1칸의 [공연]을 한 번 더 이용합니다."
+  },
+  {
+   "id": "large_agency",
+   "name": "대형 기획사",
+   "nameEn": "Large Agency",
+   "oldName": "순회 공연단",
+   "grade": "rare",
+   "family": "업종: 공연",
+   "effect": {
+    "type": "again",
+    "scope": "all",
+    "target": "공연",
+    "amount": 1
+   },
+   "text": "드워프가 모든 [공연]을 한 번 더 이용합니다."
+  },
+  {
+   "id": "chair_factory",
+   "name": "의자 공장",
+   "nameEn": "Chair Factory",
+   "oldName": "묘목장",
+   "grade": "common",
+   "family": "업종: 휴식",
+   "effect": {
+    "type": "fee",
+    "scope": "adj2",
+    "target": "휴식",
+    "amount": 12
+   },
+   "text": "양옆 2칸의 [휴식]은 요금 +12."
+  },
+  {
+   "id": "armchair_factory",
+   "name": "안락의자 공장",
+   "nameEn": "Armchair Factory",
+   "oldName": "약초원",
+   "grade": "uncommon",
+   "family": "업종: 휴식",
+   "effect": {
+    "type": "restMult",
+    "scope": "adj1",
+    "target": "휴식",
+    "amount": 2
+   },
+   "text": "양옆 1칸의 [휴식]이 주는 만족도 ×2."
+  },
+  {
+   "id": "large_chair_factory",
+   "name": "대형 의자 공장",
+   "nameEn": "Large Chair Factory",
+   "oldName": "수원지",
+   "grade": "rare",
+   "family": "업종: 휴식",
+   "effect": {
+    "type": "restMult",
+    "scope": "all",
+    "target": "휴식",
+    "amount": 3
+   },
+   "text": "모든 [휴식]이 주는 만족도 ×3."
+  },
+  {
+   "id": "architects_office",
+   "name": "건축 사무소",
+   "nameEn": "Architect's Office",
+   "oldName": "건축 사무소",
+   "grade": "common",
+   "family": "업그레이드",
+   "effect": {
+    "type": "feePerBoardStar",
+    "scope": "all",
+    "target": "shops",
+    "amount": 1
+   },
+   "text": "보드의 ★ 1개당 모든 매장은 요금 +1."
+  },
+  {
+   "id": "interior_design_office",
+   "name": "인테리어 사무소",
+   "nameEn": "Interior Design Office",
+   "oldName": "인테리어 가게",
+   "grade": "uncommon",
+   "family": "업그레이드",
+   "effect": {
+    "type": "feePerOwnStar",
+    "scope": "adj1",
+    "target": "shops",
+    "amount": 6
+   },
+   "text": "양옆 1칸의 매장은 그 매장의 ★ 1개당 요금 +6."
+  },
+  {
+   "id": "hall_of_fame",
+   "name": "명예의 전당",
+   "nameEn": "Hall of Fame",
+   "oldName": "명예의 전당",
+   "grade": "rare",
+   "family": "업그레이드",
+   "effect": {
+    "type": "mult",
+    "scope": "mostStars",
+    "target": "shops",
+    "amount": 2
+   },
+   "text": "★이 가장 많은 매장은 매출 ×2."
+  },
+  {
+   "id": "artisans_guild",
+   "name": "장인 길드",
+   "nameEn": "Artisans' Guild",
+   "oldName": "노포 인증",
+   "grade": "common",
+   "family": "보드의 모양",
+   "effect": {
+    "type": "fee",
+    "scope": "all",
+    "target": "oneKind",
+    "amount": 4
+   },
+   "text": "업종이 하나인 매장은 요금 +4."
+  },
+  {
+   "id": "fusion_guild",
+   "name": "퓨전 길드",
+   "nameEn": "Fusion Guild",
+   "oldName": "상가 번영회",
+   "grade": "uncommon",
+   "family": "보드의 모양",
+   "effect": {
+    "type": "mult",
+    "scope": "all",
+    "target": "twoKind",
+    "amount": 1.5
+   },
+   "text": "업종이 둘인 매장은 매출 ×1.5."
+  },
+  {
+   "id": "franchise_hq",
+   "name": "프랜차이즈 본사",
+   "nameEn": "Franchise HQ",
+   "oldName": "프랜차이즈 본사",
+   "grade": "uncommon",
+   "family": "보드의 모양",
+   "effect": {
+    "type": "mult",
+    "scope": "duplicates",
+    "target": "shops",
+    "amount": 2
+   },
+   "text": "같은 매장이 2곳 이상이면 그 매장들은 매출 ×2."
+  },
+  {
+   "id": "travel_agency",
+   "name": "여행사",
+   "nameEn": "Travel Agency",
+   "oldName": "관광 지도",
+   "grade": "rare",
+   "family": "보드의 모양",
+   "effect": {
+    "type": "mult",
+    "scope": "all",
+    "target": "shops",
+    "amount": 1.5,
+    "condition": {
+     "kindsAtLeast": 6
+    }
+   },
+   "text": "보드의 업종이 6가지 이상이면 모든 매장은 매출 ×1.5."
+  },
+  {
+   "id": "merchants_guild",
+   "name": "상인 길드",
+   "nameEn": "Merchants' Guild",
+   "oldName": "상인 조합",
+   "grade": "rare",
+   "family": "보드의 모양",
+   "effect": {
+    "type": "feePerShop",
+    "scope": "all",
+    "target": "shops",
+    "amount": 1
+   },
+   "text": "매장 1곳당 모든 매장은 요금 +1."
+  }
+ ],
+ "traits": [
+  {
+   "id": "hungry",
+   "name": "배고픔",
+   "nameEn": "Hungry",
+   "effect": {
+    "lapStart": {
+     "hunger": 2
+    }
+   },
+   "text": "바퀴를 시작할 때 허기 +2."
+  },
+  {
+   "id": "well_fed",
+   "name": "든든함",
+   "nameEn": "Well-Fed",
+   "effect": {
+    "lapStart": {
+     "fullness": 2
+    }
+   },
+   "text": "바퀴를 시작할 때 포만감 +2."
+  },
+  {
+   "id": "tipsy",
+   "name": "술기운",
+   "nameEn": "Tipsy",
+   "effect": {
+    "lapStart": {
+     "tipsy": 2
+    }
+   },
+   "text": "바퀴를 시작할 때 취기 +2."
+  },
+  {
+   "id": "cheerful",
+   "name": "들뜸",
+   "nameEn": "Cheerful",
+   "effect": {
+    "lapStart": {
+     "hype": 2
+    }
+   },
+   "text": "바퀴를 시작할 때 흥 +2."
+  },
+  {
+   "id": "easygoing",
+   "name": "느긋함",
+   "nameEn": "Easygoing",
+   "effect": {
+    "baseLaps": 3
+   },
+   "text": "기본으로 3바퀴를 돕니다."
+  }
+ ],
+ "dwarves": [
+  {
+   "id": "nugadim",
+   "name": "누가딤",
+   "nameEn": "Nugadim",
+   "likes": [
+    "운동",
+    "식당"
+   ],
+   "dislike": "카페",
+   "gender": "m"
+  },
+  {
+   "id": "aduma",
+   "name": "아두마",
+   "nameEn": "Aduma",
+   "likes": [
+    "운동",
+    "식당"
+   ],
+   "dislike": "술집",
+   "gender": "f"
+  },
+  {
+   "id": "tinka",
+   "name": "틴카",
+   "nameEn": "Tinka",
+   "likes": [
+    "운동",
+    "식당"
+   ],
+   "dislike": "오락",
+   "gender": "f"
+  },
+  {
+   "id": "hibori",
+   "name": "히보리",
+   "nameEn": "Hibori",
+   "likes": [
+    "운동",
+    "식당"
+   ],
+   "dislike": "공연",
+   "gender": "f"
+  },
+  {
+   "id": "gira",
+   "name": "기라",
+   "nameEn": "Gira",
+   "likes": [
+    "운동",
+    "식당"
+   ],
+   "dislike": "쇼핑",
+   "gender": "f"
+  },
+  {
+   "id": "rumbon",
+   "name": "룸본",
+   "nameEn": "Rumbon",
+   "likes": [
+    "운동",
+    "카페"
+   ],
+   "dislike": "술집",
+   "gender": "m"
+  },
+  {
+   "id": "ramoti",
+   "name": "라모티",
+   "nameEn": "Ramoti",
+   "likes": [
+    "운동",
+    "카페"
+   ],
+   "dislike": "오락",
+   "gender": "f"
+  },
+  {
+   "id": "tarim",
+   "name": "타림",
+   "nameEn": "Tarim",
+   "likes": [
+    "운동",
+    "카페"
+   ],
+   "dislike": "공연",
+   "gender": "m"
+  },
+  {
+   "id": "tumani",
+   "name": "투마니",
+   "nameEn": "Tumani",
+   "likes": [
+    "운동",
+    "카페"
+   ],
+   "dislike": "쇼핑",
+   "gender": "f"
+  },
+  {
+   "id": "ramun",
+   "name": "라문",
+   "nameEn": "Ramun",
+   "likes": [
+    "운동",
+    "술집"
+   ],
+   "dislike": "카페",
+   "gender": "m"
+  },
+  {
+   "id": "dobani",
+   "name": "도바니",
+   "nameEn": "Dobani",
+   "likes": [
+    "운동",
+    "술집"
+   ],
+   "dislike": "오락",
+   "gender": "f"
+  },
+  {
+   "id": "gurobin",
+   "name": "구로빈",
+   "nameEn": "Gurobin",
+   "likes": [
+    "운동",
+    "술집"
+   ],
+   "dislike": "공연",
+   "gender": "m"
+  },
+  {
+   "id": "erun",
+   "name": "에룬",
+   "nameEn": "Erun",
+   "likes": [
+    "운동",
+    "술집"
+   ],
+   "dislike": "쇼핑",
+   "gender": "m"
+  },
+  {
+   "id": "baldun",
+   "name": "발둔",
+   "nameEn": "Baldun",
+   "likes": [
+    "운동",
+    "오락"
+   ],
+   "dislike": "카페",
+   "gender": "m"
+  },
+  {
+   "id": "dugamil",
+   "name": "두가밀",
+   "nameEn": "Dugamil",
+   "likes": [
+    "운동",
+    "오락"
+   ],
+   "dislike": "술집",
+   "gender": "m"
+  },
+  {
+   "id": "nibadon",
+   "name": "니바돈",
+   "nameEn": "Nibadon",
+   "likes": [
+    "운동",
+    "오락"
+   ],
+   "dislike": "공연",
+   "gender": "m"
+  },
+  {
+   "id": "hedan",
+   "name": "헤단",
+   "nameEn": "Hedan",
+   "likes": [
+    "운동",
+    "오락"
+   ],
+   "dislike": "쇼핑",
+   "gender": "m"
+  },
+  {
+   "id": "horabin",
+   "name": "호라빈",
+   "nameEn": "Horabin",
+   "likes": [
+    "운동",
+    "공연"
+   ],
+   "dislike": "카페",
+   "gender": "m"
+  },
+  {
+   "id": "ondi",
+   "name": "온디",
+   "nameEn": "Ondi",
+   "likes": [
+    "운동",
+    "공연"
+   ],
+   "dislike": "술집",
+   "gender": "f"
+  },
+  {
+   "id": "obil",
+   "name": "오빌",
+   "nameEn": "Obil",
+   "likes": [
+    "운동",
+    "공연"
+   ],
+   "dislike": "오락",
+   "gender": "m"
+  },
+  {
+   "id": "haldi",
+   "name": "할디",
+   "nameEn": "Haldi",
+   "likes": [
+    "운동",
+    "공연"
+   ],
+   "dislike": "쇼핑",
+   "gender": "f"
+  },
+  {
+   "id": "kadom",
+   "name": "카돔",
+   "nameEn": "Kadom",
+   "likes": [
+    "운동",
+    "쇼핑"
+   ],
+   "dislike": "카페",
+   "gender": "m"
+  },
+  {
+   "id": "ubari",
+   "name": "우바리",
+   "nameEn": "Ubari",
+   "likes": [
+    "운동",
+    "쇼핑"
+   ],
+   "dislike": "술집",
+   "gender": "f"
+  },
+  {
+   "id": "turi",
+   "name": "투리",
+   "nameEn": "Turi",
+   "likes": [
+    "운동",
+    "쇼핑"
+   ],
+   "dislike": "오락",
+   "gender": "f"
+  },
+  {
+   "id": "ibagon",
+   "name": "이바곤",
+   "nameEn": "Ibagon",
+   "likes": [
+    "운동",
+    "쇼핑"
+   ],
+   "dislike": "공연",
+   "gender": "m"
+  },
+  {
+   "id": "kanda",
+   "name": "칸다",
+   "nameEn": "Kanda",
+   "likes": [
+    "식당",
+    "카페"
+   ],
+   "dislike": "운동",
+   "gender": "f"
+  },
+  {
+   "id": "bolga",
+   "name": "볼가",
+   "nameEn": "Bolga",
+   "likes": [
+    "식당",
+    "카페"
+   ],
+   "dislike": "술집",
+   "gender": "f"
+  },
+  {
+   "id": "tegon",
+   "name": "테곤",
+   "nameEn": "Tegon",
+   "likes": [
+    "식당",
+    "카페"
+   ],
+   "dislike": "오락",
+   "gender": "m"
+  },
+  {
+   "id": "danubi",
+   "name": "다누비",
+   "nameEn": "Danubi",
+   "likes": [
+    "식당",
+    "카페"
+   ],
+   "dislike": "공연",
+   "gender": "f"
+  },
+  {
+   "id": "gambil",
+   "name": "감빌",
+   "nameEn": "Gambil",
+   "likes": [
+    "식당",
+    "카페"
+   ],
+   "dislike": "쇼핑",
+   "gender": "m"
+  },
+  {
+   "id": "bonadun",
+   "name": "보나둔",
+   "nameEn": "Bonadun",
+   "likes": [
+    "식당",
+    "술집"
+   ],
+   "dislike": "운동",
+   "gender": "m"
+  },
+  {
+   "id": "molkan",
+   "name": "몰칸",
+   "nameEn": "Molkan",
+   "likes": [
+    "식당",
+    "술집"
+   ],
+   "dislike": "카페",
+   "gender": "m"
+  },
+  {
+   "id": "koridan",
+   "name": "코리단",
+   "nameEn": "Koridan",
+   "likes": [
+    "식당",
+    "술집"
+   ],
+   "dislike": "오락",
+   "gender": "m"
+  },
+  {
+   "id": "halgon",
+   "name": "할곤",
+   "nameEn": "Halgon",
+   "likes": [
+    "식당",
+    "술집"
+   ],
+   "dislike": "공연",
+   "gender": "m"
+  },
+  {
+   "id": "hiba",
+   "name": "히바",
+   "nameEn": "Hiba",
+   "likes": [
+    "식당",
+    "술집"
+   ],
+   "dislike": "쇼핑",
+   "gender": "f"
+  },
+  {
+   "id": "tobin",
+   "name": "토빈",
+   "nameEn": "Tobin",
+   "likes": [
+    "식당",
+    "오락"
+   ],
+   "dislike": "운동",
+   "gender": "m"
+  },
+  {
+   "id": "maron",
+   "name": "마론",
+   "nameEn": "Maron",
+   "likes": [
+    "식당",
+    "오락"
+   ],
+   "dislike": "카페",
+   "gender": "m"
+  },
+  {
+   "id": "gadoni",
+   "name": "가도니",
+   "nameEn": "Gadoni",
+   "likes": [
+    "식당",
+    "오락"
+   ],
+   "dislike": "술집",
+   "gender": "f"
+  },
+  {
+   "id": "toguram",
+   "name": "토구람",
+   "nameEn": "Toguram",
+   "likes": [
+    "식당",
+    "오락"
+   ],
+   "dislike": "공연",
+   "gender": "m"
+  },
+  {
+   "id": "tilki",
+   "name": "틸키",
+   "nameEn": "Tilki",
+   "likes": [
+    "식당",
+    "오락"
+   ],
+   "dislike": "쇼핑",
+   "gender": "f"
+  },
+  {
+   "id": "dagorim",
+   "name": "다고림",
+   "nameEn": "Dagorim",
+   "likes": [
+    "식당",
+    "공연"
+   ],
+   "dislike": "운동",
+   "gender": "m"
+  },
+  {
+   "id": "rogi",
+   "name": "로기",
+   "nameEn": "Rogi",
+   "likes": [
+    "식당",
+    "공연"
+   ],
+   "dislike": "카페",
+   "gender": "f"
+  },
+  {
+   "id": "dugara",
+   "name": "두가라",
+   "nameEn": "Dugara",
+   "likes": [
+    "식당",
+    "공연"
+   ],
+   "dislike": "술집",
+   "gender": "f"
+  },
+  {
+   "id": "gidon",
+   "name": "기돈",
+   "nameEn": "Gidon",
+   "likes": [
+    "식당",
+    "공연"
+   ],
+   "dislike": "오락",
+   "gender": "m"
+  },
+  {
+   "id": "kamudi",
+   "name": "카무디",
+   "nameEn": "Kamudi",
+   "likes": [
+    "식당",
+    "공연"
+   ],
+   "dislike": "쇼핑",
+   "gender": "f"
+  },
+  {
+   "id": "natun",
+   "name": "나툰",
+   "nameEn": "Natun",
+   "likes": [
+    "식당",
+    "쇼핑"
+   ],
+   "dislike": "운동",
+   "gender": "m"
+  },
+  {
+   "id": "barina",
+   "name": "바리나",
+   "nameEn": "Barina",
+   "likes": [
+    "식당",
+    "쇼핑"
+   ],
+   "dislike": "카페",
+   "gender": "f"
+  },
+  {
+   "id": "ganti",
+   "name": "간티",
+   "nameEn": "Ganti",
+   "likes": [
+    "식당",
+    "쇼핑"
+   ],
+   "dislike": "술집",
+   "gender": "f"
+  },
+  {
+   "id": "gunta",
+   "name": "군타",
+   "nameEn": "Gunta",
+   "likes": [
+    "식당",
+    "쇼핑"
+   ],
+   "dislike": "오락",
+   "gender": "f"
+  },
+  {
+   "id": "solma",
+   "name": "솔마",
+   "nameEn": "Solma",
+   "likes": [
+    "식당",
+    "쇼핑"
+   ],
+   "dislike": "공연",
+   "gender": "f"
+  },
+  {
+   "id": "balta",
+   "name": "발타",
+   "nameEn": "Balta",
+   "likes": [
+    "카페",
+    "술집"
+   ],
+   "dislike": "운동",
+   "gender": "f"
+  },
+  {
+   "id": "gobadi",
+   "name": "고바디",
+   "nameEn": "Gobadi",
+   "likes": [
+    "카페",
+    "술집"
+   ],
+   "dislike": "오락",
+   "gender": "f"
+  },
+  {
+   "id": "eduga",
+   "name": "에두가",
+   "nameEn": "Eduga",
+   "likes": [
+    "카페",
+    "술집"
+   ],
+   "dislike": "공연",
+   "gender": "f"
+  },
+  {
+   "id": "bunadom",
+   "name": "부나돔",
+   "nameEn": "Bunadom",
+   "likes": [
+    "카페",
+    "술집"
+   ],
+   "dislike": "쇼핑",
+   "gender": "m"
+  },
+  {
+   "id": "nodarim",
+   "name": "노다림",
+   "nameEn": "Nodarim",
+   "likes": [
+    "카페",
+    "오락"
+   ],
+   "dislike": "운동",
+   "gender": "m"
+  },
+  {
+   "id": "morogan",
+   "name": "모로간",
+   "nameEn": "Morogan",
+   "likes": [
+    "카페",
+    "오락"
+   ],
+   "dislike": "술집",
+   "gender": "m"
+  },
+  {
+   "id": "orugi",
+   "name": "오루기",
+   "nameEn": "Orugi",
+   "likes": [
+    "카페",
+    "오락"
+   ],
+   "dislike": "공연",
+   "gender": "f"
+  },
+  {
+   "id": "tanuga",
+   "name": "타누가",
+   "nameEn": "Tanuga",
+   "likes": [
+    "카페",
+    "오락"
+   ],
+   "dislike": "쇼핑",
+   "gender": "f"
+  },
+  {
+   "id": "elda",
+   "name": "엘다",
+   "nameEn": "Elda",
+   "likes": [
+    "카페",
+    "공연"
+   ],
+   "dislike": "운동",
+   "gender": "f"
+  },
+  {
+   "id": "manodun",
+   "name": "마노둔",
+   "nameEn": "Manodun",
+   "likes": [
+    "카페",
+    "공연"
+   ],
+   "dislike": "술집",
+   "gender": "m"
+  },
+  {
+   "id": "dagun",
+   "name": "다군",
+   "nameEn": "Dagun",
+   "likes": [
+    "카페",
+    "공연"
+   ],
+   "dislike": "오락",
+   "gender": "m"
+  },
+  {
+   "id": "burami",
+   "name": "부라미",
+   "nameEn": "Burami",
+   "likes": [
+    "카페",
+    "공연"
+   ],
+   "dislike": "쇼핑",
+   "gender": "f"
+  },
+  {
+   "id": "nima",
+   "name": "니마",
+   "nameEn": "Nima",
+   "likes": [
+    "카페",
+    "쇼핑"
+   ],
+   "dislike": "운동",
+   "gender": "f"
+  },
+  {
+   "id": "negota",
+   "name": "네고타",
+   "nameEn": "Negota",
+   "likes": [
+    "카페",
+    "쇼핑"
+   ],
+   "dislike": "술집",
+   "gender": "f"
+  },
+  {
+   "id": "sarogin",
+   "name": "사로긴",
+   "nameEn": "Sarogin",
+   "likes": [
+    "카페",
+    "쇼핑"
+   ],
+   "dislike": "오락",
+   "gender": "m"
+  },
+  {
+   "id": "malba",
+   "name": "말바",
+   "nameEn": "Malba",
+   "likes": [
+    "카페",
+    "쇼핑"
+   ],
+   "dislike": "공연",
+   "gender": "f"
+  },
+  {
+   "id": "dombal",
+   "name": "돔발",
+   "nameEn": "Dombal",
+   "likes": [
+    "술집",
+    "오락"
+   ],
+   "dislike": "운동",
+   "gender": "m"
+  },
+  {
+   "id": "biruka",
+   "name": "비루카",
+   "nameEn": "Biruka",
+   "likes": [
+    "술집",
+    "오락"
+   ],
+   "dislike": "카페",
+   "gender": "f"
+  },
+  {
+   "id": "hadobi",
+   "name": "하도비",
+   "nameEn": "Hadobi",
+   "likes": [
+    "술집",
+    "오락"
+   ],
+   "dislike": "공연",
+   "gender": "f"
+  },
+  {
+   "id": "kadirun",
+   "name": "카디룬",
+   "nameEn": "Kadirun",
+   "likes": [
+    "술집",
+    "오락"
+   ],
+   "dislike": "쇼핑",
+   "gender": "m"
+  },
+  {
+   "id": "dolka",
+   "name": "돌카",
+   "nameEn": "Dolka",
+   "likes": [
+    "술집",
+    "공연"
+   ],
+   "dislike": "운동",
+   "gender": "f"
+  },
+  {
+   "id": "hubaron",
+   "name": "후바론",
+   "nameEn": "Hubaron",
+   "likes": [
+    "술집",
+    "공연"
+   ],
+   "dislike": "카페",
+   "gender": "m"
+  },
+  {
+   "id": "haragun",
+   "name": "하라군",
+   "nameEn": "Haragun",
+   "likes": [
+    "술집",
+    "공연"
+   ],
+   "dislike": "오락",
+   "gender": "m"
+  },
+  {
+   "id": "hodima",
+   "name": "호디마",
+   "nameEn": "Hodima",
+   "likes": [
+    "술집",
+    "공연"
+   ],
+   "dislike": "쇼핑",
+   "gender": "f"
+  },
+  {
+   "id": "idoba",
+   "name": "이도바",
+   "nameEn": "Idoba",
+   "likes": [
+    "술집",
+    "쇼핑"
+   ],
+   "dislike": "운동",
+   "gender": "f"
+  },
+  {
+   "id": "nuran",
+   "name": "누란",
+   "nameEn": "Nuran",
+   "likes": [
+    "술집",
+    "쇼핑"
+   ],
+   "dislike": "카페",
+   "gender": "m"
+  },
+  {
+   "id": "dulmi",
+   "name": "둘미",
+   "nameEn": "Dulmi",
+   "likes": [
+    "술집",
+    "쇼핑"
+   ],
+   "dislike": "오락",
+   "gender": "f"
+  },
+  {
+   "id": "barodin",
+   "name": "바로딘",
+   "nameEn": "Barodin",
+   "likes": [
+    "술집",
+    "쇼핑"
+   ],
+   "dislike": "공연",
+   "gender": "m"
+  },
+  {
+   "id": "soguran",
+   "name": "소구란",
+   "nameEn": "Soguran",
+   "likes": [
+    "오락",
+    "공연"
+   ],
+   "dislike": "운동",
+   "gender": "m"
+  },
+  {
+   "id": "muki",
+   "name": "무키",
+   "nameEn": "Muki",
+   "likes": [
+    "오락",
+    "공연"
+   ],
+   "dislike": "카페",
+   "gender": "f"
+  },
+  {
+   "id": "taborin",
+   "name": "타보린",
+   "nameEn": "Taborin",
+   "likes": [
+    "오락",
+    "공연"
+   ],
+   "dislike": "술집",
+   "gender": "m"
+  },
+  {
+   "id": "somuti",
+   "name": "소무티",
+   "nameEn": "Somuti",
+   "likes": [
+    "오락",
+    "공연"
+   ],
+   "dislike": "쇼핑",
+   "gender": "f"
+  },
+  {
+   "id": "udol",
+   "name": "우돌",
+   "nameEn": "Udol",
+   "likes": [
+    "오락",
+    "쇼핑"
+   ],
+   "dislike": "운동",
+   "gender": "m"
+  },
+  {
+   "id": "duna",
+   "name": "두나",
+   "nameEn": "Duna",
+   "likes": [
+    "오락",
+    "쇼핑"
+   ],
+   "dislike": "카페",
+   "gender": "f"
+  },
+  {
+   "id": "hadin",
+   "name": "하딘",
+   "nameEn": "Hadin",
+   "likes": [
+    "오락",
+    "쇼핑"
+   ],
+   "dislike": "술집",
+   "gender": "m"
+  },
+  {
+   "id": "rugan",
+   "name": "루간",
+   "nameEn": "Rugan",
+   "likes": [
+    "오락",
+    "쇼핑"
+   ],
+   "dislike": "공연",
+   "gender": "m"
+  },
+  {
+   "id": "talbi",
+   "name": "탈비",
+   "nameEn": "Talbi",
+   "likes": [
+    "공연",
+    "쇼핑"
+   ],
+   "dislike": "운동",
+   "gender": "f"
+  },
+  {
+   "id": "rumidon",
+   "name": "루미돈",
+   "nameEn": "Rumidon",
+   "likes": [
+    "공연",
+    "쇼핑"
+   ],
+   "dislike": "카페",
+   "gender": "m"
+  },
+  {
+   "id": "kubarin",
+   "name": "쿠바린",
+   "nameEn": "Kubarin",
+   "likes": [
+    "공연",
+    "쇼핑"
+   ],
+   "dislike": "술집",
+   "gender": "m"
+  },
+  {
+   "id": "goram",
+   "name": "고람",
+   "nameEn": "Goram",
+   "likes": [
+    "공연",
+    "쇼핑"
+   ],
+   "dislike": "오락",
+   "gender": "m"
+  }
+ ]
+}
