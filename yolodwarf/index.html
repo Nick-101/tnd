@@ -3,24 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=1280">
-  <title>욜로드워프 데모</title>
+  <title>욜로드워프 데모 2.0</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
   <div id="app">
     <header id="top"></header>
     <main>
-      <section id="left">
+      <section id="upper">
         <div id="board"></div>
-        <div id="tray"></div>
+        <aside id="side">
+          <div id="hud"></div>
+          <div id="detail"></div>
+          <div id="log-wrap">
+            <h3>기록 <span class="hint">칸 · 매장 · 계산식 · 매출 · 스택과 만족도의 변화</span><button data-act="logsize" class="mini-btn">크게 / 작게</button></h3>
+            <div id="log"></div>
+          </div>
+        </aside>
       </section>
-      <aside id="side">
-        <div id="detail"></div>
-        <div id="log-wrap">
-          <h3>기록 <span class="hint">칸 · 건물 · 계산식 · 낸 돈 · 스택과 만족도의 변화</span></h3>
-          <div id="log"></div>
-        </div>
-      </aside>
+      <div id="tray"></div>
     </main>
     <div id="modal"></div>
     <div id="toasts"></div>

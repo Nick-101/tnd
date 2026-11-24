@@ -6,7 +6,7 @@
 
 ## 욜로드워프 데모 (별도 폴더)
 
-`yolodwarf/` 폴더에 따로 들어 있다. 실행·검증 방법은 [`yolodwarf/README.md`](yolodwarf/README.md).
+`yolodwarf/` 폴더에 따로 들어 있다(지금은 데모 2.0). 실행·검증 방법은 [`yolodwarf/README.md`](yolodwarf/README.md).
 
 ## 실행
 
