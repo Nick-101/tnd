@@ -122,12 +122,17 @@ const boardIds = g => g.state.board.map(b => b && b.id);
   const r = createGame(data, { seed: 'ref' }); r.begin(); rich(r);
   const costs = []; for (let n = 0; n < 3; n++) { costs.push(r.refreshCost()); const m = r.state.money; r.refresh(); check(r.state.money === m - costs[n], '새로고침 비용만큼 빠진다'); }
   check(same(costs, [5, 10, 20]), `첫 정비에서 5, 10, 20 (${costs})`);
-  r.toggleLock(1); const locked = r.state.candidates[1].id; const deck0 = r.state.deck.map(d => d.id + d.trait), pop0 = [...r.state.popular, ...r.state.unpopular];
+  r.toggleLock(1); const locked = r.state.candidates[1].id; const deck0 = r.state.deck.map(d => d.id + d.trait);
   const bases = [];
-  for (let w = 2; w <= 10; w++) { nextPrep(r); bases.push(r.refreshCost()); check(r.state.candidates[1].id === locked && r.state.candidates[1].locked, '잠근 후보는 런 내내 남는다'); check(same(r.state.deck.map(d => d.id + d.trait), deck0) && same([...r.state.popular, ...r.state.unpopular], pop0), '덱은 런 내내 같은 30마리'); r.refresh(); r.refresh(); }
+  for (let w = 2; w <= 10; w++) { nextPrep(r); bases.push(r.refreshCost()); check(r.state.candidates[1].id === locked && r.state.candidates[1].locked, '잠근 후보는 런 내내 남는다'); check(same(r.state.deck.map(d => d.id + d.trait), deck0), '덱은 런 내내 같은 30마리'); r.refresh(); r.refresh(); }
   check(same(bases, [5, 10, 10, 20, 20, 40, 40, 80, 80]), `정비마다 그 웨이브의 처음 값으로 돌아간다 (${bases})`);
   check(deck0.length === 30 && new Set(r.state.deck.map(d => d.id)).size === 30 && r.state.deck.filter(d => d.trait).length === 10, '덱 30마리, 특성 10마리');
   check(r.state.buildsLeft === 4, '정비마다 4채');
+  // 덱은 90마리에서 고르게 뽑는다(인기·비인기 업종 없음): 덱 400개에서 드워프마다 뽑힌 수가 고르다
+  const picked = {}; for (let k = 0; k < 400; k++) for (const d of createGame(data, { seed: 'dk' + k }).state.deck) picked[d.id] = (picked[d.id] || 0) + 1;
+  const pk = data.dwarves.map(d => picked[d.id] || 0);
+  check(Math.min(...pk) > 95 && Math.max(...pk) < 175 && !('popular' in r.state) && !('unpopular' in r.state), `덱은 90마리에서 고르게 뽑는다 (드워프 한 마리가 400덱 가운데 ${Math.min(...pk)}~${Math.max(...pk)}번)`);
+  check(createGame(data, { seed: 'x', traits: false }).state.deck.every(d => !d.trait), '스위치: 특성 끔');
   done();
 
   done = section('순서 (3.6절)');

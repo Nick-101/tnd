@@ -61,12 +61,12 @@ const store = {
   set(key, v) { try { localStorage.setItem('yolodwarfP1.' + key, JSON.stringify(v)); } catch { /* 저장이 막힌 브라우저 */ } },
 };
 const DEFAULT_RATE = c.candidateRates.support;
-const settings = { targetMult: 1, preview: false, traits: true, deckColor: true, supportRate: DEFAULT_RATE, disabled: [], forced: [], autoSkip: false, ...store.get('settings', {}) };
+const settings = { targetMult: 1, preview: false, traits: true, supportRate: DEFAULT_RATE, disabled: [], forced: [], autoSkip: false, ...store.get('settings', {}) };
 settings.disabled = settings.disabled.filter(id => pickable.some(x => x.id === id));   // 데이터에서 빠진 건물은 설정에서도 뺀다
 settings.forced = settings.forced.filter(id => pickable.some(x => x.id === id) && !settings.disabled.includes(id)).slice(0, 3);
 let record = store.get('record', null);       // 최고 기록 { money, pay, laps }
 const switchesOn = () => [
-  settings.targetMult !== 1 ? `목표 배율 ${settings.targetMult}` : '', settings.preview ? '예상 매출 미리보기' : '', settings.traits ? '' : '특성 끔', settings.deckColor ? '' : '덱의 색 끔',
+  settings.targetMult !== 1 ? `목표 배율 ${settings.targetMult}` : '', settings.preview ? '예상 매출 미리보기' : '', settings.traits ? '' : '특성 끔',
   settings.supportRate !== DEFAULT_RATE ? `지원 건물이 나올 확률 ${Math.round(settings.supportRate * 100)}` : '', settings.forced.length ? `꼭 나오게 하기: ${settings.forced.map(bldName).join(', ')}` : '',
 ].filter(Boolean);
 
@@ -75,7 +75,7 @@ let game;
 const ui = { sel: null, hover: null, playing: false, play: null, speed: store.get('speed', 1), skip: false, wake: null, modal: null, drag: null, logBig: false, recorded: false, copyText: null };
 
 function newGame(seed) {
-  game = createGame(data, { seed: seed || randomSeed(), targetMult: settings.targetMult, traits: settings.traits, deckColor: settings.deckColor, supportRate: settings.supportRate, disabled: settings.disabled, forced: settings.forced });
+  game = createGame(data, { seed: seed || randomSeed(), targetMult: settings.targetMult, traits: settings.traits, supportRate: settings.supportRate, disabled: settings.disabled, forced: settings.forced });
   Object.assign(ui, { sel: null, hover: null, playing: false, play: null, skip: false, modal: 'intro', recorded: false, copyText: null });
   $('log').innerHTML = '';
   addLog(`새 런 · 난수 씨앗 ${game.state.seed} · 자금 ${won(game.state.money)}`, 'mark');
@@ -204,14 +204,10 @@ function renderCenter() {
   } else el.innerHTML = '';
 }
 
-const deckLabel = () => {
-  const s = game.state;
-  return s.popular.length ? `<span class="decklabel">인기 ${s.popular.map(k => chip(k)).join('')} · 비인기 ${s.unpopular.map(k => chip(k)).join('')}</span>` : '<span class="decklabel dim">덱의 색 없음</span>';
-};
 // 잡지사가 보드나 후보에 있을 때만 이번 웨이브의 유행을 보여 준다
 const trendLabel = () => {
   const s = game.state, on = [...s.board, ...s.candidates].some(x => x && typeOf(x.id) === 'trend');
-  return on && ui.info.trend ? ` · <span class="decklabel">이번 웨이브의 유행: ${kindTok(ui.info.trend)}</span>` : '';
+  return on && ui.info.trend ? `<span class="decklabel">이번 웨이브의 유행: ${kindTok(ui.info.trend)}</span>` : '';
 };
 const plannedSends = () => c.sendsPerWave + game.state.board.reduce((a, b) => a + (b && typeOf(b.id) === 'extraSend' ? bld(b.id).effect.amount : 0), 0);
 const judgeEventText = e => (e.type === 'merger' ? `${e.demolished}을(를) 철거하고 ${e.kept}에 ★을 줬어요.` : e.type === 'demolitionIncome' ? `철거 +${won(e.amount)}` : e.type === 'gone' ? `${e.name}가 문을 닫았어요.` : '랜드마크가 다 지어졌어요.');
@@ -241,13 +237,13 @@ function renderHud() {
   if (s.phase === 'prep') {
     el.innerHTML = `<h3>정비 <small>${waveLabel()} · ${s.board.length}칸${s.newTiles.length ? ` (새 칸 ${s.newTiles.length}개)` : ''}</small></h3>
       <p>남은 건설 <b class="num">${s.buildsLeft}</b> · 업그레이드 <b class="num">${s.upgradesLeft}</b> · 이번 웨이브에 보낼 횟수 <b class="num">${plannedSends()}</b></p>
-      <p>${deckLabel()}${trendLabel()}</p>
+      ${trendLabel() ? `<p>${trendLabel()}</p>` : ''}
       <p class="dim">후보를 끌어다 빈 칸에 놓거나, 후보를 누른 뒤 빈 칸을 누르세요. 지은 건물을 누르면 업그레이드와 철거가 나와요. 끌면 자리를 바꿔요.</p>`;
   } else if (s.phase === 'pick') {
     el.innerHTML = `<h3>웨이브 <small>${waveLabel()} · 보내기 ${s.sendIndex + 1} / ${s.sends}</small></h3>
       <ul class="sends">${sends}</ul>
       <p>이번 웨이브의 매출 <b class="num">${won(s.waveSales)}</b> · 추가 바퀴(성장) <b class="num">${s.g}</b></p>
-      <p>${deckLabel()}${trendLabel()}</p>
+      ${trendLabel() ? `<p>${trendLabel()}</p>` : ''}
       <p class="dim">고르기 전에 자리 바꾸기를 할 수 있어요.</p>`;
   } else if (s.phase === 'judge') {
     const j = s.judge;
@@ -400,14 +396,12 @@ function deckHTML() {
   const s = game.state;
   const rows = tasteKinds.map(k => {
     const likes = s.deck.filter(d => d.likes.includes(k)).length, hates = s.deck.filter(d => d.dislike === k).length;
-    const tag = s.popular.includes(k) ? '<em class="pop-tag">인기</em>' : s.unpopular.includes(k) ? '<em class="unpop-tag">비인기</em>' : '';
-    return `<tr><td>${chip(k)}${tag}</td><td class="barcell"><span class="mark like">♥</span><i class="b like" style="width:${likes * 13}px"></i> ${likes}</td>
+    return `<tr><td>${chip(k)}</td><td class="barcell"><span class="mark like">♥</span><i class="b like" style="width:${likes * 13}px"></i> ${likes}</td>
       <td class="barcell"><span class="mark hate">✕</span><i class="b hate" style="width:${hates * 13}px"></i> ${hates}</td></tr>`;
   }).join('');
   const traitCount = data.traits.map(t => `<span class="trait" title="${t.text}">${t.name}</span> ${s.deck.filter(d => d.trait === t.id).length}`).join(' · ');
   const cur = w => (w === s.wave ? 'cur' : '');
-  return `<p class="deckhead">${deckLabel()}</p>
-    <table class="deckbars"><tr><th>업종</th><th>좋아하는 드워프</th><th>싫어하는 드워프</th></tr>${rows}</table>
+  return `<table class="deckbars"><tr><th>업종</th><th>좋아하는 드워프</th><th>싫어하는 드워프</th></tr>${rows}</table>
     <p>특성: ${s.deck.some(d => d.trait) ? traitCount : '<span class="dim">없음</span>'}</p>
     <details><summary>카드 ${s.deck.length}장 펼쳐 보기</summary><div class="deckgrid">${s.deck.map(d =>
       `<div class="mini"><b>${d.name}</b>${traitBadge(d)}<span>${d.likes.map(k => chip(k, '♥')).join('')}</span><span>${chip(d.dislike, '✕')}</span></div>`).join('')}</div></details>
@@ -429,7 +423,6 @@ function recordText() {
     `난수 씨앗: ${s.seed}`,
     `켜 둔 스위치: ${switchesOn().join(' / ') || '없음'}`,
     `끈 건물: ${s.options.disabled.length ? s.options.disabled.map(bldName).join(', ') : '없음'}`,
-    `덱: 인기 ${s.popular.join(', ') || '-'} · 비인기 ${s.unpopular.join(', ') || '-'}`,
     `결과: ${s.outcome === 'clear' ? '클리어' : `웨이브 ${s.wave + 1}에서 끝`} · 최종 자금 ${won(game.finalMoney())}${s.borrowed ? ` (자금 ${won(s.money)} − 빌린 돈 ${won(s.borrowed)})` : ''} · 닿은 웨이브 ${s.wave + 1} / ${WAVES} · 한 번에 올린 최고 매출 ${won(s.bestPay ? s.bestPay.pay : 0)} · 최다 바퀴 ${s.maxLaps}바퀴`,
     '',
   ];
@@ -464,7 +457,7 @@ function renderModal() {
     h = `<h2>설정 · 시험용 스위치</h2>
       <div class="sw"><b>목표 배율</b> ${sel('targetMult', [[0.5, '0.5'], [1, '1 (기본)'], [2, '2'], [4, '4']])} <b style="margin-left:18px">지원 건물이 나올 확률</b> ${sel('supportRate', [[0.3, '30'], [DEFAULT_RATE, `${Math.round(DEFAULT_RATE * 100)} (기본)`], [0.6, '60']])} <small>확률은 100장에 몇 장인지예요. 나머지가 매장이에요. 둘 다 새 런부터.</small></div>
       ${chk('preview', '예상 매출 미리보기', '드워프 셋을 고를 때 예상 매출을 보여 줘요. 팁은 따로 적어요. (기본 끔)')}
-      <div class="sw two">${chk('traits', '특성', '끄면 특성 없이 덱을 짜요. 새 런부터.')}${chk('deckColor', '덱의 색', '끄면 90마리에서 고르게 뽑아요. 새 런부터.')}</div>
+      ${chk('traits', '특성', '끄면 특성 없이 덱을 짜요. 새 런부터. (기본 켬)')}
       <div class="sw"><b>건물 끄기</b> <small>체크를 푼 지원 건물은 후보에 나오지 않아요. 새 런부터. 설정은 다음 판에도 남아요.</small>
         <div class="bldgrid">${pickable.map(x => `<label title="${x.text}"><input type="checkbox" data-bld="${x.id}" ${settings.disabled.includes(x.id) ? '' : 'checked'}> ${x.name}</label>`).join('')}</div>
         <button data-act="allOn" class="mini-btn">모두 켜기</button></div>
@@ -726,7 +719,7 @@ function twice(key, msg) {
 function act(name, el) {
   const s = game.state;
   switch (name) {
-    case 'begin': game.begin(); ui.modal = null; addLog(`— 런 시작 · 자금 ${won(s.money)}${s.popular.length ? ` · 인기 ${s.popular.join(', ')} · 비인기 ${s.unpopular.join(', ')}` : ''}`, 'mark'); break;
+    case 'begin': game.begin(); ui.modal = null; addLog(`— 런 시작 · 자금 ${won(s.money)}`, 'mark'); break;
     case 'close': if (s.phase === 'intro' && ui.modal === 'settings') return newGame(s.seed);   // 런을 시작하기 전이면 바꾼 스위치로 다시 짠다
       ui.modal = null; break;
     case 'deck': ui.modal = s.phase === 'intro' ? 'intro' : 'deck'; break;

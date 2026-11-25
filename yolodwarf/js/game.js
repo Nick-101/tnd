@@ -4,21 +4,17 @@
 import { makeEngine } from './engine.js';
 import { makeRng } from './rng.js';
 
-export function createGame(data, { seed, targetMult = 1, traits = true, deckColor = true, supportRate = null, disabled = [], forced = [] } = {}) {
+export function createGame(data, { seed, targetMult = 1, traits = true, supportRate = null, disabled = [], forced = [] } = {}) {
   const c = data.constants;
   const engine = makeEngine(data);
   const isShop = id => !!engine.shop(id);
   const typeOf = id => (id && engine.support(id) ? engine.support(id).effect.type : null);
   const candRng = makeRng(`${seed}/candidates`);   // 후보, 드워프, 유행은 서로 다른 수열을 쓴다
-  const neverDisliked = data.tasteKinds
-    ? data.tasteKinds.filter(k => !data.dwarves.some(d => d.dislike === k))
-    : c.kinds.filter(k => data.dwarves.some(d => d.likes.includes(k)) && !data.dwarves.some(d => d.dislike === k));
-  const tasteKinds = data.tasteKinds || c.kinds.filter(k => data.dwarves.some(d => d.likes.includes(k)));   // 취향에 드는 업종(휴식을 뺀 일곱)
   const rate = supportRate == null ? c.candidateRates.support : supportRate;
 
   const s = {
     seed: String(seed),
-    options: { targetMult, traits, deckColor, supportRate: rate, disabled: [...disabled], forced: forced.slice(0, 3) },
+    options: { targetMult, traits, supportRate: rate, disabled: [...disabled], forced: forced.slice(0, 3) },
     phase: 'intro',
     wave: 0,                                   // 0부터. 화면에는 +1
     money: c.startMoney,
@@ -29,7 +25,7 @@ export function createGame(data, { seed, targetMult = 1, traits = true, deckColo
     buildsLeft: 0, upgradesLeft: 0, refreshPresses: 0,
     timers: {},                                // 팝업 스토어와 공사 현장의 남은 횟수 { 건물 id: 수 }
     eventCount: 0,                             // 이벤트 부스의 세기. 건물에 남는다
-    deck: [], popular: [], unpopular: [],
+    deck: [],
     trends: [],                                // 웨이브마다의 유행하는 업종(잡지사). 런을 시작할 때 미리 뽑는다
     hand: [], order: [], orderPos: 0, sendIndex: 0, sends: c.sendsPerWave,
     g: 0,                                      // 이 웨이브에서 성장 지원이 자란 횟수(추가 바퀴 수)
@@ -49,22 +45,11 @@ export function createGame(data, { seed, targetMult = 1, traits = true, deckColo
   const noteLog = () => s.log[s.wave];
   const nameOf = id => engine.building(id).name;
 
-  // 덱: 90마리에서 30마리, 덱의 색, 특성 (규칙 문서 v3의 5.2절). 런을 시작할 때 한 번 뽑는다
+  // 덱: 90마리에서 고르게 30마리, 그 가운데 10마리에 특성. 런을 시작할 때 한 번 뽑는다
+  // (인기 업종과 비인기 업종으로 덱에 색을 주던 것은 뺐다. 데이터의 deck.popularKinds, unpopularKinds, weights는 쓰지 않는다)
   function buildDeck() {
-    const rng = makeRng(`${s.seed}/deck`), dk = c.deck, w = dk.weights;
-    if (s.options.deckColor) {
-      s.popular = rng.shuffle(tasteKinds).slice(0, dk.popularKinds);
-      s.unpopular = rng.shuffle(tasteKinds.filter(k => !s.popular.includes(k) && !neverDisliked.includes(k))).slice(0, dk.unpopularKinds);
-    }
-    const weight = d => {
-      let x = 1;
-      for (const k of d.likes) { if (s.popular.includes(k)) x *= w.likePopular; if (s.unpopular.includes(k)) x *= w.likeUnpopular; }
-      if (s.unpopular.includes(d.dislike)) x *= w.dislikeUnpopular;
-      if (s.popular.includes(d.dislike)) x *= w.dislikePopular;
-      return x;
-    };
-    const pool = data.dwarves.slice(), deck = [];
-    while (deck.length < dk.size && pool.length) { const d = rng.weighted(pool, weight); pool.splice(pool.indexOf(d), 1); deck.push({ ...d, trait: null }); }
+    const rng = makeRng(`${s.seed}/deck`), dk = c.deck;
+    const deck = rng.shuffle(data.dwarves).slice(0, dk.size).map(d => ({ ...d, trait: null }));
     if (s.options.traits) {
       const lucky = rng.shuffle(deck.map((_, i) => i)).slice(0, dk.traitsEach * data.traits.length);
       lucky.forEach((di, n) => { deck[di].trait = data.traits[n % data.traits.length].id; });
