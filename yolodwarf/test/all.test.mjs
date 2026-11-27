@@ -214,6 +214,8 @@ const nextPrep = g => { rich(g); runWaveQuick(g); g.proceed(); if (g.state.phase
   place(bt, other, 'bus_terminal'); place(bt, (st0 + 1) % 8, 'pub'); check(bt.sendsNow() === 4, '버스 터미널: 4번');
   bt.swap(other, st0); check(bt.sendsNow() === 5, '역 앞의 버스 터미널: 5번');
   trimHand(bt); bt.startWave(); bt.send(0); bt.send(0); bt.demolish(st0); check(bt.sendsNow() === 3, '웨이브 도중에 철거하면 횟수가 다시 세어진다'); bt.send(0); check(bt.state.phase === 'judge' && bt.state.waveSends.length === 3, '다시 센 횟수만큼 보내면 웨이브가 끝난다');
+  const b2 = createGame(data, { seed: 'bus2' }); b2.begin(); rich(b2); place(b2, 0, 'bus_terminal'); place(b2, 1, 'pub'); trimHand(b2); b2.startWave(); b2.send(0); b2.send(0); b2.send(0);
+  check(b2.state.phase === 'pick' && b2.demolish(0) && b2.state.phase === 'judge' && b2.state.waveSends.length === 3, '세 번 보낸 뒤에 버스 터미널을 철거하면 웨이브가 거기서 끝난다');
   // 미리보기는 배율을 키우지 않는다
   const pvg = createGame(data, { seed: 'pv' }); pvg.begin(); rich(pvg); ['pub', 'ad_tower', 'gift_shop', 'popup_store', 'fan_club'].forEach((id, i) => place(pvg, i, id)); trimHand(pvg); pvg.startWave();
   const g0 = JSON.stringify(pvg.state.st), x1 = pvg.previewSend(0), x2 = pvg.previewSend(0);

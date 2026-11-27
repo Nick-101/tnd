@@ -68,14 +68,20 @@ export function createGame(data, { seed, targetMult = 1, traits = true, supportR
   }
 
   // ── 보드에 손대는 일. 엔진의 apply로 하고, 건물의 표(uid)도 같은 일로 함께 옮긴다 ──
-  function applyOp(op) {
+  // 미리 해 본다: 놓은 뒤의 상태와 건물의 표. 새로 서는 건물의 표는 -1이다. 화면의 미리 보기와 실제 결과가 이 함수 하나에서 나온다
+  function simulate(op) {
     const r = engine.apply(s.st, op);
     if (r.illegal) return r;
     const n = s.st.board.length;
     const shadow = engine.apply({ board: s.st.board, stars: new Array(n).fill(0), grow: s.uid, tiles: new Array(n).fill(null), kept: new Array(n).fill(0), timers: {}, money: 0 }, op);
-    s.uid = shadow.grow.map((u, i) => (r.board[i] === null ? 0 : u || s.nextUid++));   // 새로 선 건물은 새 표를 받는다
-    s.st = r;
-    return r;
+    return { st: r, uid: shadow.grow.map((u, i) => (r.board[i] === null ? 0 : u || -1)) };
+  }
+  function applyOp(op) {
+    const r = simulate(op);
+    if (r.illegal) return r;
+    s.uid = r.uid.map(u => (u === -1 ? s.nextUid++ : u));   // 새로 선 건물은 새 표를 받는다
+    s.st = r.st;
+    return r.st;
   }
   const preview = op => engine.apply(s.st, op);
   // 카드를 칸에 놓으면 무슨 일이 되는가: 빈 칸이면 짓기, 같은 이름의 매장이면 겹치기, 다른 건물이면 바꿔 짓기
@@ -165,9 +171,15 @@ export function createGame(data, { seed, targetMult = 1, traits = true, supportR
     s.phase = 'judge';
   }
 
+  // 웨이브 도중에 보드를 손대서 보낼 횟수가 줄었으면(버스 터미널을 철거했다) 이미 다 보낸 것일 수 있다
+  function recount() {
+    if (s.phase !== 'pick' || s.sendIndex === 0 || s.sendIndex < sendsNow()) return;
+    if (api.isGuestWave()) { s.hand3 = []; s.phase = 'guest'; } else finishWave();
+  }
+
   const api = {
     state: s, data, engine, c,
-    target, targetOf, refreshCost, canRefresh, canMove, sendsNow, preview, cardOp, guestOfWave,
+    target, targetOf, refreshCost, canRefresh, canMove, sendsNow, preview, simulate, cardOp, guestOfWave,
     info: () => engine.read(s.st),
     isGuestWave: () => guestWaveIndex() >= 0 && !!guestOfWave(),
 
@@ -214,13 +226,14 @@ export function createGame(data, { seed, targetMult = 1, traits = true, supportR
     },
 
     // 보드의 건물: 자리 바꾸기, 끼워 넣기(옮기기), 철거. 정비 때와 드워프를 고르기 전에 할 수 있다
-    swap(a, b) { if (!canMove() || a === b || (s.st.board[a] === null && s.st.board[b] === null)) return false; return !applyOp({ type: 'swap', a, b }).illegal; },
-    insertFrom(from, gap) { if (!canMove()) return false; return !applyOp({ type: 'insert', gap, from }).illegal; },
+    swap(a, b) { if (!canMove() || a === b || (s.st.board[a] === null && s.st.board[b] === null)) return false; const ok = !applyOp({ type: 'swap', a, b }).illegal; recount(); return ok; },
+    insertFrom(from, gap) { if (!canMove()) return false; const ok = !applyOp({ type: 'insert', gap, from }).illegal; recount(); return ok; },
     demolish(tile) {
       if (!canMove() || s.st.board[tile] === null) return false;
       const id = s.st.board[tile];
       if (applyOp({ type: 'demolish', tile }).illegal) return false;
       noteLog().demolished.push(nameOf(id));
+      recount();
       return true;
     },
 
