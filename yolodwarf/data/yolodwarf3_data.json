@@ -1,46 +1,72 @@
 {
- "version": "proto1",
- "date": "2026-11-25",
+ "version": "demo3",
+ "date": "2026-11-28",
  "constants": {
   "startMoney": 10,
   "waves": 10,
   "tilesStart": 8,
-  "tilesPerWave": 2,
+  "tilesPerPrep": 1,
   "newTilesAt": "end",
-  "buildsPerPrep": 4,
-  "candidates": 7,
   "sendsPerWave": 3,
-  "handSize": 3,
+  "offerSize": 3,
   "baseLaps": 2,
+  "maxLaps": 60,
   "extraLapCost": {
    "first": 3,
    "multiplier": 2
   },
   "thresholds": {
    "drunk": 3,
-   "full": 3
+   "full": 3,
+   "nightMarket": 3
   },
   "satisfaction": {
    "like": 1,
-   "dislike": -1,
-   "floor": null
+   "dislike": -1
   },
-  "fatiguePerUse": 1,
-  "upgrade": {
-   "maxStars": 3,
-   "salesMultPerStar": 2,
-   "costFactor": 2,
-   "minCost": 10,
-   "perPrep": 1,
-   "shopsOnly": true
+  "fatigue": {
+   "perLikedUse": 1
   },
-  "refresh": {
-   "multiplierPerPress": 2,
-   "resetsEachWave": true
+  "growth": {
+   "unit": 0.1,
+   "note": "배율이 자란 값(grow)은 0.1 단위의 정수로 갖는다. 매출 = floor((요금 + 더하기) × (10 + grow) × 곱들 ÷ 10)"
+  },
+  "stars": {
+   "max": 3,
+   "multPerStar": 2
+  },
+  "hand": {
+   "startShops": 3,
+   "startSupports": 1,
+   "candidates": 5,
+   "picksPerPrep": 2,
+   "keep": 2,
+   "builtShopCandidateFromPrep": 2
   },
   "candidateRates": {
    "shop": 0.55,
    "support": 0.45
+  },
+  "refresh": {
+   "multiplierPerPress": 2,
+   "resetsEachPrep": true
+  },
+  "guests": {
+   "waves": [
+    3,
+    6,
+    10
+   ],
+   "rewardWaves": [
+    3,
+    6
+   ],
+   "payMult": 3,
+   "rewardMax": 3
+  },
+  "specialTiles": {
+   "atStart": 1,
+   "oncePerRun": true
   },
   "deck": {
    "size": 30,
@@ -63,69 +89,78 @@
    "공연",
    "쇼핑",
    "휴식"
-  ],
-  "constructionLastWave": 7
+  ]
  },
  "waves": [
   {
    "wave": 1,
    "tiles": 8,
    "refreshBase": 5,
-   "target": 70
+   "target": 140,
+   "guest": false
   },
   {
    "wave": 2,
-   "tiles": 10,
-   "refreshBase": 5,
-   "target": 350
+   "tiles": 9,
+   "refreshBase": 10,
+   "target": 460,
+   "guest": false
   },
   {
    "wave": 3,
-   "tiles": 12,
-   "refreshBase": 10,
-   "target": 1100
+   "tiles": 10,
+   "refreshBase": 45,
+   "target": 2200,
+   "guest": true
   },
   {
    "wave": 4,
-   "tiles": 14,
-   "refreshBase": 10,
-   "target": 3200
+   "tiles": 11,
+   "refreshBase": 95,
+   "target": 4700,
+   "guest": false
   },
   {
    "wave": 5,
-   "tiles": 16,
-   "refreshBase": 20,
-   "target": 8800
+   "tiles": 12,
+   "refreshBase": 200,
+   "target": 10000,
+   "guest": false
   },
   {
    "wave": 6,
-   "tiles": 18,
-   "refreshBase": 20,
-   "target": 23000
+   "tiles": 13,
+   "refreshBase": 600,
+   "target": 31000,
+   "guest": true
   },
   {
    "wave": 7,
-   "tiles": 20,
-   "refreshBase": 40,
-   "target": 59000
+   "tiles": 14,
+   "refreshBase": 1100,
+   "target": 54000,
+   "guest": false
   },
   {
    "wave": 8,
-   "tiles": 22,
-   "refreshBase": 40,
-   "target": 130000
+   "tiles": 15,
+   "refreshBase": 1900,
+   "target": 97000,
+   "guest": false
   },
   {
    "wave": 9,
-   "tiles": 24,
-   "refreshBase": 80,
-   "target": 290000
+   "tiles": 16,
+   "refreshBase": 3200,
+   "target": 160000,
+   "guest": false
   },
   {
    "wave": 10,
-   "tiles": 26,
-   "refreshBase": 80,
-   "target": 520000
+   "tiles": 17,
+   "refreshBase": 7400,
+   "target": 370000,
+   "guest": true
   }
  ],
  "shops": [
@@ -137,39 +172,39 @@
     "운동"
    ],
    "fee": 6,
+   "form": "give",
    "skip": "drunk",
    "read": [],
-   "threshold": null,
    "give": {
     "hunger": 2,
     "fullness": 0,
     "tipsy": 0,
     "hype": 0
    },
-   "regular": null,
+   "fanMult": null,
    "rest": null,
    "text": "만취 상태의 드워프는 지나칩니다. 허기 +2."
   },
   {
-   "id": "gym",
-   "name": "헬스장",
-   "nameEn": "Gym",
+   "id": "climbing_wall",
+   "name": "클라이밍장",
+   "nameEn": "Climbing Wall",
    "kinds": [
     "운동"
    ],
-   "fee": 8,
+   "fee": 6,
+   "form": "fan",
    "skip": "drunk",
    "read": [],
-   "threshold": null,
    "give": {
     "hunger": 1,
     "fullness": 0,
     "tipsy": 0,
     "hype": 0
    },
-   "regular": null,
+   "fanMult": 3,
    "rest": null,
-   "text": "만취 상태의 드워프는 지나칩니다. 허기 +1."
+   "text": "만취 상태의 드워프는 지나칩니다. 허기 +1. 이 매장을 좋아하는 드워프가 이용하면 매출 ×3."
   },
   {
    "id": "noodle_shop",
@@ -179,6 +214,7 @@
     "식당"
    ],
    "fee": 4,
+   "form": "read",
    "skip": "full",
    "read": [
     {
@@ -187,41 +223,42 @@
      "consume": false
     }
    ],
-   "threshold": null,
    "give": {
     "hunger": 0,
     "fullness": 1,
     "tipsy": 0,
     "hype": 0
    },
-   "regular": null,
+   "fanMult": null,
    "rest": null,
    "text": "포만 상태의 드워프는 지나칩니다. 허기 1당 요금 +4. 포만감 +1."
   },
   {
-   "id": "buffet",
-   "name": "뷔페",
-   "nameEn": "Buffet",
+   "id": "steakhouse",
+   "name": "고깃집",
+   "nameEn": "Steakhouse",
    "kinds": [
     "식당"
    ],
    "fee": 6,
+   "form": "spend",
    "skip": "full",
-   "read": [],
-   "threshold": {
-    "stack": "hunger",
-    "at": 3,
-    "mult": 2
-   },
+   "read": [
+    {
+     "stack": "hunger",
+     "per": 6,
+     "consume": false
+    }
+   ],
    "give": {
     "hunger": 0,
-    "fullness": 2,
+    "fullness": 3,
     "tipsy": 0,
     "hype": 0
    },
-   "regular": null,
+   "fanMult": null,
    "rest": null,
-   "text": "포만 상태의 드워프는 지나칩니다. 허기가 3 이상이면 매출 ×2. 포만감 +2."
+   "text": "포만 상태의 드워프는 지나칩니다. 허기 1당 요금 +6. 포만감 +3."
   },
   {
    "id": "coffee_shop",
@@ -231,6 +268,7 @@
     "카페"
    ],
    "fee": 6,
+   "form": "read",
    "skip": null,
    "read": [
     {
@@ -239,41 +277,42 @@
      "consume": false
     }
    ],
-   "threshold": null,
    "give": {
     "hunger": 0,
     "fullness": 0,
     "tipsy": 0,
     "hype": 0
    },
-   "regular": null,
+   "fanMult": null,
    "rest": null,
    "text": "포만감 1당 요금 +4."
   },
   {
-   "id": "dessert_cafe",
-   "name": "디저트 카페",
-   "nameEn": "Dessert Café",
+   "id": "tea_room",
+   "name": "찻집",
+   "nameEn": "Tea Room",
    "kinds": [
     "카페"
    ],
-   "fee": 6,
+   "fee": 4,
+   "form": "spend",
    "skip": null,
-   "read": [],
-   "threshold": {
-    "stack": "fullness",
-    "at": 3,
-    "mult": 2
-   },
+   "read": [
+    {
+     "stack": "fullness",
+     "per": 8,
+     "consume": true
+    }
+   ],
    "give": {
     "hunger": 0,
     "fullness": 0,
     "tipsy": 0,
     "hype": 0
    },
-   "regular": null,
+   "fanMult": null,
    "rest": null,
-   "text": "포만 상태면 매출 ×2."
+   "text": "포만감을 모두 소모합니다. 소모한 포만감 1당 요금 +8."
   },
   {
    "id": "dive_bar",
@@ -283,39 +322,39 @@
     "술집"
    ],
    "fee": 2,
+   "form": "give",
    "skip": null,
    "read": [],
-   "threshold": null,
    "give": {
     "hunger": 0,
     "fullness": 0,
     "tipsy": 3,
     "hype": 0
    },
-   "regular": null,
+   "fanMult": null,
    "rest": null,
    "text": "취기 +3."
   },
   {
-   "id": "beer_hall",
-   "name": "호프집",
-   "nameEn": "Beer Hall",
+   "id": "pub",
+   "name": "펍",
+   "nameEn": "Pub",
    "kinds": [
     "술집"
    ],
    "fee": 6,
+   "form": "fan",
    "skip": null,
    "read": [],
-   "threshold": null,
    "give": {
     "hunger": 0,
     "fullness": 0,
     "tipsy": 1,
     "hype": 0
    },
-   "regular": null,
+   "fanMult": 3,
    "rest": null,
-   "text": "취기 +1."
+   "text": "취기 +1. 이 매장을 좋아하는 드워프가 이용하면 매출 ×3."
   },
   {
    "id": "photo_booth",
@@ -325,6 +364,7 @@
     "오락"
    ],
    "fee": 8,
+   "form": "read",
    "skip": null,
    "read": [
     {
@@ -333,41 +373,42 @@
      "consume": false
     }
    ],
-   "threshold": null,
    "give": {
     "hunger": 0,
     "fullness": 0,
     "tipsy": 0,
     "hype": 0
    },
-   "regular": null,
+   "fanMult": null,
    "rest": null,
    "text": "취기 1당 요금 +4."
   },
   {
-   "id": "arcade",
-   "name": "오락실",
-   "nameEn": "Arcade",
+   "id": "billiard_hall",
+   "name": "당구장",
+   "nameEn": "Billiard Hall",
    "kinds": [
     "오락"
    ],
-   "fee": 6,
+   "fee": 4,
+   "form": "spend",
    "skip": null,
-   "read": [],
-   "threshold": {
-    "stack": "tipsy",
-    "at": 3,
-    "mult": 2
-   },
+   "read": [
+    {
+     "stack": "tipsy",
+     "per": 8,
+     "consume": true
+    }
+   ],
    "give": {
     "hunger": 0,
     "fullness": 0,
     "tipsy": 0,
     "hype": 0
    },
-   "regular": null,
+   "fanMult": null,
    "rest": null,
-   "text": "만취 상태면 매출 ×2."
+   "text": "취기를 모두 소모합니다. 소모한 취기 1당 요금 +8."
   },
   {
    "id": "outdoor_stage",
@@ -377,39 +418,39 @@
     "공연"
    ],
    "fee": 4,
+   "form": "give",
    "skip": null,
    "read": [],
-   "threshold": null,
    "give": {
     "hunger": 0,
     "fullness": 0,
     "tipsy": 0,
     "hype": 2
    },
-   "regular": null,
+   "fanMult": null,
    "rest": null,
    "text": "흥 +2."
   },
   {
-   "id": "theater",
-   "name": "극장",
-   "nameEn": "Theater",
+   "id": "opera_house",
+   "name": "오페라 하우스",
+   "nameEn": "Opera House",
    "kinds": [
     "공연"
    ],
-   "fee": 8,
-   "skip": "drunk",
+   "fee": 6,
+   "form": "fan",
+   "skip": null,
    "read": [],
-   "threshold": null,
    "give": {
     "hunger": 0,
     "fullness": 0,
     "tipsy": 0,
     "hype": 1
    },
-   "regular": null,
+   "fanMult": 3,
    "rest": null,
-   "text": "만취 상태의 드워프는 지나칩니다. 흥 +1."
+   "text": "흥 +1. 이 매장을 좋아하는 드워프가 이용하면 매출 ×3."
   },
   {
    "id": "gift_shop",
@@ -419,6 +460,7 @@
     "쇼핑"
    ],
    "fee": 10,
+   "form": "read",
    "skip": null,
    "read": [
     {
@@ -427,41 +469,42 @@
      "consume": false
     }
    ],
-   "threshold": null,
    "give": {
     "hunger": 0,
     "fullness": 0,
     "tipsy": 0,
     "hype": 0
    },
-   "regular": null,
+   "fanMult": null,
    "rest": null,
    "text": "흥 1당 요금 +3."
   },
   {
-   "id": "department_store",
-   "name": "백화점",
-   "nameEn": "Department Store",
+   "id": "jewelry_store",
+   "name": "보석상",
+   "nameEn": "Jewelry Store",
    "kinds": [
     "쇼핑"
    ],
-   "fee": 6,
+   "fee": 4,
+   "form": "spend",
    "skip": null,
-   "read": [],
-   "threshold": {
-    "stack": "hype",
-    "at": 3,
-    "mult": 2
-   },
+   "read": [
+    {
+     "stack": "hype",
+     "per": 8,
+     "consume": true
+    }
+   ],
    "give": {
     "hunger": 0,
     "fullness": 0,
     "tipsy": 0,
     "hype": 0
    },
-   "regular": null,
+   "fanMult": null,
    "rest": null,
-   "text": "흥이 3 이상이면 매출 ×2."
+   "text": "흥을 모두 소모합니다. 소모한 흥 1당 요금 +8."
   },
   {
    "id": "park",
@@ -471,146 +514,244 @@
     "휴식"
    ],
    "fee": 0,
+   "form": "read",
    "skip": null,
    "read": [],
-   "threshold": null,
    "give": {
     "hunger": 0,
     "fullness": 0,
     "tipsy": 0,
     "hype": 0
    },
-   "regular": null,
+   "fanMult": null,
    "rest": {
     "mode": "per",
-    "per": 4
+    "per": 2,
+    "gain": 1
    },
-   "text": "피로 4당 만족도 +1."
+   "text": "피로 2당 만족도 +1."
   },
   {
-   "id": "hot_spring",
-   "name": "온천",
-   "nameEn": "Hot Spring",
+   "id": "inn",
+   "name": "여관",
+   "nameEn": "Inn",
    "kinds": [
     "휴식"
    ],
    "fee": 4,
+   "form": "spend",
    "skip": null,
    "read": [],
-   "threshold": null,
    "give": {
     "hunger": 0,
     "fullness": 0,
     "tipsy": 0,
     "hype": 0
    },
-   "regular": null,
+   "fanMult": null,
    "rest": {
-    "mode": "threshold",
-    "at": 6,
-    "gain": 3
+    "mode": "consumePer",
+    "per": 3,
+    "gain": 2
    },
-   "text": "피로가 6 이상이면 만족도 +3."
+   "text": "피로를 모두 소모합니다. 소모한 피로 3당 만족도 +2."
   }
  ],
  "supports": [
   {
-   "id": "ad_tower",
-   "name": "광고탑",
-   "nameEn": "Ad Tower",
-   "proto": false,
-   "doors": [],
-   "inCandidates": true,
+   "id": "regular_ledger",
+   "name": "단골 명부",
+   "nameEn": "Regulars' Ledger",
+   "group": "grower",
    "effect": {
-    "type": "fee",
-    "scope": "adj1",
-    "target": "shops",
-    "amount": 8
+    "type": "grower",
+    "cond": "likesPrev",
+    "target": "prev",
+    "amount": 5
    },
-   "text": "양옆 1칸의 매장은 요금 +8."
+   "text": "이전 칸의 매장을 좋아하는 드워프가 지나갈 때, 그 매장은 배율 +0.5."
   },
   {
-   "id": "neon_sign",
-   "name": "네온사인",
-   "nameEn": "Neon Sign",
-   "proto": false,
-   "doors": [],
-   "inCandidates": true,
+   "id": "fan_club",
+   "name": "팬클럽",
+   "nameEn": "Fan Club",
+   "group": "grower",
    "effect": {
-    "type": "mult",
-    "scope": "adj1",
-    "target": "shops",
-    "amount": 1.5
+    "type": "grower",
+    "cond": "any",
+    "target": "liked",
+    "amount": 1
    },
-   "text": "양옆 1칸의 매장은 매출 ×1.5."
+   "text": "드워프가 지나갈 때, 그 드워프가 좋아하는 매장은 모두 배율 +0.1."
+  },
+  {
+   "id": "night_market",
+   "name": "야시장",
+   "nameEn": "Night Market",
+   "group": "grower",
+   "effect": {
+    "type": "grower",
+    "cond": "stacks3",
+    "target": "next",
+    "amount": 2
+   },
+   "text": "드워프가 지나갈 때, 3 이상인 스택 하나마다 다음 칸의 매장은 배율 +0.2."
   },
   {
    "id": "newspaper",
    "name": "신문사",
    "nameEn": "Newspaper",
-   "proto": false,
-   "doors": [],
-   "inCandidates": true,
+   "group": "grower",
    "effect": {
-    "type": "growFee",
-    "scope": "all",
-    "target": "shops",
+    "type": "grower",
+    "cond": "extraLap",
+    "target": "all",
     "amount": 1
    },
-   "text": "추가 바퀴마다 모든 매장은 요금 +1. (지금 +0)"
+   "text": "추가 바퀴를 도는 드워프가 지나갈 때, 모든 매장은 배율 +0.1."
   },
   {
-   "id": "franchise_hq",
-   "name": "프랜차이즈 본사",
-   "nameEn": "Franchise HQ",
-   "proto": false,
-   "doors": [],
-   "inCandidates": true,
+   "id": "opening_wreath",
+   "name": "개업 화환",
+   "nameEn": "Opening Wreath",
+   "group": "grower",
    "effect": {
-    "type": "mult",
-    "scope": "duplicates",
-    "target": "shops",
-    "amount": 2
+    "type": "grower",
+    "cond": "first",
+    "target": "adj",
+    "amount": 4
    },
-   "text": "같은 매장이 2곳 이상이면 그 매장들은 매출 ×2."
+   "text": "웨이브의 첫 드워프가 지나갈 때, 양옆 1칸의 매장은 배율 +0.4."
   },
   {
-   "id": "armchair_factory",
-   "name": "안락의자 공장",
-   "nameEn": "Armchair Factory",
-   "proto": false,
-   "doors": [],
-   "inCandidates": true,
+   "id": "guestbook",
+   "name": "방명록",
+   "nameEn": "Guestbook",
+   "group": "grower",
    "effect": {
-    "type": "restMult",
-    "scope": "adj1",
-    "target": "휴식",
-    "amount": 2
+    "type": "guestbook",
+    "amount": 1
    },
-   "text": "양옆 1칸의 [휴식]이 주는 만족도 ×2."
+   "text": "드워프가 떠날 때 남은 만족도 1당, 배율이 가장 높은 매장은 배율 +0.1."
+  },
+  {
+   "id": "suggestion_box",
+   "name": "건의함",
+   "nameEn": "Suggestion Box",
+   "group": "grower",
+   "effect": {
+    "type": "grower",
+    "cond": "disliked",
+    "target": "adj",
+    "amount": 5
+   },
+   "text": "이번 바퀴에 싫어하는 매장을 이용한 드워프가 지나갈 때, 양옆 1칸의 매장은 배율 +0.5."
+  },
+  {
+   "id": "popup_store",
+   "name": "팝업 스토어",
+   "nameEn": "Pop-up Store",
+   "group": "grower",
+   "effect": {
+    "type": "grower",
+    "cond": "any",
+    "target": "adj",
+    "amount": 3
+   },
+   "text": "드워프가 지나갈 때, 양옆 1칸의 매장은 배율 +0.3. 웨이브를 2번 치르면 사라집니다. (지금 2번 남음)",
+   "waves": 2
+  },
+  {
+   "id": "ad_tower",
+   "name": "광고탑",
+   "nameEn": "Ad Tower",
+   "group": "grower",
+   "effect": {
+    "type": "grower",
+    "cond": "any",
+    "target": "adj",
+    "amount": 1
+   },
+   "text": "드워프가 지나갈 때, 양옆 1칸의 매장은 배율 +0.1."
   },
   {
    "id": "second_branch",
    "name": "2호점",
    "nameEn": "Second Branch",
-   "proto": false,
-   "doors": [],
-   "inCandidates": true,
+   "group": "rule",
    "effect": {
     "type": "branch"
    },
-   "text": "드워프가 이 칸에서도 요금이 가장 높은 매장을 이용합니다."
+   "text": "드워프가 이 칸에서도 배율이 가장 높은 매장을 이용합니다."
+  },
+  {
+   "id": "roundabout",
+   "name": "회전교차로",
+   "nameEn": "Roundabout",
+   "group": "rule",
+   "effect": {
+    "type": "roundabout",
+    "tiles": 2
+   },
+   "text": "드워프가 이전 2칸을 한 번 더 지나갑니다."
+  },
+  {
+   "id": "coupon_stand",
+   "name": "쿠폰 가판대",
+   "nameEn": "Coupon Stand",
+   "group": "rule",
+   "effect": {
+    "type": "returnDwarf"
+   },
+   "text": "방금 보낸 드워프가 다음 셋 가운데 다시 나옵니다."
+  },
+  {
+   "id": "bus_terminal",
+   "name": "버스 터미널",
+   "nameEn": "Bus Terminal",
+   "group": "rule",
+   "effect": {
+    "type": "extraSend",
+    "amount": 1
+   },
+   "text": "웨이브마다 드워프를 한 번 더 보냅니다."
+  },
+  {
+   "id": "skybridge",
+   "name": "구름다리",
+   "nameEn": "Skybridge",
+   "group": "rule",
+   "effect": {
+    "type": "shareKinds"
+   },
+   "text": "양옆 1칸의 두 매장은 서로의 업종도 갖습니다."
+  },
+  {
+   "id": "street_sign",
+   "name": "거리 표지판",
+   "nameEn": "Street Sign",
+   "group": "rule",
+   "effect": {
+    "type": "likeMost"
+   },
+   "text": "보드에 가장 많은 업종을 모든 드워프가 좋아합니다. (지금 없음)"
+  },
+  {
+   "id": "big_screen",
+   "name": "전광판",
+   "nameEn": "Big Screen",
+   "group": "rule",
+   "effect": {
+    "type": "keepStack",
+    "stack": "hype"
+   },
+   "text": "바퀴를 마쳐도 드워프의 흥이 사라지지 않습니다."
   },
   {
    "id": "promenade",
    "name": "산책로",
    "nameEn": "Promenade",
-   "proto": true,
-   "doors": [
-    "1-1",
-    "1-2"
-   ],
-   "inCandidates": true,
+   "group": "rule",
    "effect": {
     "type": "pass",
     "consume": [
@@ -623,31 +764,10 @@
    "text": "드워프가 지나갈 때 포만감을 모두 소모합니다. 허기 +1."
   },
   {
-   "id": "hill_road",
-   "name": "언덕길",
-   "nameEn": "Hill Road",
-   "proto": true,
-   "doors": [
-    "1-1"
-   ],
-   "inCandidates": true,
-   "effect": {
-    "type": "pass",
-    "give": {
-     "fatigue": 3
-    }
-   },
-   "text": "드워프가 지나갈 때 피로 +3."
-  },
-  {
    "id": "busking_spot",
    "name": "버스킹 존",
    "nameEn": "Busking Spot",
-   "proto": true,
-   "doors": [
-    "1-2"
-   ],
-   "inCandidates": true,
+   "group": "rule",
    "effect": {
     "type": "pass",
     "convert": {
@@ -658,344 +778,156 @@
    "text": "드워프가 지나갈 때 취기를 모두 흥으로 바꿉니다."
   },
   {
-   "id": "big_screen",
-   "name": "전광판",
-   "nameEn": "Big Screen",
-   "proto": true,
-   "doors": [
-    "1-3"
-   ],
-   "inCandidates": true,
+   "id": "franchise_hq",
+   "name": "프랜차이즈 본사",
+   "nameEn": "Franchise HQ",
+   "group": "rule",
    "effect": {
-    "type": "keepStack",
-    "stack": "hype"
+    "type": "franchise"
    },
-   "text": "바퀴를 마쳐도 드워프의 흥이 사라지지 않습니다."
-  },
-  {
-   "id": "tip_jar",
-   "name": "팁 상자",
-   "nameEn": "Tip Jar",
-   "proto": true,
-   "doors": [
-    "1-5"
-   ],
-   "inCandidates": true,
-   "effect": {
-    "type": "tip",
-    "divisor": 10
-   },
-   "text": "드워프가 떠날 때 남은 만족도 1당, 그 드워프가 올린 매출의 10분의 1을 더 받습니다."
-  },
-  {
-   "id": "street_sign",
-   "name": "거리 표지판",
-   "nameEn": "Street Sign",
-   "proto": true,
-   "doors": [
-    "1-7"
-   ],
-   "inCandidates": true,
-   "effect": {
-    "type": "likeMost"
-   },
-   "text": "보드에 가장 많은 업종을 모든 드워프가 좋아합니다. (지금 없음)"
-  },
-  {
-   "id": "roundabout",
-   "name": "회전교차로",
-   "nameEn": "Roundabout",
-   "proto": true,
-   "doors": [
-    "1-8"
-   ],
-   "inCandidates": true,
-   "effect": {
-    "type": "roundabout",
-    "tiles": 3
-   },
-   "text": "드워프가 이전 3칸을 한 번 더 지나갑니다."
-  },
-  {
-   "id": "coupon_stand",
-   "name": "쿠폰 가판대",
-   "nameEn": "Coupon Stand",
-   "proto": true,
-   "doors": [
-    "1-9"
-   ],
-   "inCandidates": true,
-   "effect": {
-    "type": "returnDwarf"
-   },
-   "text": "방금 보낸 드워프가 다음 셋 가운데 다시 나옵니다."
-  },
-  {
-   "id": "bus_terminal",
-   "name": "버스 터미널",
-   "nameEn": "Bus Terminal",
-   "proto": true,
-   "doors": [
-    "1-10"
-   ],
-   "inCandidates": true,
-   "effect": {
-    "type": "extraSend",
-    "amount": 1
-   },
-   "text": "웨이브마다 드워프를 한 번 더 보냅니다."
-  },
-  {
-   "id": "skybridge",
-   "name": "구름다리",
-   "nameEn": "Skybridge",
-   "proto": true,
-   "doors": [
-    "2-1"
-   ],
-   "inCandidates": true,
-   "effect": {
-    "type": "shareKinds"
-   },
-   "text": "양옆 1칸의 두 매장은 서로의 업종도 갖습니다."
-  },
-  {
-   "id": "university",
-   "name": "대학교",
-   "nameEn": "University",
-   "proto": true,
-   "doors": [
-    "2-2",
-    "5-2"
-   ],
-   "inCandidates": true,
-   "effect": {
-    "type": "campus",
-    "mult": 0.5,
-    "giveBonus": 1
-   },
-   "text": "양옆 1칸의 매장은 매출 ×0.5. 그 매장이 주는 스택 +1."
+   "text": "매장이 자랄 때, 같은 이름의 다른 매장도 똑같이 자랍니다."
   },
   {
    "id": "conglomerate_tower",
    "name": "대기업 사옥",
    "nameEn": "Conglomerate Tower",
-   "proto": true,
-   "doors": [
-    "2-3",
-    "2-6"
-   ],
-   "inCandidates": true,
+   "group": "rule",
    "effect": {
     "type": "merger"
    },
    "text": "웨이브가 끝날 때 양옆 1칸의 매장 가운데 매출이 낮은 곳을 철거합니다. 높은 곳에 ★ +1."
+  }
+ ],
+ "specialTiles": [
+  {
+   "id": "rotary",
+   "name": "로터리",
+   "nameEn": "Rotary",
+   "text": "이 칸의 건물은 모든 칸과 이웃한 것으로 칩니다."
   },
   {
-   "id": "demolition_company",
-   "name": "철거 업체",
-   "nameEn": "Demolition Company",
-   "proto": true,
-   "doors": [
-    "2-5"
-   ],
-   "inCandidates": true,
-   "effect": {
-    "type": "demolitionIncome"
-   },
-   "text": "매장을 철거할 때 그 매장이 지난 웨이브에 올린 매출만큼 자금을 얻습니다."
+   "id": "lucky_spot",
+   "name": "명당",
+   "nameEn": "Lucky Spot",
+   "text": "이 칸의 매장이 주는 스택 +1."
   },
   {
-   "id": "popup_store",
-   "name": "팝업 스토어",
-   "nameEn": "Pop-up Store",
-   "proto": true,
-   "doors": [
-    "2-7",
-    "5-5"
-   ],
-   "inCandidates": true,
-   "effect": {
-    "type": "popup",
-    "mult": 3,
-    "waves": 2
-   },
-   "text": "양옆 1칸의 매장은 매출 ×3. 웨이브를 2번 치르면 사라집니다. (지금 2번 남음)"
+   "id": "station_front",
+   "name": "역 앞",
+   "nameEn": "Station Front",
+   "text": "이 칸의 건물은 한 번 더 일합니다."
   },
   {
-   "id": "construction_site",
-   "name": "공사 현장",
-   "nameEn": "Construction Site",
-   "proto": true,
-   "doors": [
-    "2-7",
-    "5-5"
-   ],
-   "inCandidates": true,
-   "effect": {
-    "type": "construction",
-    "waves": 3,
-    "becomes": "landmark"
-   },
-   "text": "웨이브를 3번 치르면 랜드마크가 됩니다. (지금 3번 남음)"
+   "id": "fertile_land",
+   "name": "기름진 땅",
+   "nameEn": "Fertile Land",
+   "text": "이 칸의 매장은 배율이 두 배로 자랍니다."
   },
   {
-   "id": "landmark",
-   "name": "랜드마크",
-   "nameEn": "Landmark",
-   "proto": true,
-   "doors": [
-    "2-7"
-   ],
-   "inCandidates": false,
-   "effect": {
-    "type": "mult",
-    "scope": "all",
-    "target": "shops",
-    "amount": 2
-   },
-   "text": "모든 매장은 매출 ×2.",
-   "note": "후보에 나오지 않는다. 공사 현장이 바뀌어서만 생긴다."
+   "id": "old_site",
+   "name": "터줏자리",
+   "nameEn": "Old Site",
+   "text": "이 칸의 매장을 철거해도 키운 배율이 칸에 남습니다."
   },
   {
-   "id": "plaza",
-   "name": "광장",
-   "nameEn": "Plaza",
-   "proto": true,
-   "doors": [
-    "2-9"
-   ],
-   "inCandidates": true,
-   "effect": {
-    "type": "feePerEmpty",
-    "amount": 3
-   },
-   "text": "빈 칸 1칸당 모든 매장은 요금 +3."
+   "id": "regulars_alley",
+   "name": "단골 골목",
+   "nameEn": "Regulars' Alley",
+   "text": "이 칸의 매장은 모든 드워프가 좋아합니다."
   },
   {
-   "id": "event_booth",
-   "name": "이벤트 부스",
-   "nameEn": "Event Booth",
-   "proto": true,
-   "doors": [
-    "3-4"
-   ],
-   "inCandidates": true,
-   "effect": {
-    "type": "everyNth",
-    "every": 5,
-    "mult": 5
-   },
-   "text": "이전 칸의 매장은 5번째 이용마다 매출 ×5. (지금 0번째)"
+   "id": "prime_land",
+   "name": "금싸라기 땅",
+   "nameEn": "Prime Land",
+   "text": "이 칸의 매장은 ★이 하나 더 있는 것으로 칩니다."
   },
   {
-   "id": "magazine",
-   "name": "잡지사",
-   "nameEn": "Magazine",
-   "proto": true,
-   "doors": [
-    "3-2",
-    "8-6"
+   "id": "back_door",
+   "name": "뒷문",
+   "nameEn": "Back Door",
+   "text": "이 칸의 매장은 어떤 드워프도 지나치지 않습니다."
+  }
+ ],
+ "guests": [
+  {
+   "id": "gourmet",
+   "name": "미식가",
+   "nameEn": "Gourmet",
+   "likes": [
+    "식당",
+    "카페",
+    "술집"
    ],
-   "inCandidates": true,
-   "effect": {
-    "type": "trend",
-    "mult": 3
-   },
-   "text": "웨이브마다 유행하는 업종이 바뀝니다. 유행하는 업종의 매장은 매출 ×3. (지금 없음)"
+   "quirk": "skipUnliked",
+   "text": "좋아하지 않는 매장은 지나칩니다.",
+   "dislike": null
   },
   {
-   "id": "bank",
-   "name": "은행",
-   "nameEn": "Bank",
-   "proto": true,
-   "doors": [
-    "4-1",
-    "8-10"
+   "id": "drunkard",
+   "name": "술고래",
+   "nameEn": "Drunkard",
+   "likes": [
+    "술집",
+    "오락",
+    "공연"
    ],
-   "inCandidates": true,
-   "effect": {
-    "type": "interest",
-    "divisor": 10
-   },
-   "text": "정비를 시작할 때 자금의 10분의 1을 이자로 받습니다."
+   "quirk": "keepTipsy",
+   "text": "바퀴를 마쳐도 취기가 사라지지 않습니다.",
+   "dislike": null
   },
   {
-   "id": "loan_office",
-   "name": "대출 창구",
-   "nameEn": "Loan Office",
-   "proto": true,
-   "doors": [
-    "4-6",
-    "5-9"
+   "id": "glutton",
+   "name": "대식가",
+   "nameEn": "Glutton",
+   "likes": [
+    "운동",
+    "식당",
+    "쇼핑"
    ],
-   "inCandidates": true,
-   "effect": {
-    "type": "loan"
-   },
-   "text": "지을 때 이번 웨이브의 목표만큼 자금을 얻습니다. 남은 목표가 모두 그만큼 오릅니다."
+   "quirk": "noFullness",
+   "text": "포만감이 쌓이지 않습니다.",
+   "dislike": null
   },
   {
-   "id": "smelter",
-   "name": "제련소",
-   "nameEn": "Smelter",
-   "proto": true,
-   "doors": [
-    "5-2"
+   "id": "pilgrim",
+   "name": "순례자",
+   "nameEn": "Pilgrim",
+   "likes": [
+    "공연",
+    "쇼핑",
+    "카페"
    ],
-   "inCandidates": true,
-   "effect": {
-    "type": "smelter",
-    "feeAll": 6,
-    "multAdj": 0.5
-   },
-   "text": "모든 매장은 요금 +6. 양옆 1칸의 매장은 매출 ×0.5."
+   "quirk": "pilgrim",
+   "baseLaps": 1,
+   "firstLapCost": 1,
+   "text": "기본으로 1바퀴만 돕니다. 추가 바퀴의 값이 1에서 시작합니다.",
+   "dislike": null
   },
   {
-   "id": "vip_lounge",
-   "name": "VIP 라운지",
-   "nameEn": "VIP Lounge",
-   "proto": true,
-   "doors": [
-    "5-3"
+   "id": "collector",
+   "name": "수집가",
+   "nameEn": "Collector",
+   "likes": [
+    "쇼핑",
+    "오락",
+    "운동"
    ],
-   "inCandidates": true,
-   "effect": {
-    "type": "vip",
-    "mult": 3
-   },
-   "text": "양옆 1칸의 매장은 매출 ×3. 그 업종을 좋아하지 않는 드워프는 그 매장을 지나칩니다."
+   "quirk": "doubleSupports",
+   "text": "지원 건물이 두 번씩 발동합니다.",
+   "dislike": null
   },
   {
-   "id": "original_sign",
-   "name": "원조 간판",
-   "nameEn": "The Original Sign",
-   "proto": true,
-   "doors": [
-    "5-7"
+   "id": "sleepyhead",
+   "name": "잠꾸러기",
+   "nameEn": "Sleepyhead",
+   "likes": [
+    "운동",
+    "카페",
+    "오락"
    ],
-   "inCandidates": true,
-   "effect": {
-    "type": "original",
-    "mult": 4
-   },
-   "text": "이전 칸의 매장은 매출 ×4. 보드에 같은 업종의 매장이 또 있으면 효과가 없습니다."
-  },
-  {
-   "id": "shopping_arch",
-   "name": "상점가 아치",
-   "nameEn": "Shopping Street Arch",
-   "proto": true,
-   "doors": [
-    "9-6"
-   ],
-   "inCandidates": true,
-   "effect": {
-    "type": "streak",
-    "min": 3,
-    "mult": 2
-   },
-   "text": "같은 업종의 매장이 3곳 이상 이어져 있으면 그 매장들은 매출 ×2."
+   "quirk": "doubleFatigue",
+   "text": "피로가 두 배로 쌓입니다.",
+   "dislike": null
   }
  ],
  "traits": [
